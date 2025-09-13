@@ -73,34 +73,9 @@ $(function() {
 
 <script>
 $(function () {
-  // 날짜만(종일) 모드
-function initDateOnly() {
-  $("#wr_1, #wr_2").datetimepicker("destroy").datepicker({
-    dateFormat: "yy-mm-dd",
-    changeMonth: true,
-    changeYear: true
-  });
 
-  // ✅ 기존 value를 datepicker에 반영
-// 날짜 전용
-if ($("#wr_1").val()) {
-  try {
-    var d1 = $.datepicker.parseDate("yy-mm-dd", $("#wr_1").val().substring(0, 10));
-    $("#wr_1").datepicker("setDate", d1);
-  } catch(e) { console.warn("wr_1 parse error:", e); }
-}
-if ($("#wr_2").val()) {
-  try {
-    var d2 = $.datepicker.parseDate("yy-mm-dd", $("#wr_2").val().substring(0, 10));
-    $("#wr_2").datepicker("setDate", d2);
-  } catch(e) { console.warn("wr_2 parse error:", e); }
-}
-
-  syncEndWithStart();
-  $("#wr_2").prop("readonly", true);
-}
-
-function initDateTime() {
+  
+  function initDateTime() {
   $("#wr_1, #wr_2").datepicker("destroy").datetimepicker({
     dateFormat: "yy-mm-dd",
     timeFormat: "HH:mm",
@@ -110,17 +85,62 @@ function initDateTime() {
     showSecond: false
   });
 
-  // ✅ 기존 value를 datetimepicker에 반영
-// 날짜+시간
-if ($("#wr_1").val()) {
-  var d1 = new Date($("#wr_1").val().replace(/-/g,"/"));
-  if (!isNaN(d1.getTime())) $("#wr_1").datetimepicker("setDate", d1);
+  // ✅ 값이 있으면 강제로 Date 객체로 변환 후 setDate
+  if ($("#wr_1").val()) {
+    let d1 = parseInputDate($("#wr_1").val());
+    if (d1) $("#wr_1").datetimepicker("setDate", d1);
+  }
+  if ($("#wr_2").val()) {
+    let d2 = parseInputDate($("#wr_2").val());
+    if (d2) $("#wr_2").datetimepicker("setDate", d2);
+  }
+
+  $("#wr_2").prop("readonly", false);
 }
-if ($("#wr_2").val()) {
-  var d2 = new Date($("#wr_2").val().replace(/-/g,"/"));
-  if (!isNaN(d2.getTime())) $("#wr_2").datetimepicker("setDate", d2);
+
+function initDateOnly() {
+  $("#wr_1, #wr_2").datetimepicker("destroy").datepicker({
+    dateFormat: "yy-mm-dd",
+    changeMonth: true,
+    changeYear: true
+  });
+
+  if ($("#wr_1").val()) {
+    let d1 = parseInputDate($("#wr_1").val());
+    if (d1) $("#wr_1").datepicker("setDate", d1);
+  }
+  if ($("#wr_2").val()) {
+    let d2 = parseInputDate($("#wr_2").val());
+    if (d2) $("#wr_2").datepicker("setDate", d2);
+  }
+
+  syncEndWithStart();
+  $("#wr_2").prop("readonly", true);
 }
+
+// ✅ 안전하게 문자열 → Date 변환하는 함수
+function parseInputDate(str) {
+  if (!str) return null;
+  // "yyyy-mm-dd HH:mm" or "yyyy-mm-ddTHH:mm"
+  str = str.replace("T", " ");
+  let parts = str.split(" ");
+  let dateParts = parts[0].split("-");
+  if (dateParts.length < 3) return null;
+
+  let y = parseInt(dateParts[0], 10);
+  let m = parseInt(dateParts[1], 10) - 1;
+  let d = parseInt(dateParts[2], 10);
+
+  let h = 0, min = 0;
+  if (parts[1]) {
+    let timeParts = parts[1].split(":");
+    h = parseInt(timeParts[0], 10) || 0;
+    min = parseInt(timeParts[1], 10) || 0;
+  }
+
+  return new Date(y, m, d, h, min);
 }
+
 function syncEndWithStart() {
   var startVal = $("#wr_1").val();
   if (!startVal) return;
