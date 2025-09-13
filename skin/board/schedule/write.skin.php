@@ -76,18 +76,19 @@ $(function () {
   // 날짜만(종일) 모드
 function initDateOnly() {
   $("#wr_1, #wr_2").datetimepicker("destroy").datepicker({
-  dateFormat: "yy-mm-dd",
-  timeFormat: "HH:mm",
-  controlType: "select",   // 드롭다운 방식
-  oneLine: true,           // 한 줄에 표시
-  stepMinute: 10,
-  showSecond: false,
-  showMillisec: false,
-  showMicrosec: false,
-  showTimezone: false,
-  changeMonth: true,
-  changeYear: true
+    dateFormat: "yy-mm-dd",
+    changeMonth: true,
+    changeYear: true
   });
+
+  // ✅ 기존 value를 datepicker에 반영
+  if ($("#wr_1").val()) {
+    $("#wr_1").datepicker("setDate", $.datepicker.parseDate("yy-mm-dd", $("#wr_1").val()));
+  }
+  if ($("#wr_2").val()) {
+    $("#wr_2").datepicker("setDate", $.datepicker.parseDate("yy-mm-dd", $("#wr_2").val()));
+  }
+
   syncEndWithStart();
   $("#wr_2").prop("readonly", true);
 }
@@ -101,9 +102,17 @@ function initDateTime() {
     oneLine: true,
     showSecond: false
   });
+
+  // ✅ 기존 value를 datetimepicker에 반영
+  if ($("#wr_1").val()) {
+    $("#wr_1").datetimepicker("setDate", new Date($("#wr_1").val().replace(/-/g, "/")));
+  }
+  if ($("#wr_2").val()) {
+    $("#wr_2").datetimepicker("setDate", new Date($("#wr_2").val().replace(/-/g, "/")));
+  }
+
   $("#wr_2").prop("readonly", false);
 }
-
 
 function syncEndWithStart() {
   var startVal = $("#wr_1").val();
