@@ -329,9 +329,18 @@ $("#wr_1").on("change", function () {
 
 <?php
 // URL 파라미터 받기
-$param_wr1    = $_GET['wr_1']   ?? '';
-$param_wr2    = $_GET['wr_2']   ?? '';
+$param_wr1 = $_GET['wr_1'] ?? '';
+$param_wr2 = $_GET['wr_2'] ?? '';
 $param_allday = $_GET['allday'] ?? '0';
+
+
+// FullCalendar에서 YYYYMMDD 들어온 경우 변환
+if (!empty($param_wr1) && preg_match('/^[0-9]{8}$/', $param_wr1)) {
+    $wr_1_val = substr($param_wr1, 0, 4).'-'.substr($param_wr1, 4, 2).'-'.substr($param_wr1, 6, 2);
+}
+if (!empty($param_wr2) && preg_match('/^[0-9]{8}$/', $param_wr2)) {
+    $wr_2_val = substr($param_wr2, 0, 4).'-'.substr($param_wr2, 4, 2).'-'.substr($param_wr2, 6, 2);
+}
 
 // wr_1 기본값 (우선순위: 게시글 값 > GET 파라미터 > 오늘 날짜)
 if (!empty($write['wr_1'])) {
