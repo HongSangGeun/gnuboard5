@@ -148,7 +148,7 @@ html.no-overflowscrolling #autosave_pop {height:auto;max-height:10000px !importa
 
 #bo_v_info .profile_info {margin:20px 0 10px;display:inline-block;float:left}
 #bo_v_info .profile_info .pf_img {float:left;margin-right:10px}
-#bo_v_info .profile_info .pf_img img {border-radius:50%;width:50px;height:50px}
+#bo_v_info .profile_info .pf_img img {border-radius:50%;width:40px;height:40px}
 #bo_v_info .profile_info .profile_info_ct {float:left;padding:5px 0;line-height:18px}
 
 #bo_v_info strong {display:inline-block;margin:0 10px 0 0;font-weight:normal}
@@ -262,7 +262,7 @@ box-shadow:1px 1px 5px 0px hsl(232, 36%, 96%)}
 #bo_vc article:after {display:block;visibility:hidden;clear:both;content:""}
 #bo_vc article .profile_img img {border-radius:50%}
 #bo_vc article .pf_img {float:left;margin-right:10px}
-#bo_vc article .pf_img img {border-radius:50%;width:50px;height:50px}
+#bo_vc article .pf_img img {border-radius:50%;width:40px;height:40px}
 #bo_vc article .cm_wrap {float:left;max-width:870px;width:90%}
 #bo_vc header {position:relative;width:100%}
 #bo_vc header:after {display:block;visibility:hidden;clear:both;content:""}
