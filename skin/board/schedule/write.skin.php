@@ -45,30 +45,37 @@ button.btn_frmline {
 <!-- Timepicker Addon (UI Datepicker 뒤에 로드) -->
 <script src="<?php echo G5_PLUGIN_URL; ?>/jquery-ui/jquery-ui-timepicker-addon.js"></script>
 
+<script>
+var categoryColors = {
+  "유지보수": "#FF6B6B",   // 회의 → 빨강
+  "하드웨어": "#4ECDC4",   // 교육 → 청록
+  "데이터허브": "#4A90E2",   // 행사 → 파랑
+  "응급의료": "#A29BFE"    // 기타 → 보라
+};
 
+$(function() {
+
+  // ✅ 분류 선택시 배경색 자동 설정
+  $("#ca_name").on("change", function() {
+    var cat = $(this).val();
+    var color = categoryColors[cat] || "#46E086"; // 기본색: 초록
+
+    console.log("선택된 카테고리:", cat);     // ✅ 선택된 카테고리 출력
+    console.log("적용된 색상:", color);       // ✅ 적용된 색상 출력
+
+    $("#wr_4").val(color);
+    if (typeof jscolor !== "undefined" && $("#wr_4")[0].jscolor) {
+      $("#wr_4")[0].jscolor.fromString(color);
+    }
+  });
+});
+</script>
 
 <script>
 $(function () {
-  function initDateOnly() {
-  $("#wr_1, #wr_2").datetimepicker("destroy").datepicker({
-    dateFormat: "yy-mm-dd",
-    changeMonth: true,
-    changeYear: true
-  });
 
-  // 입력값을 datepicker에 반영
-  if ($("#wr_1").val()) {
-    $("#wr_1").datepicker("setDate", new Date($("#wr_1").val()));
-  }
-  if ($("#wr_2").val()) {
-    $("#wr_2").datepicker("setDate", new Date($("#wr_2").val()));
-  }
-
-  syncEndWithStart();
-  $("#wr_2").prop("readonly", true);
-}
-
-function initDateTime() {
+  
+  function initDateTime() {
   $("#wr_1, #wr_2").datepicker("destroy").datetimepicker({
     dateFormat: "yy-mm-dd",
     timeFormat: "HH:mm",
@@ -78,32 +85,91 @@ function initDateTime() {
     showSecond: false
   });
 
-  // 입력값을 datetimepicker에 반영
+  // ✅ 값이 있으면 강제로 Date 객체로 변환 후 setDate
   if ($("#wr_1").val()) {
-    $("#wr_1").datetimepicker("setDate", new Date($("#wr_1").val()));
+    let d1 = parseInputDate($("#wr_1").val());
+    if (d1) $("#wr_1").datetimepicker("setDate", d1);
   }
   if ($("#wr_2").val()) {
-    $("#wr_2").datetimepicker("setDate", new Date($("#wr_2").val()));
+    let d2 = parseInputDate($("#wr_2").val());
+    if (d2) $("#wr_2").datetimepicker("setDate", d2);
   }
 
   $("#wr_2").prop("readonly", false);
 }
-  function syncEndWithStart() {
-    var startVal = $("#wr_1").val();
-    if (!startVal) return;
-    var dateOnly = startVal.split("T")[0]; // ISO/T 제거
-    $("#wr_2").val(dateOnly);
+
+function initDateOnly() {
+  $("#wr_1, #wr_2").datetimepicker("destroy").datepicker({
+    dateFormat: "yy-mm-dd",
+    changeMonth: true,
+    changeYear: true
+  });
+
+  if ($("#wr_1").val()) {
+    let d1 = parseInputDate($("#wr_1").val());
+    if (d1) $("#wr_1").datepicker("setDate", d1);
+  }
+  if ($("#wr_2").val()) {
+    let d2 = parseInputDate($("#wr_2").val());
+    if (d2) $("#wr_2").datepicker("setDate", d2);
   }
 
-  // 초기 세팅
+  syncEndWithStart();
+  $("#wr_2").prop("readonly", true);
+}
+
+// ✅ 안전하게 문자열 → Date 변환하는 함수
+function parseInputDate(str) {
+  if (!str) return null;
+
+  // YYYYMMDD 형식 → YYYY-MM-DD 로 변환
+  if (/^[0-9]{8}$/.test(str)) {
+    str = str.replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, "$1-$2-$3");
+  }
+
+  str = str.replace("T", " ");
+  let parts = str.split(" ");
+  let dateParts = parts[0].split("-");
+  if (dateParts.length < 3) return null;
+
+  let y = parseInt(dateParts[0], 10);
+  let m = parseInt(dateParts[1], 10) - 1;
+  let d = parseInt(dateParts[2], 10);
+
+  let h = 0, min = 0;
+  if (parts[1]) {
+    let timeParts = parts[1].split(":");
+    h = parseInt(timeParts[0], 10) || 0;
+    min = parseInt(timeParts[1], 10) || 0;
+  }
+
+  return new Date(y, m, d, h, min);
+}
+
+function syncEndWithStart() {
+  var startVal = $("#wr_1").val();
+  if (!startVal) return;
+  var dateOnly = startVal.split("T")[0].split(" ")[0];
   if ($("#is_all_day").is(":checked")) {
-    initDateOnly();
+    var d = new Date(dateOnly);
+    d.setDate(d.getDate() + 1);
+    var y = d.getFullYear();
+    var m = ("0" + (d.getMonth() + 1)).slice(-2);
+    var day = ("0" + d.getDate()).slice(-2);
+    $("#wr_2").val(y + "-" + m + "-" + day);
   } else {
-    initDateTime();
+    $("#wr_2").val(startVal);
   }
+}
 
-  // 종일 체크 토글
-  $("#is_all_day").on("change", function() {
+
+  // ✅ 초기 상태 적용
+  if ($("#is_all_day").is(":checked")) initDateOnly();
+  else initDateTime();
+
+  // ✅ 종일 토글 (오타 주의: $("#is_all_day"))
+$("#is_all_day").on("change", function () {
+	$("#wr_5_hidden").val(this.checked ? "1" : "0");
     if (this.checked) {
       initDateOnly();
     } else {
@@ -111,14 +177,34 @@ function initDateTime() {
     }
   });
 
-  // 시작일 변경 시 종일이면 종료일 동기화
-  $("#wr_1").on("change", function() {
+  // ✅ 시작 변경 시: 종일이면 종료 자동 동기화
+  // datepicker/datetimepicker 둘 다 change 이벤트 발생
+$("#wr_1").on("change", function () {
+	var startVal = $("#wr_1").val();
+  var endVal   = $("#wr_2").val();
+
+  if (!startVal) return;
+
+  // Date 객체로 변환
+  var startDate = new Date(startVal.replace(/-/g, "/"));
+  var endDate   = new Date(endVal.replace(/-/g, "/"));
+
+  // 종료일이 시작일보다 이전이면 → 종료일을 시작일과 동일하게 맞춤
+  if (endVal && endDate < startDate) {
+    $("#wr_2").val(startVal);
+  }
+
+  // 종일 체크 상태면 항상 시작일=종료일 동기화
+  if ($("#is_all_day").is(":checked")) {
+    $("#wr_2").val(startVal.split("T")[0]);
+  }
     if ($("#is_all_day").is(":checked")) {
       syncEndWithStart();
     }
   });
 });
 </script>
+
 
 
 <?php
