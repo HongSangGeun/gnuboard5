@@ -1,6 +1,11 @@
 <?php
 if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가
 
+// 로그인 안 했으면 로그인 페이지로 이동
+if (!$is_member) {
+    alert('로그인 하셔야 이용하실 수 있습니다.', G5_BBS_URL.'/login.php?url='.urlencode($_SERVER['REQUEST_URI']));
+}
+
 // 선택옵션으로 인해 셀합치기가 가변적으로 변함
 $colspan = 5;
 

@@ -138,7 +138,7 @@ add_stylesheet('<link rel="stylesheet" href="'.$board_skin_url.'/style.css">', 0
                             <?php echo $list[$i]['subject'] ?>                      
                             <?php
                             // if ($list[$i]['file']['count']) { echo '<'.$list[$i]['file']['count'].'>'; }
-                            if ($list[$i]['icon_new']) echo "<span class=\"new_icon\">N<span class=\"sound_only\">새글</span></span>";
+                            if ($list[$i]['icon_new']) echo "<span class=\"new_icon\"> <span class=\"sound_only\">새글</span></span>";
                             if (isset($list[$i]['icon_hot'])) echo rtrim($list[$i]['icon_hot']);
                             //if (isset($list[$i]['icon_file'])) echo rtrim($list[$i]['icon_file']);
                             //if (isset($list[$i]['icon_link'])) echo rtrim($list[$i]['icon_link']);

@@ -32,12 +32,12 @@ for($k=0; $cp=sql_fetch_array($res); $k++) {
         <a href="<?php echo G5_BBS_URL ?>/logout.php" id="s_ol_after_logout">로그아웃</a>
     </header>
     <ul id="s_ol_after_private">
-    	<li>
+    	<!--li>
             <a href="<?php echo G5_BBS_URL ?>/point.php" target="_blank" id="ol_after_pt" class="win_point">
 				<i class="fa fa-database" aria-hidden="true"></i>포인트
 				<strong><?php echo $point ?></strong>
             </a>
-        </li>
+        </li-->
         <li>
         	<a href="<?php echo G5_SHOP_URL ?>/coupon.php" target="_blank" class="win_coupon">
         		<i class="fa fa-ticket" aria-hidden="true"></i>쿠폰

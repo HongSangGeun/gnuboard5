@@ -29,13 +29,13 @@ add_stylesheet('<link rel="stylesheet" href="'.$outlogin_skin_url.'/style.css">'
                 <strong><?php echo $memo_not_read ?></strong>
             </a>
         </li>
-        <li id="ol_after_pt">
+        <!--li id="ol_after_pt">
             <a href="<?php echo G5_BBS_URL ?>/point.php" target="_blank" class="win_point">
                 <i class="fa fa-database" aria-hidden="true"></i>
                 포인트
                 <strong><?php echo $point ?></strong>
             </a>
-        </li>
+        </li-->
         <li id="ol_after_scrap">
             <a href="<?php echo G5_BBS_URL ?>/scrap.php" target="_blank" class="win_scrap">
 				<i class="fa fa-thumb-tack" aria-hidden="true"></i>스크랩

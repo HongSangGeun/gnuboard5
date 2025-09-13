@@ -23,7 +23,7 @@ $list_count = (is_array($list) && $list) ? count($list) : 0;
             echo "</a>";
 			
 			if ($list[$i]['icon_hot']) echo "<span class=\"hot_icon\"><i class=\"fa fa-heart\" aria-hidden=\"true\"></i><span class=\"sound_only\">인기글</span></span>";
-			if ($list[$i]['icon_new']) echo "<span class=\"new_icon\">N<span class=\"sound_only\">새글</span></span>";
+			if ($list[$i]['icon_new']) echo "<span class=\"new_icon\"> <span class=\"sound_only\">새글</span></span>";
             // if ($list[$i]['link']['count']) { echo "[{$list[$i]['link']['count']}]"; }
             // if ($list[$i]['file']['count']) { echo "<{$list[$i]['file']['count']}>"; }
 

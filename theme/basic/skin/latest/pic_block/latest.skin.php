@@ -37,7 +37,7 @@ $list_count = (is_array($list) && $list) ? count($list) : 0;
                 echo $list[$i]['subject'];
             echo "</a>";
 			
-			if ($list[$i]['icon_new']) echo "<span class=\"new_icon\">N<span class=\"sound_only\">새글</span></span>";
+			if ($list[$i]['icon_new']) echo "<span class=\"new_icon\"> <span class=\"sound_only\">새글</span></span>";
             if ($list[$i]['icon_hot']) echo "<span class=\"hot_icon\">H<span class=\"sound_only\">인기글</span></span>";
 
             // if ($list[$i]['link']['count']) { echo "[{$list[$i]['link']['count']}]"; }

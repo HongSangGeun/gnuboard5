@@ -7,6 +7,9 @@ add_stylesheet('<link rel="stylesheet" href="'.$member_skin_url.'/style.css">', 
 
 <!-- 로그인 시작 { -->
 <div id="mb_login" class="mbskin">
+<div class="login-logo">
+        <img src="/img/logo_gn.svg" alt="경남 스마트시티 관리포털">
+    </div>
     <div class="mbskin_box">
         <h1><?php echo $g5['title'] ?></h1>
         <div class="mb_log_cate">

@@ -9,7 +9,7 @@ add_stylesheet('<link rel="stylesheet" href="'.$outlogin_skin_url.'/style.css">'
 <section id="s_ol_before" class="s_ol">
 	<div id="s_ol_be_cate">
     	<h2><span class="sound_only">회원</span>로그인</h2>
-    	<a href="<?php echo G5_BBS_URL ?>/register.php" class="join">회원가입</a>
+    	<!--a href="<?php echo G5_BBS_URL ?>/register.php" class="join">회원가입</a-->
     </div>
     <form name="foutlogin" action="<?php echo $outlogin_action_url ?>" onsubmit="return fhead_submit(this);" method="post" autocomplete="off">
     <fieldset>

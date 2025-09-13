@@ -28,7 +28,7 @@ $thumb_height = 150;
             <?php
             if ($list[$i]['icon_secret']) echo "<i class=\"fa fa-lock\" aria-hidden=\"true\"></i><span class=\"sound_only\">비밀글</span> ";
 
-            if ($list[$i]['icon_new']) echo "<span class=\"new_icon\">N<span class=\"sound_only\">새글</span></span>";
+            if ($list[$i]['icon_new']) echo "<span class=\"new_icon\"> <span class=\"sound_only\">새글</span></span>";
 
             if ($list[$i]['icon_hot']) echo "<span class=\"hot_icon\">H<span class=\"sound_only\">인기글</span></span>";
 

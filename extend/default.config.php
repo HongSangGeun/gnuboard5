@@ -1,6 +1,6 @@
 <?php
 if (!defined('_GNUBOARD_')) exit; // 개별 페이지 접근 불가
-
+//if (preg_match("/.*\/bbs\/(register|register_form|register_form_update)\.php?/", $_SERVER['REQUEST_URI']) && $w =='') goto_url(G5_URL);
 define('KGINICIS_USE_CERT_SEED', isset($config['cf_cert_use_seed']) ? (int) $config['cf_cert_use_seed'] : 1);
 
 // 유저 사이드뷰에서 아이콘 지정 안했을시 기본 no 프로필 이미지

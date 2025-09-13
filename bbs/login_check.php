@@ -112,7 +112,7 @@ if ($url) {
         $split= "?";
 
     // $_POST 배열변수에서 아래의 이름을 가지지 않은 것만 넘김
-    $post_check_keys = array('mb_id', 'mb_password', 'x', 'y', 'url');
+    $post_check_keys = array('mb_id', 'mb_password', 'x', 'y', 'url', 'menu');
     
     //소셜 로그인 추가
     if($is_social_login){

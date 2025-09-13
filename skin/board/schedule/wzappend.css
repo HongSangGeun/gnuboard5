@@ -1,0 +1,65 @@
+@charset "utf-8";
+
+/*a.fc-event:link, a.fc-event:visited {color:#fff;}
+a.fc-event:hover {color: #fff;text-decoration: underline;}*/
+.fc-view, .fc-view > table {background-color: #fff;}
+.fc-view .fc-day-header {padding:10px 0}
+
+.wz_tbl_1,.wz_tbl_1 th,.wz_tbl_1 td{border:0;}
+.wz_tbl_1{width:100%;text-align:center;margin: 7px 0 0px;}
+.wz_tbl_1 table {clear:both;width:100%;border-collapse:collapse;border-spacing:0;background-color:#fff}
+.wz_tbl_1 tbody, .wz_tbl_1 tr, .wz_tbl_1 td {vertical-align:middle}
+.wz_tbl_1 caption{display:none}
+.wz_tbl_1 th{padding:10px 0;border:1px solid #dcdcdc;color:#666;text-align:center;font-weight:bold;background-color: #fbfbfb;}
+.wz_tbl_1 td{padding:5px;border:1px solid #e5e5e5;color:#4c4c4c;text-align:left;}
+.wz_tbl_1 th span.last:after {border:none;}
+.wz_tbl_1 td .numberic {text-align:right;padding-right:4px;}
+
+/* 카테고리별 색상 (투명도 0.8 추가) */
+.bo_v_cate.하드웨어   { background-color: rgba(78, 205, 196, 0.8); }
+.bo_v_cate.데이터허브 { background-color: rgba(74, 144, 226, 0.8); }
+.bo_v_cate.유지보수   { background-color: rgba(255, 107, 107, 0.8); }
+.bo_v_cate.응급의료   { background-color: rgba(162, 155, 254, 0.8); }
+
+
+.scdate-txt { 
+	margin:0 0 5px; 
+	font-size: 24px;
+}
+
+.all-day-label,
+.all-day-time-label {
+  display: inline-block;
+  vertical-align: middle;   /* 텍스트와 수직 정렬 */
+  line-height: 1.2;         /* 높이 맞춤 */
+  position: relative;
+  top: -2px;                /* 필요시 살짝 위로 올림 */
+}
+
+.all-day-label {
+  display: inline-block;
+  background: rgba(224, 224, 224, 0.7); /* 회색 + 70% 불투명 */
+  color: #333;
+  font-size: 14px;
+  vertical-align: middle;   /* 텍스트와 수직 정렬 */
+  font-weight: bold;
+  padding: 2px 10px;
+  border-radius: 12px;
+  margin-right: 5px;
+}
+
+.all-day-time-label {
+  display: inline-block;
+  background: rgba(115, 147, 255, 0.85); /* 파랑 + 85% 불투명 */
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 2px 10px;
+  border-radius: 12px;
+  margin-right: 5px;
+}
+.date-txt {font-weight:bold}
+#bo_v_share {
+	display: none;
+}
+

@@ -13,7 +13,6 @@
 .mbskin .frm_input {width:100%}
 .mbskin .btn_submit {width:100%;margin:10px 0 0;height:45px;font-weight:bold;font-size:1.25em}
 .mbskin h1 {margin:60px 0 30px;font-size:2em}
-.mbskin .tbl_frm01 th {width:85px}
 /* ### 기본 스타일 커스터마이징 끝 ### */
 
 /* 회원가입 약관 */
@@ -31,12 +30,11 @@
 #fregister_chkall {position:relative;text-align:center;background:#f5f7fa;line-height:50px;border:1px solid #e5e9f0;border-radius:3px;margin-bottom:15px}
 #fregister h2 {text-align:left;padding:20px;border-bottom:1px solid #dde7e9;font-size:1.2em}
 #fregister textarea {display:block;padding:20px;width:100%;height:150px;background:#fff;border:0;line-height:1.6em}
-#fregister_private {position:relative}
-#fregister_private div {padding:20px;background:#fff}
-#fregister_private table {width:100%;border-collapse:collapse;font-size:1em;}
-#fregister_private table caption {position:absolute;font-size:0;line-height:0;overflow:hidden}
-#fregister_private table th {background:#f7f7f9;width:33.33%;color:#000;padding:10px;border:1px solid #d8dbdf}
-#fregister_private table td {border:1px solid #e7e9ec;padding:10px;border-top:0}
+.fregister_terms div {padding:20px;background:#fff}
+.fregister_terms table {width:100%;border-collapse:collapse;font-size:1em;}
+.fregister_terms table caption {position:absolute;font-size:0;line-height:0;overflow:hidden}
+.fregister_terms table th {background:#f7f7f9;width:33.33%;color:#000;padding:10px;border:1px solid #d8dbdf}
+.fregister_terms table td {border:1px solid #e7e9ec;padding:10px;border-top:0}
 
 .fregister_agree {position:absolute;top:0;right:0}
 .fregister_agree input[type="checkbox"] + label {color:#676e70}
@@ -70,6 +68,11 @@
 #fregisterform .captcha {display:block;margin:5px 0 0}
 #fregisterform .reg_mb_img_file img {max-width:100%;height:auto}
 #reg_mb_icon, #reg_mb_img {float:right}
+#fregisterform .consent-line {display: flex; margin: 0 !important;}
+#fregisterform .consent-line .chk_li {padding-left: 0;}
+#fregisterform .consent-date { margin: 5px 0 0 20px !important; }
+#fregisterform .consent-group .sub-consents {padding: 0 20px 0px}
+#fregisterform .js-open-consent {display: block; margin-left: 10px; font-size: 12px; color: #3f51b5; background: none; border: none; cursor: pointer; text-decoration: underline; }
 
 /* 회원가입 완료 */
 #reg_result {padding:40px 30px;text-align:center;background:#edf3fc;border:1px solid #d6e2f4;border-radius:5px}
@@ -93,7 +96,7 @@
 
 .tooltip_icon {display:inline-block;vertical-align:baseline;color:#b3b5b8;border:0;font-size:1.4em;background:transparent;cursor:pointer}
 .tooltip_icon:hover {color:#448bf5}
-.tooltip {position:relative;width:auto;color:#fff;background:#000;padding:10px;font-size:small;line-height:18px;display:none;position:absolute;z-index:9;font-weight:normal;margin-left:15px;margin-top:10px}
+.tooltip {position:absolute;width:auto;color:#fff;background:#000;padding:10px;font-size:small;line-height:18px;display:none;z-index:9;font-weight:normal;margin-left:15px;margin-top:10px}
 .tooltip:before {content:"";position:absolute;top:0;left:-10px;width:0;height:0;border-style:solid;border-top:0px solid transparent;border-bottom:10px solid transparent;border-left:0;border-right:10px solid #000}
 
 /* 아이디/비밀번호 찾기 */
@@ -145,6 +148,38 @@
 #mb_login #login_fs .frm_input {margin:0 0 10px}
 #mb_login #login_fs .btn_submit {margin:0 0 15px}
 
+/* 로그인 로고 영역 */
+.login-logo {
+    text-align: center;
+    margin: 20px 0;   /* 위아래 여백 */
+}
+
+.login-logo img {
+    max-width: 280px;   /* 로고 크기 */
+    height: auto;
+    display: block;
+    margin: 0 auto 10px auto; /* 중앙 정렬 + 아래 간격 */
+}
+
+.login-title {
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+/* 로그인 박스 정리 */
+#mb_login {
+    width: 390px;
+    margin: 90px auto;
+    padding: 5px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 3px 8px rgba(0,0,0,0.1);
+}
+
 #login_info {}
 #login_info:after {display:block;visibility:hidden;clear:both;content:""}
 #login_info .login_if_auto {float:left}
@@ -152,12 +187,12 @@
 #login_info .login_if_lpl {float:right}
 #login_password_lost {display:inline-block;border:1px solid #d5d9dd;color:#3a8afd;border-radius:2px;padding:2px 5px;line-height:20px}
 
-#mb_login_notmb {margin:30px auto;padding:20px 30px}
+#mb_login_notmb {margin:30px auto;padding:20px 30px;border: 1px solid #dde7e9}
 #mb_login_notmb h2 {font-size:1.25em;margin:20px 0 10px}
 #guest_privacy {border:1px solid #ccc;text-align:left;line-height:1.6em;color:#666;background:#fafafa;padding:10px;height:150px;margin:10px 0;overflow-y:auto}
 #mb_login_notmb .btn_submit {display:block;text-align:center;line-height:45px}
 
-#mb_login_od_wr {margin:30px auto;padding:20px 30px}
+#mb_login_od_wr {margin:30px auto;padding:20px 30px;border: 1px solid #dde7e9}
 #mb_login_od_wr h2 {font-size:1.25em;margin:20px 0 10px}
 #mb_login_od_wr .frm_input {margin:10px 0 0}
 #mb_login_od_wr p {background:#f3f3f3;margin:20px 0 0;padding:15px 20px;line-height:1.5em}
@@ -301,6 +336,7 @@
 #pw_confirm_id {display:inline-block;margin-right:20px;font-weight:bold}
 #mb_confirm_id {}
 
+
 /* 폼메일 */
 #formmail textarea {height:100px}
 #formmail .formmail_flie {position:relative}
@@ -333,3 +369,121 @@
 #profile .my_profile_img img {border-radius:50%}
 #profile .profile_img img {border-radius:50%}
 #profile .profile_name .sv_wrap {font-weight:bold;text-align:left}
+
+/* ===== 비밀번호 확인 화면 전용 ===== */
+#mb_confirm.confirm-skin {
+  max-width: 420px;
+  margin: 60px auto;
+  padding: 0 12px;
+  box-sizing: border-box;
+  font-family: "Noto Sans KR", system-ui, -apple-system, "Segoe UI", Roboto, Arial, "Apple SD Gothic Neo", "Malgun Gothic", "맑은 고딕", sans-serif;
+}
+
+#mb_confirm .confirm-card{
+  background:#fff;
+  border:1px solid #e8e8ef;
+  border-radius:12px;
+  box-shadow:0 10px 30px rgba(0,0,0,.06);
+  overflow:hidden;
+}
+
+#mb_confirm .confirm-header{
+  text-align:center;
+  padding:24px 20px 12px;
+  border-bottom:1px solid #f1f3f5;
+}
+#mb_confirm .confirm-logo{
+  height:48px;
+  width:auto;
+  display:block;
+  margin:0 auto 10px;
+}
+#mb_confirm .confirm-title{
+  margin:0;
+  font-size:18px;
+  font-weight:700;
+  color:#222;
+}
+#mb_confirm .confirm-desc{
+  margin:10px 0 0;
+  font-size:14px;
+  color:#666;
+  line-height:1.6;
+}
+#mb_confirm .confirm-desc .emph{ color:#d84b4b; font-weight:700; }
+#mb_confirm.is-leave .confirm-title{ color:#d84b4b; }
+
+#mb_confirm .confirm-body{ padding:18px 20px 6px; }
+#mb_confirm .form-row{ margin-bottom:14px; }
+#mb_confirm .form-row label{
+  display:block;
+  font-size:15px;
+  color:#444;
+  margin-bottom:6px;
+}
+#mb_confirm .form-row .req{ color:#ff5460; }
+
+#mb_confirm .id-row .id-box{
+  background:#f7f8fa;
+  border:1px solid #e5e7eb;
+  border-radius:6px;
+  padding:10px 12px;
+  font-weight:600;
+  color:#333;
+}
+
+#mb_confirm .frm_input{
+  width:100%;
+  height:40px;
+  border:1px solid #d7dbe2;
+  border-radius:6px;
+  padding:0 12px;
+  box-sizing:border-box;
+  font-size:14px;
+  transition:border-color .15s, box-shadow .15s;
+}
+#mb_confirm .frm_input:focus{
+  outline:none;
+  border-color:#4a90e2;
+  box-shadow:0 0 0 3px rgba(74,144,226,.15);
+}
+
+#mb_confirm .confirm-actions{
+  display:flex;
+  gap:8px;
+  padding:0 20px 20px;
+}
+#mb_confirm .btn{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  height:42px;
+  padding:0 14px;
+  border-radius:8px;
+  font-size:14px;
+  font-weight:700;
+  text-decoration:none;
+  cursor:pointer;
+  border:1px solid transparent;
+  flex:1;
+}
+#mb_confirm .btn-primary{
+  background:#4a90e2;
+  border-color:#3d7fcc;
+  color:#fff;
+}
+#mb_confirm .btn-primary:hover{ background:#3d7fcc; }
+#mb_confirm .btn-ghost{
+  background:#fff;
+  border-color:#d7dbe2;
+  color:#333;
+}
+#mb_confirm .btn-ghost:hover{ background:#f7f8fa; }
+
+/* 반응형 */
+@media (max-width:480px){
+  #mb_confirm.confirm-skin{ margin:32px auto; }
+  #mb_confirm .confirm-header{ padding:18px 14px 10px; }
+  #mb_confirm .confirm-body{ padding:14px; }
+  #mb_confirm .confirm-actions{ padding:0 14px 14px; }
+}

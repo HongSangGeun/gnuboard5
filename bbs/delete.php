@@ -1,5 +1,6 @@
 <?php
 include_once('./_common.php');
+include_once(G5_LIB_PATH.'ckeditor_cleanup.lib.php');
 
 $delete_token = get_session('ss_delete_token');
 set_session('ss_delete_token', '');
