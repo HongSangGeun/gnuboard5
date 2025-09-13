@@ -206,6 +206,119 @@ $("#wr_1").on("change", function () {
 </script>
 
 
+<script>
+$(function () {
+  function initDateOnly() {
+  $("#wr_1, #wr_2").datetimepicker("destroy").datepicker({
+    dateFormat: "yy-mm-dd",
+    changeMonth: true,
+    changeYear: true
+  });
+
+  // 입력값을 datepicker에 반영
+  if ($("#wr_1").val()) {
+    $("#wr_1").datepicker("setDate", new Date($("#wr_1").val()));
+  }
+  if ($("#wr_2").val()) {
+    $("#wr_2").datepicker("setDate", new Date($("#wr_2").val()));
+  }
+
+  syncEndWithStart();
+  $("#wr_2").prop("readonly", true);
+}
+
+function initDateTime() {
+  $("#wr_1, #wr_2").datepicker("destroy").datetimepicker({
+    dateFormat: "yy-mm-dd",
+    timeFormat: "HH:mm",
+    stepMinute: 10,
+    controlType: "select",
+    oneLine: true,
+    showSecond: false
+  });
+
+  // 입력값을 datetimepicker에 반영
+  if ($("#wr_1").val()) {
+    $("#wr_1").datetimepicker("setDate", new Date($("#wr_1").val()));
+  }
+  if ($("#wr_2").val()) {
+    $("#wr_2").datetimepicker("setDate", new Date($("#wr_2").val()));
+  }
+
+  $("#wr_2").prop("readonly", false);
+}
+  function syncEndWithStart() {
+    var startVal = $("#wr_1").val();
+    if (!startVal) return;
+    var dateOnly = startVal.split("T")[0]; // ISO/T 제거
+    $("#wr_2").val(dateOnly);
+  }
+
+  // 초기 세팅
+  if ($("#is_all_day").is(":checked")) {
+    initDateOnly();
+  } else {
+    initDateTime();
+  }
+
+  // 종일 체크 토글
+  $("#is_all_day").on("change", function() {
+    if (this.checked) {
+      initDateOnly();
+    } else {
+      initDateTime();
+    }
+  });
+
+  // 시작일 변경 시 종일이면 종료일 동기화
+  $("#wr_1").on("change", function() {
+    if ($("#is_all_day").is(":checked")) {
+      syncEndWithStart();
+    }
+  });
+});
+</script>
+
+
+<?php
+// URL 파라미터 받기
+$param_wr1 = $_GET['wr_1'] ?? '';
+$param_wr2 = $_GET['wr_2'] ?? '';
+$param_allday = $_GET['allday'] ?? '1';
+
+
+// FullCalendar에서 YYYYMMDD 들어온 경우 변환
+if (!empty($param_wr1) && preg_match('/^[0-9]{8}$/', $param_wr1)) {
+    $wr_1_val = substr($param_wr1, 0, 4).'-'.substr($param_wr1, 4, 2).'-'.substr($param_wr1, 6, 2);
+}
+if (!empty($param_wr2) && preg_match('/^[0-9]{8}$/', $param_wr2)) {
+    $wr_2_val = substr($param_wr2, 0, 4).'-'.substr($param_wr2, 4, 2).'-'.substr($param_wr2, 6, 2);
+}
+
+// wr_1 기본값 (우선순위: 게시글 값 > GET 파라미터 > 오늘 날짜)
+if (!empty($write['wr_1'])) {
+    $wr_1_val = preg_replace("/[^0-9:\-T ]/", "", $write['wr_1']);
+} elseif (!empty($param_wr1)) {
+    // FullCalendar에서 YYYY-MM-DD 넘어옴
+    $wr_1_val = preg_replace("/[^0-9:\-T ]/", "", $param_wr1);
+} else {
+    $wr_1_val = date('Y-m-d');
+}
+
+// wr_2 기본값 (우선순위: 게시글 값 > GET 파라미터 > wr_1과 동일)
+if (!empty($write['wr_2'])) {
+    $wr_2_val = preg_replace("/[^0-9:\-T ]/", "", $write['wr_2']);
+} elseif (!empty($param_wr2)) {
+    $wr_2_val = preg_replace("/[^0-9:\-T ]/", "", $param_wr2);
+} else {
+    $wr_2_val = $wr_1_val;
+}
+
+// 종일 플래그 (wr_5)
+$is_all_day = (!empty($write['wr_5']) && $write['wr_5'] == '1') || $param_allday == '1';
+?>
+
+
 
 <section id="bo_w">
     <h2 class="sound_only"><?php echo $g5['title'] ?></h2>
@@ -332,119 +445,6 @@ $("#wr_1").on("change", function () {
 	<td>
 
 
-<?php
-// URL 파라미터 받기
-$param_wr1 = $_GET['wr_1'] ?? '';
-$param_wr2 = $_GET['wr_2'] ?? '';
-$param_allday = $_GET['allday'] ?? '0';
-
-
-// FullCalendar에서 YYYYMMDD 들어온 경우 변환
-if (!empty($param_wr1) && preg_match('/^[0-9]{8}$/', $param_wr1)) {
-    $wr_1_val = substr($param_wr1, 0, 4).'-'.substr($param_wr1, 4, 2).'-'.substr($param_wr1, 6, 2);
-}
-if (!empty($param_wr2) && preg_match('/^[0-9]{8}$/', $param_wr2)) {
-    $wr_2_val = substr($param_wr2, 0, 4).'-'.substr($param_wr2, 4, 2).'-'.substr($param_wr2, 6, 2);
-}
-
-// wr_1 기본값 (우선순위: 게시글 값 > GET 파라미터 > 오늘 날짜)
-if (!empty($write['wr_1'])) {
-    $wr_1_val = preg_replace("/[^0-9:\-T ]/", "", $write['wr_1']);
-} elseif (!empty($param_wr1)) {
-    // FullCalendar에서 YYYY-MM-DD 넘어옴
-    $wr_1_val = preg_replace("/[^0-9:\-T ]/", "", $param_wr1);
-} else {
-    $wr_1_val = date('Y-m-d');
-}
-
-// wr_2 기본값 (우선순위: 게시글 값 > GET 파라미터 > wr_1과 동일)
-if (!empty($write['wr_2'])) {
-    $wr_2_val = preg_replace("/[^0-9:\-T ]/", "", $write['wr_2']);
-} elseif (!empty($param_wr2)) {
-    $wr_2_val = preg_replace("/[^0-9:\-T ]/", "", $param_wr2);
-} else {
-    $wr_2_val = $wr_1_val;
-}
-
-// 종일 플래그 (wr_5)
-$is_all_day = (!empty($write['wr_5']) && $write['wr_5'] == '1') || $param_allday == '1';
-?>
-
-
-
-
-<script>
-$(function () {
-  function initDateOnly() {
-  $("#wr_1, #wr_2").datetimepicker("destroy").datepicker({
-    dateFormat: "yy-mm-dd",
-    changeMonth: true,
-    changeYear: true
-  });
-
-  // 입력값을 datepicker에 반영
-  if ($("#wr_1").val()) {
-    $("#wr_1").datepicker("setDate", new Date($("#wr_1").val()));
-  }
-  if ($("#wr_2").val()) {
-    $("#wr_2").datepicker("setDate", new Date($("#wr_2").val()));
-  }
-
-  syncEndWithStart();
-  $("#wr_2").prop("readonly", true);
-}
-
-function initDateTime() {
-  $("#wr_1, #wr_2").datepicker("destroy").datetimepicker({
-    dateFormat: "yy-mm-dd",
-    timeFormat: "HH:mm",
-    stepMinute: 10,
-    controlType: "select",
-    oneLine: true,
-    showSecond: false
-  });
-
-  // 입력값을 datetimepicker에 반영
-  if ($("#wr_1").val()) {
-    $("#wr_1").datetimepicker("setDate", new Date($("#wr_1").val()));
-  }
-  if ($("#wr_2").val()) {
-    $("#wr_2").datetimepicker("setDate", new Date($("#wr_2").val()));
-  }
-
-  $("#wr_2").prop("readonly", false);
-}
-  function syncEndWithStart() {
-    var startVal = $("#wr_1").val();
-    if (!startVal) return;
-    var dateOnly = startVal.split("T")[0]; // ISO/T 제거
-    $("#wr_2").val(dateOnly);
-  }
-
-  // 초기 세팅
-  if ($("#is_all_day").is(":checked")) {
-    initDateOnly();
-  } else {
-    initDateTime();
-  }
-
-  // 종일 체크 토글
-  $("#is_all_day").on("change", function() {
-    if (this.checked) {
-      initDateOnly();
-    } else {
-      initDateTime();
-    }
-  });
-
-  // 시작일 변경 시 종일이면 종료일 동기화
-  $("#wr_1").on("change", function() {
-    if ($("#is_all_day").is(":checked")) {
-      syncEndWithStart();
-    }
-  });
-});
-</script>
 
 
 <!-- 종일 여부 -->
@@ -520,6 +520,7 @@ function initDateTime() {
         <input type="submit" value="작성완료" id="btn_submit" accesskey="s" class="btn_submit btn">
     </div>
     </form>
+</section>
 
     <script>
 
@@ -607,5 +608,4 @@ function initDateTime() {
         return true;
     }
     </script>
-</section>
 <!-- } 게시물 작성/수정 끝 -->
