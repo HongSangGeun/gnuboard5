@@ -169,27 +169,3 @@
 .calendar-legend .btn-add-event:hover {
   background: #312e81;
 }
-/* FullCalendar 이벤트 제목 잘림 처리 */
-.fc-event-title {
-  white-space: nowrap;        /* 줄바꿈 안함 */
-  overflow: hidden;           /* 넘치는 부분 숨김 */
-  text-overflow: ellipsis;    /* ... 으로 표시 */
-  display: block;             /* 블록 레벨로 강제 */
-  max-width: 100%;            /* 셀 너비에 맞게 */
-}
-
-.fc-event {
-  transition: transform 0.25s ease, background-color 0.3s ease;
-}
-
-.fc-event:hover {
-  transform: scale(1.05);
-  z-index: 99;
-}
-
-.fc-event.holiday-event {
-  pointer-events: none;   /* 클릭 불가 */
-  cursor: default;        /* 손모양 → 기본 화살표 */
-  text-decoration: none;  /* 밑줄 제거 */
-  color: inherit;         /* 색상 기본 텍스트로 */
-}

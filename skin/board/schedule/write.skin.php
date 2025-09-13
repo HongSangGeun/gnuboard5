@@ -326,27 +326,44 @@ $is_all_day = (!empty($write['wr_5']) && $write['wr_5'] == '1') || $param_allday
 <script>
 $(function () {
   function initDateOnly() {
-    $("#wr_1, #wr_2").datetimepicker("destroy").datepicker({
-      dateFormat: "yy-mm-dd",
-      changeMonth: true,
-      changeYear: true
-    });
-    syncEndWithStart();
-    //$("#wr_2").prop("readonly", true).addClass("readonly");
-  }
-
-  function initDateTime() {
-    $("#wr_1, #wr_2").datepicker("destroy").datetimepicker({
-      dateFormat: "yy-mm-dd",
-      timeFormat: "HH:mm",
-      stepMinute: 10,
-      controlType: "select",
-      oneLine: true,
-      showSecond: false
+  $("#wr_1, #wr_2").datetimepicker("destroy").datepicker({
+    dateFormat: "yy-mm-dd",
+    changeMonth: true,
+    changeYear: true
   });
-    //$("#wr_2").prop("readonly", false).removeClass("readonly");
+
+  // 입력값을 datepicker에 반영
+  if ($("#wr_1").val()) {
+    $("#wr_1").datepicker("setDate", new Date($("#wr_1").val()));
+  }
+  if ($("#wr_2").val()) {
+    $("#wr_2").datepicker("setDate", new Date($("#wr_2").val()));
   }
 
+  syncEndWithStart();
+  $("#wr_2").prop("readonly", true);
+}
+
+function initDateTime() {
+  $("#wr_1, #wr_2").datepicker("destroy").datetimepicker({
+    dateFormat: "yy-mm-dd",
+    timeFormat: "HH:mm",
+    stepMinute: 10,
+    controlType: "select",
+    oneLine: true,
+    showSecond: false
+  });
+
+  // 입력값을 datetimepicker에 반영
+  if ($("#wr_1").val()) {
+    $("#wr_1").datetimepicker("setDate", new Date($("#wr_1").val()));
+  }
+  if ($("#wr_2").val()) {
+    $("#wr_2").datetimepicker("setDate", new Date($("#wr_2").val()));
+  }
+
+  $("#wr_2").prop("readonly", false);
+}
   function syncEndWithStart() {
     var startVal = $("#wr_1").val();
     if (!startVal) return;
