@@ -163,7 +163,8 @@ $result = sql_query($sql);
         let commentIcon = null;
         if (arg.event.extendedProps.commentCount > 0) {
           commentIcon = document.createElement('span');
-          commentIcon.innerHTML = '<i class="fa fa-comment"></i>'
+          //commentIcon.innerHTML = '<i class="fa fa-comment"></i>'
+          commentIcon.innerHTML = `<i class="fa fa-comment"></i> ${arg.event.extendedProps.commentCount}`;
           commentIcon.style.marginLeft = "4px";
         }
 

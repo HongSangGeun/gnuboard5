@@ -91,23 +91,24 @@ document.addEventListener('DOMContentLoaded', function () {
         info.el.style.display = 'none';
       }
     },
-    eventContent: function(arg) {
-    let titleEl = document.createElement('span');
-    titleEl.innerText = arg.event.title;
+    eventContent: function (arg) {
+        let titleEl = document.createElement('span');
+        titleEl.innerText = arg.event.title;
 
-    // 댓글 아이콘 (댓글이 1개 이상이면 표시)
-    let commentIcon = null;
-    if (arg.event.extendedProps.commentCount > 0) {
-      commentIcon = document.createElement('span');
-      commentIcon.innerHTML = '<i class="fa fa-comment"></i>'
-      commentIcon.style.marginLeft = "4px";
-    }
+        // 댓글 아이콘 (댓글이 1개 이상이면 표시)
+        let commentIcon = null;
+        if (arg.event.extendedProps.commentCount > 0) {
+          commentIcon = document.createElement('span');
+          //commentIcon.innerHTML = '<i class="fa fa-comment"></i>'
+          commentIcon.innerHTML = `<i class="fa fa-comment"></i> ${arg.event.extendedProps.commentCount}`;
+          commentIcon.style.marginLeft = "4px";
+        }
 
-    let arrayOfDomNodes = [ titleEl ];
-    if (commentIcon) arrayOfDomNodes.push(commentIcon);
+        let arrayOfDomNodes = [titleEl];
+        if (commentIcon) arrayOfDomNodes.push(commentIcon);
 
-    return { domNodes: arrayOfDomNodes };
-  }
+        return { domNodes: arrayOfDomNodes };
+      }
   });
 
   calendar.render();
