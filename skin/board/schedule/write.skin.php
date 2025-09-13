@@ -121,7 +121,12 @@ function initDateOnly() {
 // ✅ 안전하게 문자열 → Date 변환하는 함수
 function parseInputDate(str) {
   if (!str) return null;
-  // "yyyy-mm-dd HH:mm" or "yyyy-mm-ddTHH:mm"
+
+  // YYYYMMDD 형식 → YYYY-MM-DD 로 변환
+  if (/^[0-9]{8}$/.test(str)) {
+    str = str.replace(/([0-9]{4})([0-9]{2})([0-9]{2})/, "$1-$2-$3");
+  }
+
   str = str.replace("T", " ");
   let parts = str.split(" ");
   let dateParts = parts[0].split("-");
