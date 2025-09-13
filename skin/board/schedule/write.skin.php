@@ -82,12 +82,19 @@ function initDateOnly() {
   });
 
   // ✅ 기존 value를 datepicker에 반영
-  if ($("#wr_1").val()) {
-    $("#wr_1").datepicker("setDate", $.datepicker.parseDate("yy-mm-dd", $("#wr_1").val()));
-  }
-  if ($("#wr_2").val()) {
-    $("#wr_2").datepicker("setDate", $.datepicker.parseDate("yy-mm-dd", $("#wr_2").val()));
-  }
+// 날짜 전용
+if ($("#wr_1").val()) {
+  try {
+    var d1 = $.datepicker.parseDate("yy-mm-dd", $("#wr_1").val().substring(0, 10));
+    $("#wr_1").datepicker("setDate", d1);
+  } catch(e) { console.warn("wr_1 parse error:", e); }
+}
+if ($("#wr_2").val()) {
+  try {
+    var d2 = $.datepicker.parseDate("yy-mm-dd", $("#wr_2").val().substring(0, 10));
+    $("#wr_2").datepicker("setDate", d2);
+  } catch(e) { console.warn("wr_2 parse error:", e); }
+}
 
   syncEndWithStart();
   $("#wr_2").prop("readonly", true);
@@ -104,14 +111,14 @@ function initDateTime() {
   });
 
   // ✅ 기존 value를 datetimepicker에 반영
-  if ($("#wr_1").val()) {
-    $("#wr_1").datetimepicker("setDate", new Date($("#wr_1").val().replace(/-/g, "/")));
-  }
-  if ($("#wr_2").val()) {
-    $("#wr_2").datetimepicker("setDate", new Date($("#wr_2").val().replace(/-/g, "/")));
-  }
-
-  $("#wr_2").prop("readonly", false);
+// 날짜+시간
+if ($("#wr_1").val()) {
+  var d1 = new Date($("#wr_1").val().replace(/-/g,"/"));
+  if (!isNaN(d1.getTime())) $("#wr_1").datetimepicker("setDate", d1);
+}
+if ($("#wr_2").val()) {
+  var d2 = new Date($("#wr_2").val().replace(/-/g,"/"));
+  if (!isNaN(d2.getTime())) $("#wr_2").datetimepicker("setDate", d2);
 }
 
 function syncEndWithStart() {
