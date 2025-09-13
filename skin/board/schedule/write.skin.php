@@ -120,7 +120,7 @@ if ($("#wr_2").val()) {
   var d2 = new Date($("#wr_2").val().replace(/-/g,"/"));
   if (!isNaN(d2.getTime())) $("#wr_2").datetimepicker("setDate", d2);
 }
-
+}
 function syncEndWithStart() {
   var startVal = $("#wr_1").val();
   if (!startVal) return;
