@@ -16,12 +16,8 @@ add_stylesheet('<link rel="stylesheet" href="'.$board_skin_url.'/wzappend.css?v=
     <header>
         <h2 id="bo_v_title">
             <?php if ($category_name) { ?>
-<?php
-// wr_3, wr_4 같은 곳에 카테고리 색상을 저장해놨다면 이렇게 불러올 수 있음
-$cate_color = isset($view['wr_4']) ? $view['wr_4'] : '#999';
-?>
-<span class="bo_v_cate" style="background-color:<?php echo $cate_color ?>; color:#fff; padding:2px 6px; border-radius:4px;">
-    <?php echo $view['ca_name']; ?>
+            <span class="bo_v_cate <?php echo $view['ca_name']; ?>">
+            <?php echo $view['ca_name']; ?>
 </span>
             <!--span class="bo_v_cate"><?php echo $view['ca_name']; // 분류 출력 끝 ?></span-->
             <?php } ?>

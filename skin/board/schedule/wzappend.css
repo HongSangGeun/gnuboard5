@@ -20,7 +20,8 @@ a.fc-event:hover {color: #fff;text-decoration: underline;}*/
 .bo_v_cate.데이터허브 { background-color: rgba(74, 144, 226, 0.8); }
 .bo_v_cate.유지보수   { background-color: rgba(255, 107, 107, 0.8); }
 .bo_v_cate.응급의료   { background-color: rgba(162, 155, 254, 0.8); }
-
+.bo_v_cate.집중관제   { background-color: rgba(254, 251, 155, 0.8); color: #000; }
+.bo_v_cate.기타       { background-color: rgba(124, 124, 124, 0.8); color: #fff; }
 
 .scdate-txt { 
 	margin:0 0 5px; 
