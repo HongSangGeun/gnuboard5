@@ -150,28 +150,17 @@ document.addEventListener('DOMContentLoaded', function () {
 
       // (선택) 더 예쁘게 하려면 커스텀 툴팁 라이브러리도 가능
       // $(info.el).tooltip({ title: info.event.title, placement: 'top' });
-      
+        if (info.event.extendedProps.commentCount > 0) {
+    let icon = document.createElement('span');
+    icon.innerHTML = `<i class="fa fa-comment"></i> ${info.event.extendedProps.commentCount}`;
+    icon.style.marginLeft = "4px";
+    info.el.querySelector('.fc-event-title').appendChild(icon);
+  }
+
       if (currentCategory && cat !== currentCategory) {
         info.el.style.display = 'none';
       }
     },
-    eventContent: function(arg) {
-    let titleEl = document.createElement('span');
-    titleEl.innerText = arg.event.title;
-
-    // 댓글 아이콘 (댓글이 1개 이상이면 표시)
-    let commentIcon = null;
-    if (arg.event.extendedProps.commentCount > 0) {
-      commentIcon = document.createElement('span');
-      commentIcon.innerHTML = '<i class="fa fa-comment"></i>'
-      commentIcon.style.marginLeft = "4px";
-    }
-
-    let arrayOfDomNodes = [ titleEl ];
-    if (commentIcon) arrayOfDomNodes.push(commentIcon);
-
-    return { domNodes: arrayOfDomNodes };
-  }
   });
 
   calendar.render();
