@@ -9,7 +9,7 @@
     background:#fff;
     border-radius:12px;
     box-shadow:0 4px 10px rgba(0,0,0,0.1);
-    padding:20px;
+    padding:40px;
     transition:box-shadow 0.3s ease;
 }
 .latest-card:hover {
@@ -175,13 +175,6 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 20px;
-}
-
-.latest-card {
-  background: #fff;
-  border-radius: 6px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  padding: 10px;
 }
 
 /* 캘린더는 2칼럼 차지 */
