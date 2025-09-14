@@ -1,3 +1,33 @@
+  .hidden-card {
+    display: none !important;
+  }
+  .restore-btn {
+    margin: 10px 0;
+    padding: 6px 12px;
+    border: none;
+    background: #4ECDC4;
+    color: white;
+    font-size: 13px;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  .restore-btn:hover {
+    background: #38b2a6;
+  }
+  #restoreList {
+    margin-top: 10px;
+    display: none;
+  }
+  #restoreList li {
+    list-style: none;
+    margin: 4px 0;
+  }
+  #restoreList button {
+    padding: 2px 8px;
+    margin-left: 8px;
+    font-size: 12px;
+    cursor: pointer;
+  }
 
 .latest-grid {
     display:grid;
@@ -180,4 +210,44 @@
 /* 캘린더는 2칼럼 차지 */
 .latest-card.calendar-card {
   grid-column: span 2;
+}
+
+/* 숨겨진 카드 리스트 스타일 */
+.restore-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 15px;
+}
+
+.restore-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #f9f9fb;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  font-size: 14px;
+  transition: all 0.2s ease-in-out;
+}
+
+.restore-list li:hover {
+  background: #eef6ff;
+  border-color: #4A90E2;
+}
+
+.restore-list button {
+  background: #4A90E2;
+  border: none;
+  color: #fff;
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.restore-list button:hover {
+  background: #357ABD;
 }

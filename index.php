@@ -74,38 +74,22 @@ include_once(G5_PATH.'/head.php');
   </div>
 </div>
 
+
+<div class="latest-card restore-card" data-id="restore">
+  <div class="card">
+    <div class="card-header">숨겨진 카드 관리</div>
+    <div class="card-body">
+      <button id="showRestoreList" class="restore-btn">숨겨진 카드 복원</button>
+      <ul id="restoreList" class="restore-list"></ul>
+    </div>
+  </div>
+</div>
+
 <!-- FullCalendar 라이브러리 -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/google-calendar@6.1.15/index.global.min.js"></script>
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
-<script>
-document.addEventListener("DOMContentLoaded", function() {
-  const container = document.getElementById("dashboard");
-
-  // SortableJS 활성화
-  Sortable.create(container, {
-    animation: 150,
-    ghostClass: "sortable-ghost",
-    onEnd: function () {
-      // 현재 순서를 배열로 저장
-      const order = Array.from(container.children).map(card => card.dataset.id);
-      localStorage.setItem("dashboardOrder", JSON.stringify(order));
-    }
-  });
-
-  // 저장된 순서 불러오기
-  const savedOrder = JSON.parse(localStorage.getItem("dashboardOrder") || "[]");
-  if (savedOrder.length) {
-    savedOrder.forEach(id => {
-      const el = container.querySelector(`[data-id='${id}']`);
-      if (el) {
-        container.appendChild(el); // 원본 DOM만 이동
-      }
-    });
-  }
-});
-</script>
 
 <style>
 /* 드래그 중인 카드 스타일 */
@@ -206,6 +190,87 @@ document.addEventListener('DOMContentLoaded', function () {
     calendar.refetchEvents();  // ✅ v5에서는 refetchEvents 사용
   });
 });
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const container = document.getElementById("dashboard");
+  const restoreList = document.getElementById("restoreList");
+  const restoreCard = container.querySelector(".restore-card"); // ✅ 복원 카드 확보
+
+  // SortableJS 활성화
+  Sortable.create(container, {
+    animation: 150,
+    ghostClass: "sortable-ghost",
+    filter: ".restore-card",   // restore-card는 드래그 불가
+    onEnd: function () {
+      saveOrder();
+    }
+  });
+
+  // 더블클릭 → 숨김
+  container.addEventListener("dblclick", function (e) {
+    const card = e.target.closest(".latest-card, .calendar-card");
+    if (card && !card.classList.contains("restore-card")) {
+      card.classList.add("hidden-card");
+      saveHidden();
+    }
+  });
+
+  // 복원 버튼 → 숨김 리스트 표시
+  document.getElementById("showRestoreList").addEventListener("click", function () {
+    const hiddenCards = JSON.parse(localStorage.getItem("hiddenCards") || "[]");
+    restoreList.innerHTML = "";
+
+    if (hiddenCards.length === 0) {
+      restoreList.style.display = "none";
+      alert("숨겨진 카드가 없습니다.");
+      return;
+    }
+
+    restoreList.style.display = "block";
+    hiddenCards.forEach(id => {
+      const li = document.createElement("li");
+      li.textContent = id;
+
+      const btn = document.createElement("button");
+      btn.textContent = "복원";
+      btn.onclick = function () {
+        const el = container.querySelector(`[data-id='${id}'], #${id}`);
+        if (el) el.classList.remove("hidden-card");
+
+        // localStorage 업데이트
+        const updated = hiddenCards.filter(hid => hid !== id);
+        localStorage.setItem("hiddenCards", JSON.stringify(updated));
+
+        li.remove();
+        if (!restoreList.querySelector("li")) restoreList.style.display = "none";
+      };
+
+      li.appendChild(btn);
+      restoreList.appendChild(li);
+    });
+  });
+
+  // 순서 저장
+  function saveOrder() {
+    const order = Array.from(container.children)
+      .filter(card => !card.classList.contains("restore-card")) // restore-card 제외
+      .map(card => card.dataset.id || card.id);
+
+    localStorage.setItem("dashboardOrder", JSON.stringify(order));
+
+    // 항상 restore-card는 맨 아래로
+    if (restoreCard) container.appendChild(restoreCard);
+  }
+
+  // 숨김 저장
+  function saveHidden() {
+    const hidden = Array.from(container.querySelectorAll(".hidden-card"))
+      .map(c => c.dataset.id || c.id);
+    localStorage.setItem("hiddenCards", JSON.stringify(hidden));
+  }
 });
 </script>
 
