@@ -77,7 +77,6 @@ include_once(G5_PATH.'/head.php');
 
 <div class="latest-card restore-card" data-id="restore">
   <div class="card">
-    <div class="card-header">숨겨진 카드 관리</div>
     <div class="card-body">
       <button id="showRestoreList" class="restore-btn">숨겨진 카드 복원</button>
       <ul id="restoreList" class="restore-list"></ul>
@@ -193,86 +192,179 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 
+
 <script>
-document.addEventListener("DOMContentLoaded", function () {
-  const container = document.getElementById("dashboard");
-  const restoreList = document.getElementById("restoreList");
-  const restoreCard = container.querySelector(".restore-card"); // ✅ 복원 카드 확보
+// ====== 기본 참조 ======
+document.addEventListener('DOMContentLoaded', function () {
+  const container     = document.getElementById('dashboard');                // 카드 그리드 래퍼
+  const restoreCard   = container.querySelector('.restore-card');            // "숨겨진 카드 관리" 카드
+  const showRestoreBtn= document.getElementById('showRestoreList');          // 복원 버튼
+  const restoreList   = document.getElementById('restoreList');              // 복원 목록 UL
 
-  // SortableJS 활성화
-  Sortable.create(container, {
-    animation: 150,
-    ghostClass: "sortable-ghost",
-    filter: ".restore-card",   // restore-card는 드래그 불가
-    onEnd: function () {
-      saveOrder();
+  // ====== 상태 로드 ======
+  const savedOrder  = safeParse(localStorage.getItem('dashboardOrder'), []);
+  const hiddenCards = safeParse(localStorage.getItem('hiddenCards'), []);
+
+  // ====== 초기 렌더: 순서/숨김 적용 ======
+  applySavedOrder();
+  applyHiddenState();
+
+  // 항상 restore-card는 맨 아래 고정
+  pinRestoreCard();
+
+  // ====== SortableJS 활성화(restore-card, 숨김카드 드래그 금지) ======
+  if (typeof Sortable !== 'undefined') {
+    Sortable.create(container, {
+      animation: 150,
+      ghostClass: 'sortable-ghost',
+      filter: '.restore-card, .hidden-card',
+      preventOnFilter: false,
+      onEnd: saveOrder
+    });
+  }
+
+  // ====== 더블클릭 → 카드 숨김 ======
+  container.addEventListener('dblclick', function (e) {
+    const card = e.target.closest('.latest-card, .calendar-card');
+    if (!card || card.classList.contains('restore-card')) return;
+
+    // 이미 숨김이면 무시
+    if (card.classList.contains('hidden-card')) return;
+
+    card.classList.add('hidden-card');
+    saveHidden();
+    pinRestoreCard();      // restore 카드 맨 아래 유지
+  });
+
+  // ====== 복원 리스트 토글 버튼 ======
+  showRestoreBtn.addEventListener('click', function () {
+    const isOpen = restoreList.dataset.open === '1';
+    if (isOpen) {
+      closeRestoreList();
+    } else {
+      openRestoreList();
     }
   });
 
-  // 더블클릭 → 숨김
-  container.addEventListener("dblclick", function (e) {
-    const card = e.target.closest(".latest-card, .calendar-card");
-    if (card && !card.classList.contains("restore-card")) {
-      card.classList.add("hidden-card");
-      saveHidden();
-    }
-  });
+  // ====== 도우미들 ======
+  function safeParse(json, fallback) {
+    try { return JSON.parse(json || ''); } catch(e) { return fallback; }
+  }
 
-  // 복원 버튼 → 숨김 리스트 표시
-  document.getElementById("showRestoreList").addEventListener("click", function () {
-    const hiddenCards = JSON.parse(localStorage.getItem("hiddenCards") || "[]");
-    restoreList.innerHTML = "";
+  function cardById(id) {
+    return container.querySelector(`[data-id="${CSS.escape(id)}"], #${CSS.escape(id)}`);
+  }
 
-    if (hiddenCards.length === 0) {
-      restoreList.style.display = "none";
-      alert("숨겨진 카드가 없습니다.");
+  function pinRestoreCard() {
+    if (restoreCard && restoreCard.parentNode !== container) return;
+    container.appendChild(restoreCard);
+  }
+
+    function applySavedOrder() {
+  const savedOrder = safeParse(localStorage.getItem("dashboardOrder"), []);
+  if (!Array.isArray(savedOrder) || !savedOrder.length) return;
+
+  savedOrder
+    .filter(id => id && id.trim() !== "")   // ✅ 빈 값 걸러내기
+    .forEach(id => {
+      const el = cardById(id);
+      if (el) container.insertBefore(el, restoreCard);
+    });
+
+  pinRestoreCard();
+}
+
+
+  function applyHiddenState() {
+    if (!Array.isArray(hiddenCards)) return;
+    hiddenCards.forEach(id => {
+      const el = cardById(id);
+      if (el && !el.classList.contains('restore-card')) {
+        el.classList.add('hidden-card');
+      }
+    });
+  }
+
+    function saveOrder() {
+  const order = Array.from(container.children)
+    .filter(card => !card.classList.contains("restore-card"))
+    .map(card => card.dataset.id || card.id)
+    .filter(id => id && id.trim() !== "");   // ✅ 빈 값 제거
+
+  localStorage.setItem("dashboardOrder", JSON.stringify(order));
+
+  if (restoreCard) container.appendChild(restoreCard);
+}
+
+  function saveHidden() {
+    const hidden = Array.from(container.querySelectorAll('.hidden-card'))
+      .filter(el => !el.classList.contains('restore-card'))
+      .map(el => el.dataset.id || el.id);
+
+    localStorage.setItem('hiddenCards', JSON.stringify(hidden));
+    // console.log('saved hidden:', hidden);
+  }
+
+  function openRestoreList() {
+    // 최신 hidden 목록으로 새로 그리기
+    const hidden = safeParse(localStorage.getItem('hiddenCards'), []);
+    restoreList.innerHTML = '';
+
+    if (!hidden.length) {
+      restoreList.dataset.open = '0';
+      restoreList.style.display = 'none';
+      showRestoreBtn.textContent = '숨겨진 카드 복원';
+      alert('숨겨진 카드가 없습니다.');
       return;
     }
 
-    restoreList.style.display = "block";
-    hiddenCards.forEach(id => {
-      const li = document.createElement("li");
-      li.textContent = id;
+    hidden.forEach(id => {
+      const li = document.createElement('li');
+      li.className = 'restore-item';
 
-      const btn = document.createElement("button");
-      btn.textContent = "복원";
-      btn.onclick = function () {
-        const el = container.querySelector(`[data-id='${id}'], #${id}`);
-        if (el) el.classList.remove("hidden-card");
+      const label = document.createElement('span');
+      label.className = 'restore-item__label';
+      label.textContent = id;
 
-        // localStorage 업데이트
-        const updated = hiddenCards.filter(hid => hid !== id);
-        localStorage.setItem("hiddenCards", JSON.stringify(updated));
-
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'restore-item__btn';
+      btn.textContent = '복원';
+      btn.addEventListener('click', function () {
+        const el = cardById(id);
+        if (el) {
+          el.classList.remove('hidden-card');
+          // 복원된 카드는 restore-card 위로 올려주고 순서 저장
+          container.insertBefore(el, restoreCard);
+          saveHidden();
+          saveOrder();
+        }
         li.remove();
-        if (!restoreList.querySelector("li")) restoreList.style.display = "none";
-      };
+        // 항목이 더 없으면 자동 닫기
+        if (!restoreList.querySelector('li')) {
+          closeRestoreList();
+        }
+      });
 
+      li.appendChild(label);
       li.appendChild(btn);
       restoreList.appendChild(li);
     });
-  });
 
-  // 순서 저장
-  function saveOrder() {
-    const order = Array.from(container.children)
-      .filter(card => !card.classList.contains("restore-card")) // restore-card 제외
-      .map(card => card.dataset.id || card.id);
-
-    localStorage.setItem("dashboardOrder", JSON.stringify(order));
-
-    // 항상 restore-card는 맨 아래로
-    if (restoreCard) container.appendChild(restoreCard);
+    restoreList.dataset.open = '1';
+    restoreList.style.display = 'block';
+    showRestoreBtn.textContent = '복원 닫기';
   }
 
-  // 숨김 저장
-  function saveHidden() {
-    const hidden = Array.from(container.querySelectorAll(".hidden-card"))
-      .map(c => c.dataset.id || c.id);
-    localStorage.setItem("hiddenCards", JSON.stringify(hidden));
+  function closeRestoreList() {
+    restoreList.innerHTML = '';
+    restoreList.dataset.open = '0';
+    restoreList.style.display = 'none';
+    showRestoreBtn.textContent = '숨겨진 카드 복원';
   }
 });
 </script>
+
 
 <?php
 include_once(G5_PATH.'/tail.php');
