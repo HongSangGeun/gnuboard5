@@ -34,27 +34,26 @@ include_once(G5_PATH.'/head.php');
 
 ?>
 
-<div class="latest-grid">
+<link rel="stylesheet" href="css/index.css">
+
+<div id="dashboard" class="latest-grid">
 <?php
-for ($i=0; $row=sql_fetch_array($result); $i++) {
-$lt_style = '';
-if ($i%3 !== 0 ) $lt_style = "margin-left:2%";
-?>
-    <div class="latest-card">
-        <?php echo latest('basic', $row['bo_table'], 6, 24); ?>
-        <a href="<?php echo G5_BBS_URL; ?>/member_confirm.php?url=<?php echo $bo_table; ?>" class="more-link">
-        </a>
-    </div>
+    for ($i=0; $row=sql_fetch_array($result); $i++) {
+    $lt_style = '';
+    if ($i%3 !== 0 ) $lt_style = "margin-left:2%";
+    ?>
+        <div class="latest-card" data-id="<?php echo $row['bo_table']; ?>">
+            <?php echo latest('basic', $row['bo_table'], 6, 24); ?>
+            <a href="<?php echo G5_BBS_URL; ?>/member_confirm.php?url=<?php echo $bo_table; ?>" class="more-link"></a>
+        </div>
 
 
 <?php } ?>
 </div>
 
-<link rel="stylesheet" href="css/index.css">
 <div class="col-md-6">
   <div class="card">
     <div class="card-header">
-      <!--a href="<?php echo G5_BBS_URL ?>/board.php?bo_table=schedule" class="more">더보기</a-->
     </div>
     <div class="card-body">
       <div id="calendar"></div>
@@ -82,6 +81,31 @@ if ($i%3 !== 0 ) $lt_style = "margin-left:2%";
 <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/google-calendar@6.1.15/index.global.min.js"></script>
 
 
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const container = document.getElementById("dashboard");
+
+  // SortableJS 활성화
+  Sortable.create(container, {
+    animation: 150,
+    onEnd: function () {
+      // 현재 순서를 배열로 저장
+      const order = Array.from(container.children).map(card => card.dataset.id);
+      localStorage.setItem("dashboardOrder", JSON.stringify(order));
+    }
+  });
+
+  // 저장된 순서 불러오기
+  const savedOrder = JSON.parse(localStorage.getItem("dashboardOrder") || "[]");
+  if (savedOrder.length) {
+    savedOrder.forEach(id => {
+      const el = container.querySelector(`[data-id='${id}']`);
+      if (el) container.appendChild(el);
+    });
+  }
+});
+</script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
