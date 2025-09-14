@@ -14,17 +14,17 @@ add_stylesheet('<link rel="stylesheet" href="'.$board_skin_url.'/style.css">', 8
 <style>
 .frm_input {
     height: 30px;
-    width: 120px;
+    width: 150px;
 }
 
 button.btn_frmline {
     display: inline-block;
-    width: 128px;
+    width: 180px;
     padding: 0 5px;
     height: 30px;
     border: 0;
     background: #434a54;
-    border-radius: 3px;
+    border-radius: 8px;
     color: #fff;
     text-decoration: none;
     vertical-align: top;
@@ -53,28 +53,31 @@ var categoryColors = {
   "응급의료": "#A29BFE"    // 기타 → 보라
 };
 
-$(function() {
 
-  // ✅ 분류 선택시 배경색 자동 설정
-  $("#ca_name").on("change", function() {
-    var cat = $(this).val();
-    var color = categoryColors[cat] || "#46E086"; // 기본색: 초록
-
-    console.log("선택된 카테고리:", cat);     // ✅ 선택된 카테고리 출력
-    console.log("적용된 색상:", color);       // ✅ 적용된 색상 출력
-
-    $("#wr_4").val(color);
-    if (typeof jscolor !== "undefined" && $("#wr_4")[0].jscolor) {
-      $("#wr_4")[0].jscolor.fromString(color);
-    }
-  });
-});
 </script>
 
 <script>
 $(function () {
 
-  
+// ISO 8601 → jQuery UI DateTimePicker 포맷으로 변환
+    function formatToDateTimePicker(val) {
+  if (!val) return "";
+
+  // ISO 포맷 정리: 20250916T13:00:00+09:00 → 2025-09-16 13:00
+  val = val.replace("T", " ").replace(/\+09:00/, "");
+
+  // YYYYMMDD HH:mm:ss → YYYY-MM-DD HH:mm 으로 변환
+  if (/^[0-9]{8}/.test(val)) {
+    let y = val.substr(0, 4);
+    let m = val.substr(4, 2);
+    let d = val.substr(6, 2);
+    let time = val.substr(9, 5); // HH:mm
+    return `${y}-${m}-${d} ${time}`;
+  }
+
+  return val.trim();
+}
+
   function initDateTime() {
   $("#wr_1, #wr_2").datepicker("destroy").datetimepicker({
     dateFormat: "yy-mm-dd",
@@ -97,6 +100,23 @@ $(function () {
 
   $("#wr_2").prop("readonly", false);
 }
+
+  let wr1 = $("#wr_1").val();
+  let wr2 = $("#wr_2").val();
+
+  $("#wr_1").val(formatToDateTimePicker(wr1));
+  $("#wr_2").val(formatToDateTimePicker(wr2));
+
+  $("#wr_1, #wr_2").datetimepicker({
+    dateFormat: "yy-mm-dd",
+    timeFormat: "HH:mm",
+    stepMinute: 10,
+    controlType: "select",
+    oneLine: true
+  });
+
+  console.log(event.allDay, event.start, event.end); 
+
 
 function initDateOnly() {
   $("#wr_1, #wr_2").datetimepicker("destroy").datepicker({
@@ -177,6 +197,22 @@ $("#is_all_day").on("change", function () {
     }
   });
 
+
+  // ✅ 분류 선택시 배경색 자동 설정
+  $("#ca_name").on("change", function() {
+    var cat = $(this).val();
+    var color = categoryColors[cat] || "#46E086"; // 기본색: 초록
+
+    console.log("선택된 카테고리:", cat);     // ✅ 선택된 카테고리 출력
+    console.log("적용된 색상:", color);       // ✅ 적용된 색상 출력
+
+    $("#wr_4").val(color);
+    if (typeof jscolor !== "undefined" && $("#wr_4")[0].jscolor) {
+      $("#wr_4")[0].jscolor.fromString(color);
+    }
+  });
+
+
   // ✅ 시작 변경 시: 종일이면 종료 자동 동기화
   // datepicker/datetimepicker 둘 다 change 이벤트 발생
 $("#wr_1").on("change", function () {
@@ -202,49 +238,85 @@ $("#wr_1").on("change", function () {
       syncEndWithStart();
     }
   });
+
+
+  $(".category-buttons button").on("click", function(e) {
+    e.preventDefault(); // 기본 submit 방지
+
+    // 모든 버튼 active 해제 후 현재 버튼만 active
+    $(".category-buttons button").removeClass("active");
+    $(this).addClass("active");
+
+    // 선택된 카테고리 값 가져오기
+    var catVal = $(this).data("value");
+    console.log("선택된 카테고리:", catVal);
+
+    // 숨겨진 select 값도 갱신
+    $("#ca_name").val(catVal).trigger("change");
+  });
 });
+
+
+
 </script>
 
-
-
 <?php
-// URL 파라미터 받기
-$param_wr1 = $_GET['wr_1'] ?? '';
-$param_wr2 = $_GET['wr_2'] ?? '';
-$param_allday = $_GET['allday'] ?? '1';
+// URL 파라미터
+$param_wr1    = $_GET['wr_1'] ?? '';
+$param_wr2    = $_GET['wr_2'] ?? '';
+$param_allday = $_GET['allday'] ?? '';
 
-
-// FullCalendar에서 YYYYMMDD 들어온 경우 변환
-if (!empty($param_wr1) && preg_match('/^[0-9]{8}$/', $param_wr1)) {
-    $wr_1_val = substr($param_wr1, 0, 4).'-'.substr($param_wr1, 4, 2).'-'.substr($param_wr1, 6, 2);
+// -----------------------------
+// 날짜 포맷 변환 함수
+// -----------------------------
+function normalize_date($date) {
+    if (empty($date)) return '';
+    // YYYYMMDD → YYYY-MM-DD
+    if (preg_match('/^\d{8}$/', $date)) {
+        return substr($date, 0, 4) . '-' . substr($date, 4, 2) . '-' . substr($date, 6, 2);
+    }
+    // YYYY-MM-DD HH:mm:ss or ISO → 그대로 숫자/문자만 필터링
+    return preg_replace("/[^0-9:\-T ]/", "", $date);
 }
-if (!empty($param_wr2) && preg_match('/^[0-9]{8}$/', $param_wr2)) {
-    $wr_2_val = substr($param_wr2, 0, 4).'-'.substr($param_wr2, 4, 2).'-'.substr($param_wr2, 6, 2);
-}
 
-// wr_1 기본값 (우선순위: 게시글 값 > GET 파라미터 > 오늘 날짜)
+// -----------------------------
+// 시작일 wr_1
+// -----------------------------
 if (!empty($write['wr_1'])) {
-    $wr_1_val = preg_replace("/[^0-9:\-T ]/", "", $write['wr_1']);
+    $wr_1_val = normalize_date($write['wr_1']);
 } elseif (!empty($param_wr1)) {
-    // FullCalendar에서 YYYY-MM-DD 넘어옴
-    $wr_1_val = preg_replace("/[^0-9:\-T ]/", "", $param_wr1);
+    $wr_1_val = normalize_date($param_wr1);
 } else {
     $wr_1_val = date('Y-m-d');
 }
 
-// wr_2 기본값 (우선순위: 게시글 값 > GET 파라미터 > wr_1과 동일)
+// -----------------------------
+// 종료일 wr_2
+// -----------------------------
 if (!empty($write['wr_2'])) {
-    $wr_2_val = preg_replace("/[^0-9:\-T ]/", "", $write['wr_2']);
+    $wr_2_val = normalize_date($write['wr_2']);
 } elseif (!empty($param_wr2)) {
-    $wr_2_val = preg_replace("/[^0-9:\-T ]/", "", $param_wr2);
+    $wr_2_val = normalize_date($param_wr2);
 } else {
     $wr_2_val = $wr_1_val;
 }
 
-// 종일 플래그 (wr_5)
-$is_all_day = (!empty($write['wr_5']) && $write['wr_5'] == '1') || $param_allday == '1';
-?>
+// -----------------------------
+// 종일 여부
+// -----------------------------
+// 글 값이 있으면 그걸 우선, 아니면 파라미터 체크
+$is_all_day = (
+    (!empty($write['wr_5']) && $write['wr_5'] === '1')
+    || $param_allday === '1'
+);
 
+// ✅ YYYYMMDD 형식으로 wr_1, wr_2가 들어온 경우 자동 종일 처리
+if (!$is_all_day) {
+    if (preg_match('/^\d{8}$/', $param_wr1) && preg_match('/^\d{8}$/', $param_wr2)) {
+        $is_all_day = true;
+    }
+}
+?>
 
 
 <section id="bo_w">
@@ -304,10 +376,32 @@ $is_all_day = (!empty($write['wr_5']) && $write['wr_5'] == '1') || $param_allday
     <tr>
         <th>분류<span class="sound_only">필수</span></th>
         <td>
-        <select name="ca_name" id="ca_name" required>
-            <option value="">분류를 선택하세요</option>
-            <?php echo $category_option ?>
-        </select>
+            <!-- 숨겨진 실제 값 -->
+
+<!-- 분류 버튼 그룹 -->
+<div class="category-buttons">
+  <button type="button" data-value="유지보수" 
+    class="<?php echo ($write['ca_name'] ?? '') === '유지보수' ? 'active' : ''; ?>">
+    유지보수
+  </button>
+  <button type="button" data-value="하드웨어" 
+    class="<?php echo ($write['ca_name'] ?? '') === '하드웨어' ? 'active' : ''; ?>">
+    하드웨어
+  </button>
+  <button type="button" data-value="데이터허브" 
+    class="<?php echo ($write['ca_name'] ?? '') === '데이터허브' ? 'active' : ''; ?>">
+    데이터허브
+  </button>
+  <button type="button" data-value="응급의료" 
+    class="<?php echo ($write['ca_name'] ?? '') === '응급의료' ? 'active' : ''; ?>">
+    응급의료
+  </button>
+</div>
+
+<!-- 숨겨진 input은 현재 카테고리 값으로 초기화 -->
+<input type="hidden" name="ca_name" id="ca_name" 
+       value="<?php echo $write['ca_name'] ?? '전체'; ?>">
+
         </td>
     </tr>
     <?php } ?>

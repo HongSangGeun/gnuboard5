@@ -119,7 +119,15 @@ while ($row = sql_fetch_array($res)) {
         $color = $row['wr_4'] ?: "rgba(70, 224, 134, 0.8)";
         $textColor = $row['wr_3'] ?: "#FFFFFF";
     }
-
+    
+    // 리소스 매핑
+    $resourceMap = [
+        "하드웨어" => "hw",
+        "유지보수" => "ms",
+        "데이터허브" => "dh",
+        "응급의료" => "em"
+    ];
+    
     $events[] = [
         'id' => $row['wr_id'],
         'title' => $row['wr_subject'],
@@ -132,6 +140,7 @@ while ($row = sql_fetch_array($res)) {
         'textColor' => $textColor,   // ✅ 변수 사용
         'url' => G5_BBS_URL . '/board.php?bo_table=' . $bo_table . '&wr_id=' . $row['wr_id'],
         'category' => $row['ca_name'] ?? '',
+        'resourceId' => $resourceMap[$row['ca_name']] ?? '',   // ✅ 매핑 적용
         'commentCount' => (int) ($row['wr_comment'] ?? 0)   // ✅ wr_comment 사용
     ];
 }

@@ -21,22 +21,23 @@ add_stylesheet('<link rel="stylesheet" href="'.$board_skin_url.'/style.css">', 1
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-  // 1) 캘린더 엘리먼트 확보
-  var calendarEl = document.getElementById('calendar');   // ← 이 줄이 먼저!
-  if (!calendarEl) return; // 안전장치
+    // 1) 캘린더 엘리먼트 확보
+    var calendarEl = document.getElementById('calendar');   // ← 이 줄이 먼저!
+    if (!calendarEl) return; // 안전장치
 
-  // 2) 전역처럼 쓸 선택 상태
-  var currentCategory = null;
+    // 2) 전역처럼 쓸 선택 상태
+    var currentCategory = null;
 
-  // 3) 캘린더 생성
-  var calendar = new FullCalendar.Calendar(calendarEl, {
-  initialView: 'dayGridMonth',
-  googleCalendarApiKey: 'AIzaSyBDLbVPdJoidVskOO7iA7oeaQ5mm5QL7Qk',
-  locale: 'ko',
-  slotMinTime: "07:00:00", // 오전 8시부터
-  slotMaxTime: "20:30:00", // 오후 8시까지만 표시
-  expandRows: false,   // 행이 꽉 차도록 늘림
-  contentHeight: 'auto',
+    // 3) 캘린더 생성
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+    initialView: 'dayGridMonth',
+    googleCalendarApiKey: 'AIzaSyBDLbVPdJoidVskOO7iA7oeaQ5mm5QL7Qk',
+    locale: 'ko',
+    slotEventOverlap: true,   // ✅ 이벤트 겹치면 병렬 배치
+    slotMinTime: "07:00:00", // 오전 8시부터
+    slotMaxTime: "20:30:00", // 오후 8시까지만 표시
+    expandRows: false,   // 행이 꽉 차도록 늘림
+    contentHeight: 'auto',
     locale: 'ko',
     height: 600,
     headerToolbar: {
@@ -45,25 +46,28 @@ document.addEventListener('DOMContentLoaded', function () {
       right: 'dayGridMonth,timeGridWeek,timeGridDay'
     },
     navLinks: false,
-        eventSources: [
-  {
-    url: '<?php echo $board_skin_url;?>/get-events1.php?bo_table='+g5_bo_table,
-    color: '#3788d8',
-    textColor: '#fff'
-  },
-  {
-    googleCalendarId: 'ko.south_korea#holiday@group.v.calendar.google.com',
-    color: '#FF5C5C',
-    textColor: '#ffffff',
-    className: 'holiday-event',
-    display: 'list-item',   // ✅ 점 스타일
-    eventDataTransform: function(ev) {
-        delete ev.url;
-        return ev;
-      }
-  }
-],
-
+    eventSources: [
+        {
+            url: '<?php echo $board_skin_url;?>/get-events1.php?bo_table='+g5_bo_table,
+            color: '#3788d8',
+            textColor: '#fff'
+        },
+        {
+            googleCalendarId: 'ko.south_korea#holiday@group.v.calendar.google.com',
+            color: '#FF5C5C',
+            textColor: '#ffffff',
+            className: 'holiday-event',
+            display: 'list-item',   // ✅ 점 스타일
+            eventDataTransform: function(ev) {
+            delete ev.url;
+            return ev;
+            }
+        }
+    ],
+    eventOverlap: function(stillEvent, movingEvent) {
+    // 예: 같은 카테고리면 겹치지 않게
+    return stillEvent.extendedProps.category !== movingEvent.extendedProps.category;
+    },
     // 날짜 클릭 → 글쓰기로 (YYYYMMDD)
     dateClick: function(info) {
       var yyyymmdd = info.dateStr.replace(/-/g, "");
