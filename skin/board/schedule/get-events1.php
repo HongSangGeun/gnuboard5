@@ -2,7 +2,8 @@
 // GNUBOARD5 FullCalendar 이벤트 피드 (올데이/시간 일정 자동 구분 + 다양한 날짜 포맷 대응)
 // 파일 경로: skin/board/schedule/get-events1.php
 
-include_once('../../../_common.php');
+// 공용 환경 로드: _common.php는 상대경로 이슈가 있어 common.php를 절대경로로 포함
+include_once(dirname(__FILE__, 3) . '/common.php');
 
 header('Content-Type: application/json; charset=utf-8');
 
