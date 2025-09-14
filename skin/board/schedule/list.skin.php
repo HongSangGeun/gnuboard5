@@ -9,15 +9,10 @@ add_stylesheet('<link rel="stylesheet" href="'.$board_skin_url.'/wzappend.css?v=
 add_stylesheet('<link rel="stylesheet" href="'.$board_skin_url.'/style.css">', 1);
 ?>
 
-<!-- 밑에 add_stylesheet 함수를 사용하지 않는이유은 가끔 홈페이지 개발시 오류로 add_stylesheet 함수가 먹지 않는 현상으로 인해 사용하지 않습니다. -->
-
-<script type="text/javascript" src="<?php echo $board_skin_url;?>/wz.js/moment.min.js"></script>
-<script type="text/javascript" src="<?php echo $board_skin_url;?>/wz.js/fullcalendar.js"></script>
-<script type="text/javascript" src="<?php echo $board_skin_url;?>/wz.js/ko.js"></script>
-
-<!-- FullCalendar 라이브러리 -->
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.css" rel="stylesheet" />
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
+<!-- FullCalendar v6 (global build)으로 통일 -->
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet" />
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fullcalendar/google-calendar@6.1.15/index.global.min.js"></script>
 
 <script>
 
