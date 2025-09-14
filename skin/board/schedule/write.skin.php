@@ -353,6 +353,7 @@ input:checked + .slider:before {
             <button type="button" data-value="하드웨어" class="<?php echo ($write['ca_name'] ?? '')==='하드웨어'?'active':''; ?>">하드웨어</button>
             <button type="button" data-value="데이터허브" class="<?php echo ($write['ca_name'] ?? '')==='데이터허브'?'active':''; ?>">데이터허브</button>
             <button type="button" data-value="응급의료" class="<?php echo ($write['ca_name'] ?? '')==='응급의료'?'active':''; ?>">응급의료</button>
+            <button type="button" data-value="집중관제" class="<?php echo ($write['ca_name'] ?? '')==='집중관제'?'active':''; ?>">집중관제</button>
           </div>
           <input type="hidden" name="ca_name" id="ca_name" value="<?php echo $write['ca_name'] ?? ''; ?>">
         </div>
