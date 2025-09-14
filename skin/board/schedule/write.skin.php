@@ -242,7 +242,7 @@ $(function () {
   .form-input:focus { border-color:#4A90E2; outline:none; box-shadow:0 0 0 3px rgba(74,144,226,.15); }
 
   .category-buttons { display:flex; flex-wrap:wrap; gap:8px; }
-  .category-buttons button { padding:8px 14px; border:1px solid #dde3ea; border-radius:22px; font-size: 12px; background:#f7f9fc; cursor:pointer; transition:.15s; }
+  .category-buttons button { padding:3px 14px; border:1px solid #dde3ea; border-radius:22px; font-size: 12px; background:#f7f9fc; cursor:pointer; transition:.15s; }
   .category-buttons button:hover { transform:translateY(-1px); box-shadow:0 2px 6px rgba(0,0,0,.06); }
   .category-buttons button.active { background:#4A90E2; color:#fff; border-color:#4A90E2; }
 
