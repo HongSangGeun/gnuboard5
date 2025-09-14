@@ -222,14 +222,14 @@ $(function () {
 
   .form-group {
     display:flex; align-items:center;
-    padding: 10px 60px 10px 10px ; gap:10px;
+    padding: 5px 60px 0px 10px ; gap:10px;
   }
   .form-group label {
     font-size:16px; font-weight:600; color:#8b8b8b; margin:6px; line-height:1.4;
   }
 
   .date-range { display:flex; align-items:center; gap:10px; flex-wrap:nowrap; }
-  .date-range label { display:flex; align-items:center; gap:4px; margin:0; font-size:14px; font-weight:600; }
+  .date-range label { display:flex; align-items:center; gap:4px; margin:0; font-size:18px; font-weight:600; }
   .date-range input[type="text"] { flex:0 0 180px; }
   .date-range span { margin:0 6px; }
 

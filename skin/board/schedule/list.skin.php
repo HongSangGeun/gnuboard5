@@ -20,6 +20,10 @@ add_stylesheet('<link rel="stylesheet" href="'.$board_skin_url.'/style.css">', 1
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.0/main.min.js"></script>
 
 <script>
+
+var lastView = get_cookie("fc_view") || "dayGridMonth";
+
+
 document.addEventListener('DOMContentLoaded', function () {
     // 1) 캘린더 엘리먼트 확보
     var calendarEl = document.getElementById('calendar');   // ← 이 줄이 먼저!
@@ -30,7 +34,8 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // 3) 캘린더 생성
     var calendar = new FullCalendar.Calendar(calendarEl, {
-    initialView: 'dayGridMonth',
+    initialView: lastView,
+    //initialView: 'dayGridMonth',
     googleCalendarApiKey: 'AIzaSyBDLbVPdJoidVskOO7iA7oeaQ5mm5QL7Qk',
     locale: 'ko',
     slotEventOverlap: true,   // ✅ 이벤트 겹치면 병렬 배치
@@ -64,6 +69,9 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         }
     ],
+    viewDidMount: function(arg) {
+        set_cookie("fc_view", arg.view.type, 30);
+    },
     eventOverlap: function(stillEvent, movingEvent) {
     // 예: 같은 카테고리면 겹치지 않게
     return stillEvent.extendedProps.category !== movingEvent.extendedProps.category;
