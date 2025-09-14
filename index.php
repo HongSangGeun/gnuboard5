@@ -80,7 +80,6 @@ include_once(G5_PATH.'/head.php');
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/google-calendar@6.1.15/index.global.min.js"></script>
 
-
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function() {
@@ -89,6 +88,7 @@ document.addEventListener("DOMContentLoaded", function() {
   // SortableJS 활성화
   Sortable.create(container, {
     animation: 150,
+    ghostClass: "sortable-ghost",
     onEnd: function () {
       // 현재 순서를 배열로 저장
       const order = Array.from(container.children).map(card => card.dataset.id);
@@ -101,11 +101,22 @@ document.addEventListener("DOMContentLoaded", function() {
   if (savedOrder.length) {
     savedOrder.forEach(id => {
       const el = container.querySelector(`[data-id='${id}']`);
-      if (el) container.appendChild(el);
+      if (el) {
+        container.appendChild(el); // 원본 DOM만 이동
+      }
     });
   }
 });
 </script>
+
+<style>
+/* 드래그 중인 카드 스타일 */
+.sortable-ghost {
+  opacity: 0.5;
+  background: #f0f0f0;
+  border: 2px dashed #999;
+}
+</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
