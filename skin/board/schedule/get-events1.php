@@ -2,20 +2,9 @@
 // GNUBOARD5 FullCalendar 이벤트 피드 (올데이/시간 일정 자동 구분 + 다양한 날짜 포맷 대응)
 // 파일 경로: skin/board/schedule/get-events1.php
 
-// 공용 환경 로드: 실행 위치가 skin 하위이므로 루트의 common.php를 절대경로로 포함
-// /skin/board/schedule/get-events1.php -> ../../../../common.php
-$__root = dirname(__FILE__, 4);
-if (file_exists($__root . '/common.php')) {
-    include_once($__root . '/common.php');
-} else if (!empty($_SERVER['DOCUMENT_ROOT']) && file_exists($_SERVER['DOCUMENT_ROOT'] . '/common.php')) {
-    include_once($_SERVER['DOCUMENT_ROOT'] . '/common.php');
-} else {
-    // 최후의 보루: 오류 방지를 위해 빈 응답
-    header('Content-Type: application/json; charset=utf-8');
-    echo json_encode([]);
-    exit;
-}
-unset($__root);
+// 공용 환경 로드: 프로젝트 루트의 _common.php를 상대경로로 포함
+// skin/board/schedule -> ../../../
+include_once(dirname(__FILE__, 3) . '/_common.php');
 
 header('Content-Type: application/json; charset=utf-8');
 
