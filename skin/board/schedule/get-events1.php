@@ -2,7 +2,7 @@
 // GNUBOARD5 FullCalendar 이벤트 피드 (올데이/시간 일정 자동 구분 + 다양한 날짜 포맷 대응)
 // 파일 경로: skin/board/schedule/get-events1.php
 
-include_once('./_common.php');
+include_once('../../../_common.php');
 
 header('Content-Type: application/json; charset=utf-8');
 
@@ -146,4 +146,3 @@ while ($row = sql_fetch_array($res)) {
 }
 
 echo json_encode($events, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
-
