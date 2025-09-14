@@ -200,7 +200,17 @@ $(function () {
       $("#wr_4")[0].jscolor.fromString(color);
     }
   });
+
+    $("#is_all_day").on("change", function() {
+    if ($(this).is(":checked")) {
+      $("#allDayLabel").text("종일일정");
+    } else {
+      $("#allDayLabel").text("부분일정");
+    }
+  });
+
 });
+
 </script>
 
 <style>
@@ -210,15 +220,7 @@ $(function () {
   .form-row .form-group.half { flex:1; min-width:0; }
 
   /* CKEditor 가로폭 풀기 */
-  .editor-wrapper {
-    width: 100% !important;
-    max-width: 100% !important;
-    padding: 0;
-    box-sizing: border-box;
-  }
   .form-group .editor-wrapper { flex: 1; }
-  #wr_content, #cke_wr_content, .cke_contents { width: 100% !important; }
-  .editor-wrapper .ckeditor4 { width: 100%; }
 
   .form-group {
     display:flex; align-items:center;
@@ -247,6 +249,48 @@ $(function () {
   .btn.cancel { background:#f0f3f7; color:#34495e; }
   .btn.submit { width: 80px; background:#4A90E2; color:#fff; border:none; }
   a.btn, .btn { font-size: 16px !important; } 
+</style>
+
+<style>
+#allDayLabel {
+    font-size: 18px;
+}
+/* 토글 스위치 스타일 */
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 21px;
+}
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0;
+  right: 0; bottom: 0;
+  background-color: #ccc;
+  transition: .4s;
+  border-radius: 26px;
+}
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 15px; width: 15px;
+  left: 5px; bottom: 3px;
+  background-color: white;
+  transition: .2s;
+  border-radius: 50%;
+}
+input:checked + .slider {
+  background-color: #ce3945; /* 선택 시 색상 */
+}
+input:checked + .slider:before {
+  transform: translateX(16px);
+}
 </style>
 
 <section id="bo_w">
@@ -329,7 +373,13 @@ $(function () {
           <input type="text" name="wr_2" id="wr_2" value="<?php echo $wr_2_val; ?>" class="form-input" placeholder="종료일시" required>
           <input type="hidden" name="wr_3" value="<?php echo isset($write['wr_3']) ? $write['wr_3'] : '#ffffff'; ?>" id="wr_3">
           <input type="hidden" name="wr_4" value="<?php echo isset($write['wr_4']) ? $write['wr_4'] : '#46E086'; ?>" id="wr_4">
-          <label><input type="checkbox" id="is_all_day" <?php echo $is_all_day ? 'checked' : ''; ?>> 종일</label>
+          <div class="form-group">
+  <label class="switch">
+    <input type="checkbox" id="is_all_day" name="wr_5" value="1" <?php echo $is_all_day ? 'checked' : ''; ?>>
+    <span class="slider round"></span>
+  </label>
+  <span id="allDayLabel"><?php echo $is_all_day ? '종일일정' : '부분일정'; ?></span>
+</div>
         </div>
       </div>
 
