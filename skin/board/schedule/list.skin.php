@@ -145,6 +145,8 @@ document.addEventListener('DOMContentLoaded', function () {
   <span class="legend-item" data-category="하드웨어" style="background:#4ECDC4;"></span> 하드웨어
   <span class="legend-item" data-category="데이터허브" style="background:#4A90E2;"></span> 데이터허브
   <span class="legend-item" data-category="응급의료" style="background:#A29BFE;"></span> 응급의료
+  <span class="legend-item" data-category="집중관제" style="background:#FEFB9B; color:#000;"></span> 집중관제
+  <span class="legend-item" data-category="기타" style="background:#7C7C7C; color:#fff;"></span> 기타
 </div>
   <div class="legend-right">
     <a href="<?php echo G5_BBS_URL; ?>/write.php?bo_table=schedule" class="btn-add-event">+ 일정 등록하기</a>
