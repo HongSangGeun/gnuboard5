@@ -21,11 +21,12 @@ add_stylesheet('<link rel="stylesheet" href="' . $board_skin_url . '/style.css">
   button.btn_frmline {
     display: inline-block;
     width: 180px;
-    padding: 0 5px;
-    height: 30px;
+    padding-top: 3px;
+    padding-bottom: 5px;
+    height: auto;
     border: 0;
-    background: #434a54;
-    border-radius: 8px;
+    background: #4338ca;
+    border-radius: 4px;
     color: #fff;
     text-decoration: none;
     vertical-align: top;
@@ -92,7 +93,7 @@ add_stylesheet('<link rel="stylesheet" href="' . $board_skin_url . '/style.css">
         showSecond: false
       });
 
-      // ✅ 값이 있으면 강제로 Date 객체로 변환 후 setDate
+      //  값이 있으면 강제로 Date 객체로 변환 후 setDate
       if ($("#wr_1").val()) {
         let d1 = parseInputDate($("#wr_1").val());
         if (d1) $("#wr_1").datetimepicker("setDate", d1);
@@ -142,7 +143,7 @@ add_stylesheet('<link rel="stylesheet" href="' . $board_skin_url . '/style.css">
       $("#wr_2").prop("readonly", true);
     }
 
-    // ✅ 안전하게 문자열 → Date 변환하는 함수
+    //  안전하게 문자열 → Date 변환하는 함수
     function parseInputDate(str) {
       if (!str) return null;
 
@@ -187,11 +188,11 @@ add_stylesheet('<link rel="stylesheet" href="' . $board_skin_url . '/style.css">
     }
 
 
-    // ✅ 초기 상태 적용
+    //  초기 상태 적용
     if ($("#is_all_day").is(":checked")) initDateOnly();
     else initDateTime();
 
-    // ✅ 종일 토글 (오타 주의: $("#is_all_day"))
+    //  종일 토글 (오타 주의: $("#is_all_day"))
     $("#is_all_day").on("change", function () {
       $("#wr_5_hidden").val(this.checked ? "1" : "0");
       if (this.checked) {
@@ -202,13 +203,13 @@ add_stylesheet('<link rel="stylesheet" href="' . $board_skin_url . '/style.css">
     });
 
 
-    // ✅ 분류 선택시 배경색 자동 설정
+    //  분류 선택시 배경색 자동 설정
     $("#ca_name").on("change", function () {
       var cat = $(this).val();
       var color = categoryColors[cat] || "#46E086"; // 기본색: 초록
 
-      console.log("선택된 카테고리:", cat);     // ✅ 선택된 카테고리 출력
-      console.log("적용된 색상:", color);       // ✅ 적용된 색상 출력
+      console.log("선택된 카테고리:", cat);     //  선택된 카테고리 출력
+      console.log("적용된 색상:", color);       //  적용된 색상 출력
 
       $("#wr_4").val(color);
       if (typeof jscolor !== "undefined" && $("#wr_4")[0].jscolor) {
@@ -217,7 +218,7 @@ add_stylesheet('<link rel="stylesheet" href="' . $board_skin_url . '/style.css">
     });
 
 
-    // ✅ 시작 변경 시: 종일이면 종료 자동 동기화
+    //  시작 변경 시: 종일이면 종료 자동 동기화
     // datepicker/datetimepicker 둘 다 change 이벤트 발생
     $("#wr_1").on("change", function () {
       var startVal = $("#wr_1").val();
@@ -245,16 +246,25 @@ add_stylesheet('<link rel="stylesheet" href="' . $board_skin_url . '/style.css">
 
 
     $(".category-buttons button").on("click", function (e) {
-      e.preventDefault(); // 기본 submit 방지
-
       // 모든 버튼 active 해제 후 현재 버튼만 active
       $(".category-buttons button").removeClass("active");
-      $(this).addClass("active");
+      // 모든 버튼을 원래 스타일로 초기화
+  $(".category-buttons button").removeClass("active").css({
+    "background": "",
+    "border-color": "",
+    "color": ""
+  });
 
       // 선택된 카테고리 값 가져오기
       var catVal = $(this).data("value");
+        var color = categoryColors[catVal] || "#007bff"; // fallback
       console.log("선택된 카테고리:", catVal);
 
+    $(this).addClass("active").css({
+      "background": color,
+      "border-color": color,
+      "color": "#fff"
+    });
       // 숨겨진 select 값도 갱신
       $("#ca_name").val(catVal).trigger("change");
     });
@@ -316,7 +326,7 @@ $is_all_day = (
   || $param_allday === '1'
 );
 
-// ✅ YYYYMMDD 형식으로 wr_1, wr_2가 들어온 경우 자동 종일 처리
+//  YYYYMMDD 형식으로 wr_1, wr_2가 들어온 경우 자동 종일 처리
 if (!$is_all_day) {
   if (preg_match('/^\d{8}$/', $param_wr1) && preg_match('/^\d{8}$/', $param_wr2)) {
     $is_all_day = true;
