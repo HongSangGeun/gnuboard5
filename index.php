@@ -84,6 +84,7 @@ $result = sql_query($sql);
 
 
 <script>
+  var lastView = get_cookie("fc_view_main") || "dayGridMonth";
   document.addEventListener('DOMContentLoaded', function () {
     // 1) 캘린더 엘리먼트 확보
     var calendarEl = document.getElementById('calendar');   // ← 이 줄이 먼저!
@@ -94,7 +95,7 @@ $result = sql_query($sql);
 
     // 3) 캘린더 생성
     var calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: 'dayGridMonth',
+      initialView: lastView,
       locale: 'ko',
       slotMinTime: "07:00:00", // 오전 8시부터
       slotMaxTime: "20:30:00", // 오후 8시까지만 표시
@@ -133,6 +134,9 @@ $result = sql_query($sql);
         var yyyymmdd = info.dateStr.replace(/-/g, "");
         window.location.href = "<?php echo G5_BBS_URL; ?>/write.php?bo_table=schedule&wr_1=" + yyyymmdd + "&wr_2=" + yyyymmdd;
       },
+      viewDidMount: function(arg) {
+            set_cookie("fc_view", arg.view.type, 30);
+        },
       // 일정 클릭 → 상세 새창
       eventClick: function (info) {
         if (info.event.url) {
