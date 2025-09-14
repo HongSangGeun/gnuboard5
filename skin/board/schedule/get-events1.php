@@ -2,19 +2,9 @@
 // GNUBOARD5 FullCalendar 이벤트 피드 (올데이/시간 일정 자동 구분 + 다양한 날짜 포맷 대응)
 // 파일 경로: skin/board/schedule/get-events1.php
 
-// 공용 환경 로드: 프로젝트 루트의 _common.php를 상대경로로 포함
-// skin/board/schedule -> ../../../
-include_once(dirname(__FILE__, 3) . '/_common.php');
+include_once('./_common.php');
 
 header('Content-Type: application/json; charset=utf-8');
-
-// 필수 파라미터 처리: bo_table -> write_table 설정
-$bo_table = isset($_GET['bo_table']) ? preg_replace('/[^a-z0-9_]/i', '', $_GET['bo_table']) : '';
-if (!$bo_table) {
-    echo json_encode([]);
-    exit;
-}
-$write_table = $g5['write_prefix'] . $bo_table;
 
 // FullCalendar가 start/end(YYYY-MM-DD)를 쿼리로 넘김
 if (!isset($_GET['start']) || !isset($_GET['end'])) {
@@ -22,9 +12,9 @@ if (!isset($_GET['start']) || !isset($_GET['end'])) {
     exit;
 }
 
-// 비교용: YYYY-MM-DD -> YYYYMMDD (숫자만 추출)
-$frdate = preg_replace('/[^0-9]/', '', $_GET['start']);
-$todate = preg_replace('/[^0-9]/', '', $_GET['end']);
+// 비교용: YYYY-MM-DD -> YYYYMMDD
+$frdate = str_replace('-', '', $_GET['start']);
+$todate = str_replace('-', '', $_GET['end']);
 
 // 날짜가 다양한 포맷(Ymd, YmdHi, YmdHis, Y-m-d, Y-m-d H:i, Y-m-d H:i:s, ISO8601 등)으로 섞여 저장되어도 파싱
 function parse_datetime_str($str)

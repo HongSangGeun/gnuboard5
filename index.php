@@ -77,8 +77,7 @@ $result = sql_query($sql);
   </div>
 </div>
 
-<!-- FullCalendar v6 라이브러리 + CSS -->
-<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet" />
+<!-- FullCalendar 라이브러리 -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/google-calendar@6.1.15/index.global.min.js"></script>
 <link rel="stylesheet" href="skin/board/schedule/style.css">
@@ -101,6 +100,7 @@ $result = sql_query($sql);
       slotMaxTime: "20:30:00", // 오후 8시까지만 표시
       expandRows: false,   // 행이 꽉 차도록 늘림
       contentHeight: 'auto',
+      locale: 'ko',
       googleCalendarApiKey: 'AIzaSyBDLbVPdJoidVskOO7iA7oeaQ5mm5QL7Qk',
       height: 600,
       headerToolbar: {
@@ -111,7 +111,7 @@ $result = sql_query($sql);
       navLinks: false,
       eventSources: [
         {
-          url: "<?php echo G5_URL; ?>/skin/board/schedule/get-events1.php?bo_table=schedule",
+          url: "<?php echo $board_skin_url; ?>/schedule/get-events1.php?bo_table=schedule",
           color: '#3788d8',
           textColor: '#fff'
         },
@@ -136,7 +136,7 @@ $result = sql_query($sql);
       // 일정 클릭 → 상세 새창
       eventClick: function (info) {
         if (info.event.url) {
-          window.location.href = info.event.url; // 새창 열기 없이 동일 창 이동
+          window.location.href(info.event.url, "_blank");
           info.jsEvent.preventDefault();
         }
       },

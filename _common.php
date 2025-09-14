@@ -1,6 +1,5 @@
 <?php
-// 절대 경로 기준으로 공통 파일 포함 (실행 위치에 영향받지 않도록)
-include_once(__DIR__ . '/common.php');
+include_once('./common.php');
 
 // 커뮤니티 사용여부
 if(defined('G5_COMMUNITY_USE') && G5_COMMUNITY_USE === false) {
