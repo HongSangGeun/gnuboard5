@@ -348,249 +348,83 @@ if (!$is_all_day) {
 }
 ?>
 
+<div class="form-wrapper">
 
-<section id="bo_w">
-  <h2 class="sound_only"><?php echo $g5['title'] ?></h2>
+  <!-- 분류 -->
+  <div class="form-group">
+    <label>분류 <span class="required">*</span></label>
+    <div class="category-buttons">
+      <button type="button" data-value="유지보수" class="<?= ($write['ca_name'] ?? '')==='유지보수'?'active':'' ?>">유지보수</button>
+      <button type="button" data-value="하드웨어" class="<?= ($write['ca_name'] ?? '')==='하드웨어'?'active':'' ?>">하드웨어</button>
+      <button type="button" data-value="데이터허브" class="<?= ($write['ca_name'] ?? '')==='데이터허브'?'active':'' ?>">데이터허브</button>
+      <button type="button" data-value="응급의료" class="<?= ($write['ca_name'] ?? '')==='응급의료'?'active':'' ?>">응급의료</button>
+    </div>
+    <input type="hidden" name="ca_name" id="ca_name" value="<?= $write['ca_name'] ?? '' ?>">
+  </div>
 
-  <!-- 게시물 작성/수정 시작 { -->
-  <form name="fwrite" id="fwrite" action="<?php echo $action_url ?>" onsubmit="return fwrite_submit(this);"
-    method="post" enctype="multipart/form-data" autocomplete="off" style="width:<?php echo $width; ?>">
-    <input type="hidden" name="uid" value="<?php echo get_uniqid(); ?>">
-    <input type="hidden" name="w" value="<?php echo $w ?>">
-    <input type="hidden" name="bo_table" value="<?php echo $bo_table ?>">
-    <input type="hidden" name="wr_id" value="<?php echo $wr_id ?>">
-    <input type="hidden" name="sca" value="<?php echo $sca ?>">
-    <input type="hidden" name="sfl" value="<?php echo $sfl ?>">
-    <input type="hidden" name="stx" value="<?php echo $stx ?>">
-    <input type="hidden" name="spt" value="<?php echo $spt ?>">
-    <input type="hidden" name="sst" value="<?php echo $sst ?>">
-    <input type="hidden" name="sod" value="<?php echo $sod ?>">
-    <input type="hidden" name="page" value="<?php echo $page ?>">
+  <!-- 제목 -->
+  <div class="form-group">
+    <label for="wr_subject">제목 <span class="required">*</span></label>
+    <input type="text" name="wr_subject" value="<?= $subject ?>" id="wr_subject" 
+           class="form-input" required placeholder="제목을 입력하세요">
+  </div>
 
-    <div class="wz_tbl_1">
-      <table>
-        <tbody>
-          <?php
-          $option = '';
-          $option_hidden = '';
-          if ($is_notice || $is_html || $is_secret || $is_mail) {
-            $option = '';
-            if ($is_notice) {
-              $option .= "\n" . '<input type="checkbox" id="notice" name="notice" value="1" ' . $notice_checked . '>' . "\n" . '<label for="notice">공지</label>';
-            }
+  <!-- 기간 -->
+  <div class="form-group">
+    <label>기간 <span class="required">*</span></label>
+    <div class="date-range">
+      <label><input type="checkbox" id="is_all_day" <?= $is_all_day?'checked':'' ?>> 종일</label>
+      <input type="hidden" id="wr_5_hidden" name="wr_5" value="<?= $is_all_day?'1':'0' ?>">
+      <input type="text" name="wr_1" id="wr_1" value="<?= $wr_1_val ?>" class="form-input" placeholder="시작일시" required>
+      <span>~</span>
+      <input type="text" name="wr_2" id="wr_2" value="<?= $wr_2_val ?>" class="form-input" placeholder="종료일시" required>
+    </div>
+  </div>
 
-            if ($is_html) {
-              if ($is_dhtml_editor) {
-                $option_hidden .= '<input type="hidden" value="html1" name="html">';
-              } else {
-                $option .= "\n" . '<input type="checkbox" id="html" name="html" onclick="html_auto_br(this);" value="' . $html_value . '" ' . $html_checked . '>' . "\n" . '<label for="html">HTML</label>';
-              }
-            }
+  <!-- 내용 -->
+  <div class="form-group">
+    <label for="wr_content">내용 <span class="required">*</span></label>
+    <div class="editor-wrapper <?= $is_dhtml_editor ? $config['cf_editor'] : ''; ?>">
+      <?= $editor_html ?>
+    </div>
+  </div>
 
-            if ($is_secret) {
-              if ($is_admin || $is_secret == 1) {
-                $option .= "\n" . '<input type="checkbox" id="secret" name="secret" value="secret" ' . $secret_checked . '>' . "\n" . '<label for="secret">비밀글</label>';
-              } else {
-                $option_hidden .= '<input type="hidden" name="secret" value="secret">';
-              }
-            }
+  <!-- 파일 첨부 -->
+  <?php for ($i=0; $is_file && $i<$file_count; $i++) { ?>
+    <div class="form-group">
+      <label>파일 <?= $i+1 ?></label>
+      <input type="file" name="bf_file[]" id="bf_file_<?= $i+1 ?>" class="form-input">
+      <?php if ($is_file_content) { ?>
+        <input type="text" name="bf_content[]" value="<?= ($w=='u')?$file[$i]['bf_content']:'' ?>" 
+               placeholder="파일 설명" class="form-input">
+      <?php } ?>
+    </div>
+  <?php } ?>
 
-            if ($is_mail) {
-              $option .= "\n" . '<input type="checkbox" id="mail" name="mail" value="mail" ' . $recv_email_checked . '>' . "\n" . '<label for="mail">답변메일받기</label>';
-            }
-          }
+  <!-- 액션 버튼 -->
+  <div class="form-actions">
+    <a href="./board.php?bo_table=<?= $bo_table ?>" class="btn cancel">취소</a>
+    <button type="submit" id="btn_submit" class="btn submit">작성완료</button>
+  </div>
+</div>
 
-          echo $option_hidden;
-          ?>
-
-          <?php if ($is_category) { ?>
-            <tr>
-              <th>분류<span class="sound_only">필수</span></th>
-              <td>
-                <!-- 숨겨진 실제 값 -->
-
-                <!-- 분류 버튼 그룹 -->
-                <div class="category-buttons">
-                  <button type="button" data-value="유지보수"
-                    class="<?php echo ($write['ca_name'] ?? '') === '유지보수' ? 'active' : ''; ?>">
-                    유지보수
-                  </button>
-                  <button type="button" data-value="하드웨어"
-                    class="<?php echo ($write['ca_name'] ?? '') === '하드웨어' ? 'active' : ''; ?>">
-                    하드웨어
-                  </button>
-                  <button type="button" data-value="데이터허브"
-                    class="<?php echo ($write['ca_name'] ?? '') === '데이터허브' ? 'active' : ''; ?>">
-                    데이터허브
-                  </button>
-                  <button type="button" data-value="응급의료"
-                    class="<?php echo ($write['ca_name'] ?? '') === '응급의료' ? 'active' : ''; ?>">
-                    응급의료
-                  </button>
-                </div>
-
-                <!-- 숨겨진 input은 현재 카테고리 값으로 초기화 -->
-                <input type="hidden" name="ca_name" id="ca_name" value="<?php echo $write['ca_name'] ?? '전체'; ?>">
-
-              </td>
-            </tr>
-          <?php } ?>
-
-
-          <?php if ($is_name) { ?>
-            <tr>
-              <th>이름<span class="sound_only">필수</span></th>
-              <td><input type="text" name="wr_name" value="<?php echo $name ?>" id="wr_name" required
-                  class="frm_input required" placeholder="이름"></td>
-            </tr>
-          <?php } ?>
-
-          <?php if ($is_password) { ?>
-            <tr>
-              <th>비밀번호<span class="sound_only">필수</span></th>
-              <td><input type="password" name="wr_password" id="wr_password" <?php echo $password_required ?>
-                  class="frm_input <?php echo $password_required ?>" placeholder="비밀번호"></td>
-            </tr>
-          <?php } ?>
-
-          <?php if ($is_email) { ?>
-            <tr>
-              <th>이메일</th>
-              <td><input type="text" name="wr_email" value="<?php echo $email ?>" id="wr_email" class="frm_input email "
-                  placeholder="이메일"></td>
-            </tr>
-          <?php } ?>
-
-          <?php if ($is_homepage) { ?>
-            <tr>
-              <th>홈페이지</th>
-              <td><input type="text" name="wr_homepage" value="<?php echo $homepage ?>" id="wr_homepage"
-                  class="frm_input full_input" size="50" placeholder="홈페이지"></td>
-            </tr>
-          <?php } ?>
-
-          <?php if ($option) { ?>
-            <tr>
-              <th>옵션</th>
-              <td><?php echo $option ?></td>
-            </tr>
-          <?php } ?>
-
-          <tr>
-            <th>제목<span class="sound_only">필수</span></th>
-            <td>
-              <div id="autosave_wrapper write_div">
-                <input type="text" name="wr_subject" value="<?php echo $subject ?>" id="wr_subject" required
-                  class="frm_input required" size="50" maxlength="255" placeholder="제목">
-                <?php if ($is_member) { // 임시 저장된 글 기능 ?>
-                  <script src="<?php echo G5_JS_URL; ?>/autosave.js"></script>
-                  <?php if ($editor_content_js)
-                    echo $editor_content_js; ?>
-                  <button type="button" id="btn_autosave" class="btn_frmline">임시 저장된 글 (<span
-                      id="autosave_count"><?php echo $autosave_count; ?></span>)</button>
-                  <div id="autosave_pop">
-                    <strong>임시 저장된 글 목록</strong>
-                    <ul></ul>
-                    <div><button type="button" class="autosave_close">닫기</button></div>
-                  </div>
-                <?php } ?>
-              </div>
-            </td>
-          </tr>
-
-          <tr>
-            <th>기간<span class="sound_only">필수</span></th>
-            <td>
-
-
-
-
-              <!-- 종일 여부 -->
-
-              <div class="dtp-thema" id="time-inputs">
-                <input type="hidden" name="wr_5" value="0">
-                <label style="margin-right:8px">
-                  <!--input checked type="checkbox" id="is_all_day" name="wr_5" value="1" <?php echo $is_all_day ? 'checked' : ''; ?>-->
-                  <input type="hidden" id="wr_5_hidden" name="wr_5" value="<?php echo $is_all_day ? '1' : '0'; ?>">
-                  <input type="checkbox" id="is_all_day" <?php echo $is_all_day ? 'checked' : ''; ?>>
-                  종일
-                </label>
-                <label for="wr_1">시작일시</label>
-                <input type="text" name="wr_1" value="<?php echo $wr_1_val; ?>" readonly id="wr_1" required
-                  class="frm_input required" size="8" maxlength="8"> ~
-                <label for="wr_2">종료일시</label>
-                <input type="text" name="wr_2" value="<?php echo $wr_2_val; ?>" readonly id="wr_2" required
-                  class="frm_input required" size="8" maxlength="8">
-                <input type="hidden" name="wr_3"
-                  value="<?php echo isset($write['wr_3']) ? $write['wr_3'] : '#ffffff'; ?>" id="wr_3"
-                  class="frm_input jscolor {hash:true}" size="8">
-                <input type="hidden" name="wr_4"
-                  value="<?php echo isset($write['wr_4']) ? $write['wr_4'] : '#46E086'; ?>" id="wr_4"
-                  class="frm_input jscolor {hash:true}" size="8">
-              </div>
-
-            </td>
-          </tr>
-
-          <tr>
-            <th>내용<span class="sound_only">필수</span></th>
-            <td>
-              <div class="wr_content <?php echo $is_dhtml_editor ? $config['cf_editor'] : ''; ?>">
-                <?php if ($write_min || $write_max) { ?>
-                  <!-- 최소/최대 글자 수 사용 시 -->
-                  <p id="char_count_desc">이 게시판은 최소 <strong><?php echo $write_min; ?></strong>글자 이상, 최대
-                    <strong><?php echo $write_max; ?></strong>글자 이하까지 글을 쓰실 수 있습니다.</p>
-                <?php } ?>
-                <?php echo $editor_html; // 에디터 사용시는 에디터로, 아니면 textarea 로 노출 ?>
-                <?php if ($write_min || $write_max) { ?>
-                  <!-- 최소/최대 글자 수 사용 시 -->
-                  <div id="char_count_wrap"><span id="char_count"></span>글자</div>
-                <?php } ?>
-              </div>
-            </td>
-          </tr>
-
-
-          <?php for ($i = 0; $is_file && $i < $file_count; $i++) { ?>
-            <tr>
-              <th>파일 <?php echo $i + 1 ?></th>
-              <td>
-                <input type="file" name="bf_file[]" id="bf_file_<?php echo $i + 1 ?>"
-                  title="파일첨부 <?php echo $i + 1 ?> : 용량 <?php echo $upload_max_filesize ?> 이하만 업로드 가능" class="frm_file ">
-
-                <?php if ($is_file_content) { ?>
-                  <input type="text" name="bf_content[]" value="<?php echo ($w == 'u') ? $file[$i]['bf_content'] : ''; ?>"
-                    title="파일 설명을 입력해주세요." class="full_input frm_input" size="50" placeholder="파일 설명을 입력해주세요.">
-                <?php } ?>
-
-                <?php if ($w == 'u' && $file[$i]['file']) { ?>
-                  <span class="file_del">
-                    <input type="checkbox" id="bf_file_del<?php echo $i ?>" name="bf_file_del[<?php echo $i; ?>]"
-                      value="1"> <label
-                      for="bf_file_del<?php echo $i ?>"><?php echo $file[$i]['source'] . '(' . $file[$i]['size'] . ')'; ?> 파일
-                      삭제</label>
-                  </span>
-                <?php } ?>
-              </td>
-            </tr>
-          <?php } ?>
-
-
-          <?php if ($is_use_captcha) { //자동등록방지  ?>
-            <tr>
-              <th>자동등록방지</th>
-              <td><?php echo $captcha_html ?></td>
-            </tr>
-          <?php } ?>
-        </tbody>
-      </table>
-
-      <div class="btn_confirm write_div">
-        <a href="./board.php?bo_table=<?php echo $bo_table ?>" class="btn_cancel btn">취소</a>
-        <input type="submit" value="작성완료" id="btn_submit" accesskey="s" class="btn_submit btn">
-      </div>
-  </form>
-</section>
+<style>
+.form-wrapper { max-width:720px; margin:0 auto; }
+.form-group { margin-bottom:18px; }
+.form-group label { font-weight:600; display:block; margin-bottom:6px; }
+.form-input { width:100%; max-width:400px; padding:8px 10px; border:1px solid #ddd; border-radius:6px; }
+.date-range { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+.category-buttons button {
+  padding:6px 14px; border:1px solid #ddd; border-radius:6px;
+  background:#f9f9f9; cursor:pointer; margin-right:6px;
+}
+.category-buttons button.active { background:#4A90E2; color:#fff; border-color:#4A90E2; }
+.form-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:24px; }
+.btn { padding:8px 16px; border-radius:6px; font-weight:600; text-decoration:none; }
+.btn.cancel { background:#eee; color:#333; }
+.btn.submit { background:#4A90E2; color:#fff; border:none; }
+.required { color:red; }
+</style>
 
 <script>
 
