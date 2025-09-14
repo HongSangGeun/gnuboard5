@@ -203,81 +203,51 @@ $(function () {
 });
 </script>
 
+<style>
+  .form-wrapper { max-width:96%; margin:0 auto; padding-left: 40px; }
 
-  <style>
-    .form-wrapper { max-width:96%; margin:0 auto; padding-left: 40px; }
-    .form-row {
-        display: flex;
-        gap: 20px; /* 제목과 내용 사이 여백 */
-        }
+  .form-row { display:flex; gap:20px; }
+  .form-row .form-group.half { flex:1; min-width:0; }
 
-    .form-row .form-group.half {
-        flex: 1;  /* 두 요소가 동일한 너비를 차지 */
-        min-width: 0; /* 에디터 같은 컴포넌트가 flex 박스 안에서 잘려 보이지 않도록 */
-        }
+  /* CKEditor 가로폭 풀기 */
+  .editor-wrapper {
+    width: 100% !important;
+    max-width: 100% !important;
+    padding: 0;
+    box-sizing: border-box;
+  }
+  .form-group .editor-wrapper { flex: 1; }
+  #wr_content, #cke_wr_content, .cke_contents { width: 100% !important; }
+  .editor-wrapper .ckeditor4 { width: 100%; }
 
-    .form-row .editor-wrapper {
-  width: 100%;          /* 전체 폭 */
-  max-width: none;      /* 기존 form-input 제한 해제 */
-  padding: 0;           /* 내부 여백 제거 */
-  box-sizing: border-box;
-}
-    .editor-wrapper .ckeditor4 {
-        width: 100%;
-    }
-    .form-group {
-  display: flex;
-  align-items: center;  /* 수직 가운데 정렬 */
-  padding-left: 20px;
-  padding-bottom: 20px;
-  gap: 10px;            /* 라벨과 인풋 사이 여백 */
-}
+  .form-group {
+    display:flex; align-items:center;
+    padding: 10px 60px 10px 10px ; gap:10px;
+  }
+  .form-group label {
+    font-size:16px; font-weight:600; color:#8b8b8b; margin:6px; line-height:1.4;
+  }
 
-.form-group label {
-  font-size: 15px;
-  font-weight: 600;
-  color: #333;
-  margin: 0;            /* 위로 치우쳐 보이는 margin 제거 */
-  line-height: 1.4;     /* 라벨 텍스트 라인 높이 */
-}
+  .date-range { display:flex; align-items:center; gap:10px; flex-wrap:nowrap; }
+  .date-range label { display:flex; align-items:center; gap:4px; margin:0; font-size:14px; font-weight:600; }
+  .date-range input[type="text"] { flex:0 0 180px; }
+  .date-range span { margin:0 6px; }
 
-.date-range {
-  display: flex;
-  align-items: center;   /* 세로 중앙 정렬 */
-  gap: 10px;             /* 요소 간격 */
-  flex-wrap: nowrap;     /* 줄바꿈 방지 */
-}
+  .required { color:#e74c3c; }
+  .form-input { width:100%; max-width:400px; height:33px; padding:4px 10px; border:1px solid #ddd; border-radius:3px; }
+  .form-input:focus { border-color:#4A90E2; outline:none; box-shadow:0 0 0 3px rgba(74,144,226,.15); }
 
-.date-range label {
-  display: flex;
-  align-items: center;   /* 체크박스+텍스트 세로 중앙 */
-  gap: 4px;
-  margin: 0;
-  font-size: 14px;
-  font-weight: 600;
-}
+  .category-buttons { display:flex; flex-wrap:wrap; gap:8px; }
+  .category-buttons button { padding:8px 14px; border:1px solid #dde3ea; border-radius:22px; font-size: 12px; background:#f7f9fc; cursor:pointer; transition:.15s; }
+  .category-buttons button:hover { transform:translateY(-1px); box-shadow:0 2px 6px rgba(0,0,0,.06); }
+  .category-buttons button.active { background:#4A90E2; color:#fff; border-color:#4A90E2; }
 
-.date-range input[type="text"] {
-  flex: 0 0 180px;       /* 고정 폭 */
-}
-
-.date-range span {
-  margin: 0 6px;
-}
-
-    .required { color:#e74c3c; }
-    .form-input { width:100%; max-width:400px; height:38px; padding:8px 10px; border:1px solid #ddd; border-radius:6px; }
-    .form-input:focus { border-color:#4A90E2; outline:none; box-shadow:0 0 0 3px rgba(74,144,226,.15); }
-    .category-buttons { display:flex; flex-wrap:wrap; gap:8px; }
-    .category-buttons button { padding:8px 14px; border:1px solid #dde3ea; border-radius:22px; background:#f7f9fc; cursor:pointer; transition:.15s; }
-    .category-buttons button:hover { transform:translateY(-1px); box-shadow:0 2px 6px rgba(0,0,0,.06); }
-    .category-buttons button.active { background:#4A90E2; color:#fff; border-color:#4A90E2; }
-    .form-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:22px; }
-    .btn { padding:10px 18px; border-radius:8px; font-weight:600; text-decoration:none; }
-    .btn.cancel { background:#f0f3f7; color:#34495e; }
-    .btn.submit { background:#4A90E2; color:#fff; border:none; }
-  </style>
-
+  .form-actions { display:flex; justify-content:flex-end; padding-right: 60px; padding-bottom: 20px; gap:10px; margin-top:22px; }
+  .btn { padding:0px 0px; border-radius:4px; text-decoration:none; }
+  .btn.cancel { background:#f0f3f7; color:#34495e; }
+  .btn.submit { width: 80px; background:#4A90E2; color:#fff; border:none; }
+  a.btn, .btn { font-size: 16px !important; } 
+</style>
 
 <section id="bo_w">
   <h2 class="sound_only"><?php echo $g5['title'] ?></h2>
@@ -294,54 +264,54 @@ $(function () {
     <input type="hidden" name="sst" value="<?php echo $sst ?>">
     <input type="hidden" name="sod" value="<?php echo $sod ?>">
     <input type="hidden" name="page" value="<?php echo $page ?>">
-          <?php
-          $option = '';
-          $option_hidden = '';
-          if ($is_notice || $is_html || $is_secret || $is_mail) {
-            $option = '';
-            if ($is_notice) {
-              $option .= "\n" . '<input type="checkbox" id="notice" name="notice" value="1" ' . $notice_checked . '>' . "\n" . '<label for="notice">공지</label>';
-            }
 
-            if ($is_html) {
-              if ($is_dhtml_editor) {
-                $option_hidden .= '<input type="hidden" value="html1" name="html">';
-              } else {
-                $option .= "\n" . '<input type="checkbox" id="html" name="html" onclick="html_auto_br(this);" value="' . $html_value . '" ' . $html_checked . '>' . "\n" . '<label for="html">HTML</label>';
-              }
-            }
+    <?php
+      $option = '';
+      $option_hidden = '';
+      if ($is_notice || $is_html || $is_secret || $is_mail) {
+        $option = '';
+        if ($is_notice) {
+          $option .= "\n" . '<input type="checkbox" id="notice" name="notice" value="1" ' . $notice_checked . '>' . "\n" . '<label for="notice">공지</label>';
+        }
 
-            if ($is_secret) {
-              if ($is_admin || $is_secret == 1) {
-                $option .= "\n" . '<input type="checkbox" id="secret" name="secret" value="secret" ' . $secret_checked . '>' . "\n" . '<label for="secret">비밀글</label>';
-              } else {
-                $option_hidden .= '<input type="hidden" name="secret" value="secret">';
-              }
-            }
-
-            if ($is_mail) {
-              $option .= "\n" . '<input type="checkbox" id="mail" name="mail" value="mail" ' . $recv_email_checked . '>' . "\n" . '<label for="mail">답변메일받기</label>';
-            }
+        if ($is_html) {
+          if ($is_dhtml_editor) {
+            $option_hidden .= '<input type="hidden" value="html1" name="html">';
+          } else {
+            $option .= "\n" . '<input type="checkbox" id="html" name="html" onclick="html_auto_br(this);" value="' . $html_value . '" ' . $html_checked . '>' . "\n" . '<label for="html">HTML</label>';
           }
+        }
 
-          echo $option_hidden;
-          ?>
+        if ($is_secret) {
+          if ($is_admin || $is_secret == 1) {
+            $option .= "\n" . '<input type="checkbox" id="secret" name="secret" value="secret" ' . $secret_checked . '>' . "\n" . '<label for="secret">비밀글</label>';
+          } else {
+            $option_hidden .= '<input type="hidden" name="secret" value="secret">';
+          }
+        }
+
+        if ($is_mail) {
+          $option .= "\n" . '<input type="checkbox" id="mail" name="mail" value="mail" ' . $recv_email_checked . '>' . "\n" . '<label for="mail">답변메일받기</label>';
+        }
+      }
+
+      echo $option_hidden;
+    ?>
 
     <div class="form-wrapper">
       <!-- 분류 -->
-      <!-- 제목 + 내용 -->
-    <div class="form-row">
-      <div class="form-group">
-        <label>분류 <span class="required">*</span></label>
-        <div class="category-buttons">
-          <button type="button" data-value="유지보수" class="<?php echo ($write['ca_name'] ?? '')==='유지보수'?'active':''; ?>">유지보수</button>
-          <button type="button" data-value="하드웨어" class="<?php echo ($write['ca_name'] ?? '')==='하드웨어'?'active':''; ?>">하드웨어</button>
-          <button type="button" data-value="데이터허브" class="<?php echo ($write['ca_name'] ?? '')==='데이터허브'?'active':''; ?>">데이터허브</button>
-          <button type="button" data-value="응급의료" class="<?php echo ($write['ca_name'] ?? '')==='응급의료'?'active':''; ?>">응급의료</button>
+      <div class="form-row">
+        <div class="form-group">
+          <label>분류 <span class="required">*</span></label>
+          <div class="category-buttons">
+            <button type="button" data-value="유지보수" class="<?php echo ($write['ca_name'] ?? '')==='유지보수'?'active':''; ?>">유지보수</button>
+            <button type="button" data-value="하드웨어" class="<?php echo ($write['ca_name'] ?? '')==='하드웨어'?'active':''; ?>">하드웨어</button>
+            <button type="button" data-value="데이터허브" class="<?php echo ($write['ca_name'] ?? '')==='데이터허브'?'active':''; ?>">데이터허브</button>
+            <button type="button" data-value="응급의료" class="<?php echo ($write['ca_name'] ?? '')==='응급의료'?'active':''; ?>">응급의료</button>
+          </div>
+          <input type="hidden" name="ca_name" id="ca_name" value="<?php echo $write['ca_name'] ?? ''; ?>">
         </div>
-        <input type="hidden" name="ca_name" id="ca_name" value="<?php echo $write['ca_name'] ?? ''; ?>">
       </div>
-     </div>
 
       <!-- 제목 -->
       <div class="form-group">
@@ -353,21 +323,20 @@ $(function () {
       <div class="form-group">
         <label>기간 <span class="required">*</span></label>
         <div class="date-range">
-          <label><input type="checkbox" id="is_all_day" <?php echo $is_all_day ? 'checked' : ''; ?>> 종일</label>
           <input type="hidden" id="wr_5_hidden" name="wr_5" value="<?php echo $is_all_day ? '1' : '0'; ?>">
           <input type="text" name="wr_1" id="wr_1" value="<?php echo $wr_1_val; ?>" class="form-input" placeholder="시작일시" required>
           <span>~</span>
           <input type="text" name="wr_2" id="wr_2" value="<?php echo $wr_2_val; ?>" class="form-input" placeholder="종료일시" required>
           <input type="hidden" name="wr_3" value="<?php echo isset($write['wr_3']) ? $write['wr_3'] : '#ffffff'; ?>" id="wr_3">
           <input type="hidden" name="wr_4" value="<?php echo isset($write['wr_4']) ? $write['wr_4'] : '#46E086'; ?>" id="wr_4">
+          <label><input type="checkbox" id="is_all_day" <?php echo $is_all_day ? 'checked' : ''; ?>> 종일</label>
         </div>
       </div>
 
       <!-- 내용 -->
       <div class="form-group">
         <label for="wr_content">내용 <span class="required">*</span></label>
-        <div class="editor-wrapper 
-          <?php echo $is_dhtml_editor ? $config['cf_editor'] : ''; ?>">
+        <div class="editor-wrapper <?php echo $is_dhtml_editor ? $config['cf_editor'] : ''; ?>">
           <?php echo $editor_html; ?>
         </div>
       </div>
@@ -390,7 +359,6 @@ $(function () {
       </div>
     </div>
   </form>
-
 
   <script>
   <?php if($write_min || $write_max) { ?>
