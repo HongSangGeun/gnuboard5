@@ -84,90 +84,14 @@ if ($i%3 !== 0 ) $lt_style = "margin-left:2%";
 
 
 <script>
-<<<<<<< HEAD
-  var lastView = get_cookie("fc_view_main") || "dayGridMonth";
-  document.addEventListener('DOMContentLoaded', function () {
-    // 1) 캘린더 엘리먼트 확보
-    var calendarEl = document.getElementById('calendar');   // ← 이 줄이 먼저!
-    if (!calendarEl) return; // 안전장치
-=======
 document.addEventListener('DOMContentLoaded', function () {
   // 1) 캘린더 엘리먼트 확보
   var calendarEl = document.getElementById('calendar');   // ← 이 줄이 먼저!
   if (!calendarEl) return; // 안전장치
->>>>>>> 9d30a6b46f2a842d1df734d5f984d458d955cc51
 
   // 2) 전역처럼 쓸 선택 상태
   var currentCategory = null;
 
-<<<<<<< HEAD
-    // 3) 캘린더 생성
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-      initialView: lastView,
-      locale: 'ko',
-      slotMinTime: "07:00:00", // 오전 8시부터
-      slotMaxTime: "20:30:00", // 오후 8시까지만 표시
-      expandRows: false,   // 행이 꽉 차도록 늘림
-      contentHeight: 'auto',
-      locale: 'ko',
-      googleCalendarApiKey: 'AIzaSyBDLbVPdJoidVskOO7iA7oeaQ5mm5QL7Qk',
-      height: 600,
-      headerToolbar: {
-        left: 'prev,today,next',
-        center: 'title',
-        right: 'dayGridMonth,timeGridWeek,timeGridDay'
-      },
-      navLinks: false,
-      eventSources: [
-        {
-          url: "<?php echo $board_skin_url; ?>/schedule/get-events1.php?bo_table=schedule",
-          color: '#3788d8',
-          textColor: '#fff'
-        },
-        {
-          googleCalendarId: 'ko.south_korea#holiday@group.v.calendar.google.com',
-          color: '#FF5C5C',
-          textColor: '#fff',
-          className: 'holiday-event',
-          display: 'list-item',   // ✅ 점 스타일
-          eventDataTransform: function(ev) {
-                delete ev.url;
-                return ev;
-            }
-        }
-      ],
-
-      // 날짜 클릭 → 글쓰기로 (YYYYMMDD)
-      dateClick: function (info) {
-        var yyyymmdd = info.dateStr.replace(/-/g, "");
-        window.location.href = "<?php echo G5_BBS_URL; ?>/write.php?bo_table=schedule&wr_1=" + yyyymmdd + "&wr_2=" + yyyymmdd;
-      },
-      viewDidMount: function(arg) {
-            set_cookie("fc_view", arg.view.type, 30);
-        },
-      // 일정 클릭 → 상세 새창
-      eventClick: function (info) {
-        if (info.event.url) {
-          window.location.href(info.event.url, "_blank");
-          info.jsEvent.preventDefault();
-        }
-      },
-
-      // 렌더될 때 카테고리 속성 부여 + 필터 적용 유지
-      eventDidMount: function (info) {
-        var cat = info.event.extendedProps.category || '';
-        info.el.setAttribute('data-category', cat);
-        // 기본 title 속성 사용 → 브라우저 툴팁
-        info.el.setAttribute("title", info.event.title);
-
-        // (선택) 더 예쁘게 하려면 커스텀 툴팁 라이브러리도 가능
-        // $(info.el).tooltip({ title: info.event.title, placement: 'top' });
-        if (info.event.extendedProps.commentCount > 0) {
-    let icon = document.createElement('span');
-    icon.innerHTML = `<i class="fa fa-comment"></i> ${info.event.extendedProps.commentCount}`;
-    icon.style.marginLeft = "4px";
-    info.el.querySelector('.fc-event-title').appendChild(icon);
-=======
   // 3) 캘린더 생성
   var calendar = new FullCalendar.Calendar(calendarEl, {
   initialView: 'dayGridMonth',
@@ -201,7 +125,6 @@ document.addEventListener('DOMContentLoaded', function () {
         delete ev.url;
         return ev;
       }
->>>>>>> 9d30a6b46f2a842d1df734d5f984d458d955cc51
   }
 ],
 
