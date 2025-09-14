@@ -274,7 +274,7 @@ $(function () {
   cursor: pointer;
   top: 0; left: 0;
   right: 0; bottom: 0;
-  background-color: #ccc;
+  background-color: #4256e9;
   transition: .4s;
   border-radius: 26px;
 }
