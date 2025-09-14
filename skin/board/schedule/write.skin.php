@@ -70,7 +70,8 @@ var categoryColors = {
   "하드웨어": "#4ECDC4",
   "데이터허브": "#4A90E2",
   "응급의료": "#A29BFE",
-  "집중관제": "#fef29bff"
+  "집중관제": "#fef29bff",
+  "기타": "#7C7C7C"
 };
 
 $(function () {
@@ -354,6 +355,7 @@ input:checked + .slider:before {
             <button type="button" data-value="데이터허브" class="<?php echo ($write['ca_name'] ?? '')==='데이터허브'?'active':''; ?>">데이터허브</button>
             <button type="button" data-value="응급의료" class="<?php echo ($write['ca_name'] ?? '')==='응급의료'?'active':''; ?>">응급의료</button>
             <button type="button" data-value="집중관제" class="<?php echo ($write['ca_name'] ?? '')==='집중관제'?'active':''; ?>">집중관제</button>
+            <button type="button" data-value="기타" class="<?php echo ($write['ca_name'] ?? '')==='기타'?'active':''; ?>">기타</button>
           </div>
           <input type="hidden" name="ca_name" id="ca_name" value="<?php echo $write['ca_name'] ?? ''; ?>">
         </div>
