@@ -6,15 +6,23 @@ include_once('../../../_common.php');
 
 header('Content-Type: application/json; charset=utf-8');
 
+// 필수 파라미터 처리: bo_table -> write_table 설정
+$bo_table = isset($_GET['bo_table']) ? preg_replace('/[^a-z0-9_]/i', '', $_GET['bo_table']) : '';
+if (!$bo_table) {
+    echo json_encode([]);
+    exit;
+}
+$write_table = $g5['write_prefix'] . $bo_table;
+
 // FullCalendar가 start/end(YYYY-MM-DD)를 쿼리로 넘김
 if (!isset($_GET['start']) || !isset($_GET['end'])) {
     echo json_encode([]);
     exit;
 }
 
-// 비교용: YYYY-MM-DD -> YYYYMMDD
-$frdate = str_replace('-', '', $_GET['start']);
-$todate = str_replace('-', '', $_GET['end']);
+// 비교용: YYYY-MM-DD -> YYYYMMDD (숫자만 추출)
+$frdate = preg_replace('/[^0-9]/', '', $_GET['start']);
+$todate = preg_replace('/[^0-9]/', '', $_GET['end']);
 
 // 날짜가 다양한 포맷(Ymd, YmdHi, YmdHis, Y-m-d, Y-m-d H:i, Y-m-d H:i:s, ISO8601 등)으로 섞여 저장되어도 파싱
 function parse_datetime_str($str)
