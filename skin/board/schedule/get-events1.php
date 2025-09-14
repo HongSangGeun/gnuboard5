@@ -62,7 +62,8 @@ $categoryColors = array(
     "데이터허브" => ["bg" => "rgba(74, 144, 226, 0.8)", "text" => "#FFFFFF"],
     "유지보수" => ["bg" => "rgba(255, 107, 107, 0.8)", "text" => "#ffffff"], // 밝은 배경 → 검은 글자
     "응급의료" => ["bg" => "rgba(162, 155, 254, 1)", "text" => "#ffffff"],
-    "집중관제" => ["bg" => "rgba(254, 251, 155, 1)", "text" => "#595959ff"]
+    "집중관제" => ["bg" => "rgba(254, 251, 155, 1)", "text" => "#595959ff"],
+    "기타" => ["bg" => "rgba(124, 124, 124, 1)", "text" => "#ffffffff"]
 );
 
 
@@ -119,6 +120,10 @@ while ($row = sql_fetch_array($res)) {
     } else {
         $color = $row['wr_4'] ?: "rgba(70, 224, 134, 0.8)";
         $textColor = $row['wr_3'] ?: "#FFFFFF";
+    }
+    // 집중관제: 밝은 배경을 쓰는 경우가 많아 가독성을 위해 글자색을 검정계열로 강제
+    if (($row['ca_name'] ?? '') === '집중관제') {
+        $textColor = '#000000';
     }
     
     // 리소스 매핑
