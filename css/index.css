@@ -97,8 +97,10 @@
 #calendar {
   background:#fff;
   border-radius:12px;
-  box-shadow:0 4px 15px rgba(0,0,0,0.15);
-  padding:40px;
+  padding-top: 20px;
+  padding-right: 40px;
+  padding-left: 40px;
+  padding-bottom: 4px;
 }
 /* 버튼 (month/week/day, prev/next, today) */
 .fc .fc-button {
@@ -135,12 +137,11 @@
   justify-content: space-between; /* 왼쪽 범례 / 오른쪽 버튼 */
   align-items: center;
   margin-top: 10px;
-  padding: 8px 12px;
-  border-top: 1px solid #eee;
+  padding: 8px 40px 30px 40px;
   font-size: 14px;
 }
 
-.calendar-legend .legend-item {
+.legend-left .legend-item {
   display: inline-block;
   width: 14px;
   height: 14px;
@@ -150,7 +151,7 @@
   cursor: pointer;
 }
 
-.calendar-legend .legend-left {
+.calendar-card .legend-left {
   display: flex;
   gap: 8px; /* 범례 간격 */
   flex-wrap: wrap;
@@ -168,4 +169,22 @@
 
 .calendar-legend .btn-add-event:hover {
   background: #312e81;
+}
+
+.latest-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  grid-gap: 20px;
+}
+
+.latest-card {
+  background: #fff;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  padding: 10px;
+}
+
+/* 캘린더는 2칼럼 차지 */
+.latest-card.calendar-card {
+  grid-column: span 2;
 }

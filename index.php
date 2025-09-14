@@ -49,30 +49,28 @@ include_once(G5_PATH.'/head.php');
 
 
 <?php } ?>
-</div>
 
-<div class="col-md-6">
+<div class="latest-card calendar-card" data-id="calendar">
   <div class="card">
-    <div class="card-header">
-    </div>
+    <div class="card-header"> </div>
     <div class="card-body">
       <div id="calendar"></div>
     </div>
   </div>
-</div>
 
-<div class="calendar-legend">
-<div class="legend-left">
-  <span class="legend-item" data-category="" style="background:#999;"></span> 전체
-  <span class="legend-item" data-category="유지보수" style="background:#FF6B6B;"></span> 유지보수
-  <span class="legend-item" data-category="하드웨어" style="background:#4ECDC4;"></span> 하드웨어
-  <span class="legend-item" data-category="데이터허브" style="background:#4A90E2;"></span> 데이터허브
-  <span class="legend-item" data-category="응급의료" style="background:#A29BFE;"></span> 응급의료
-  <span class="legend-item" data-category="집중관제" style="background:#fef29bff;"></span> 집중관제
-  <span class="legend-item" data-category="기타" style="background:#7C7C7C;"></span> 기타
-</div>
+    <div class="calendar-legend">
+    <div class="legend-left">
+        <span class="legend-item" data-category="" style="background:#999;"></span> 전체
+        <span class="legend-item" data-category="유지보수" style="background:#FF6B6B;"></span> 유지보수
+        <span class="legend-item" data-category="하드웨어" style="background:#4ECDC4;"></span> 하드웨어
+        <span class="legend-item" data-category="데이터허브" style="background:#4A90E2;"></span> 데이터허브
+        <span class="legend-item" data-category="응급의료" style="background:#A29BFE;"></span> 응급의료
+        <span class="legend-item" data-category="집중관제" style="background:#fef29bff;"></span> 집중관제
+        <span class="legend-item" data-category="기타" style="background:#7C7C7C;"></span> 기타
+    </div>
   <div class="legend-right">
     <a href="<?php echo G5_BBS_URL; ?>/write.php?bo_table=schedule" class="btn-add-event">+ 일정 등록하기</a>
+  </div>
   </div>
 </div>
 
