@@ -171,20 +171,34 @@ add_stylesheet('<link rel="stylesheet" href="' . $board_skin_url . '/style.css">
       return new Date(y, m, d, h, min);
     }
 
-    function syncEndWithStart() {
+    var isEdit = <?php echo ($w == 'u') ? 'true' : 'false'; ?>;
+    function syncEndWithStart(  ) {
       var startVal = $("#wr_1").val();
       if (!startVal) return;
+
+      // wr_2 값이 이미 있으면 그대로 사용
+        if ($("#wr_2").val()) { return; }
+
       var dateOnly = startVal.split("T")[0].split(" ")[0];
       if ($("#is_all_day").is(":checked")) {
-        var d = new Date(dateOnly);
-        d.setDate(d.getDate() + 1);
-        var y = d.getFullYear();
-        var m = ("0" + (d.getMonth() + 1)).slice(-2);
-        var day = ("0" + d.getDate()).slice(-2);
-        $("#wr_2").val(y + "-" + m + "-" + day);
-      } else {
-        $("#wr_2").val(startVal);
-      }
+          if (isEdit) {
+                var d = new Date(dateOnly);
+                var y = d.getFullYear();
+                var m = ("0" + (d.getMonth() + 1)).slice(-2);
+                var day = ("0" + d.getDate()).slice(-2);
+                $("#wr_2").val(y + "-" + m + "-" + day);
+             } else {
+                // 신규등록 → FullCalendar 호환 위해 +1일
+                var d = new Date(dateOnly);
+                d.setDate(d.getDate() + 1);
+                var y = d.getFullYear();
+                var m = ("0" + (d.getMonth() + 1)).slice(-2);
+                var day = ("0" + d.getDate()).slice(-2);
+                $("#wr_2").val(y + "-" + m + "-" + day);
+             }
+        } else {
+            $("#wr_2").val(startVal);
+        }
     }
 
 
