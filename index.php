@@ -89,6 +89,7 @@ include_once(G5_PATH.'/head.php');
       
       <!-- 왼쪽 영역 -->
       <div class="restore-left">
+        <span>카드를 더블클릭하면 해당카드는 숨겨집니다.</span>
         <button id="showRestoreList" class="restore-btn">숨겨진 카드 복원</button>
         <ul id="restoreList" class="restore-list"></ul>
       </div>
