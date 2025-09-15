@@ -42,17 +42,25 @@ include_once(G5_PATH.'/head.php');
     $lt_style = '';
     if ($i%3 !== 0 ) $lt_style = "margin-left:2%";
     ?>
-        <div class="latest-card" data-id="<?php echo $row['bo_table']; ?>">
+    <div class="latest-card" data-id="<?php echo $row['bo_table']; ?>">
+        <div class="card">
+            <div class="card-header">
+                <button class="collapse-btn">─</button>
+            </div>
             <?php echo latest('basic', $row['bo_table'], 6, 24); ?>
             <a href="<?php echo G5_BBS_URL; ?>/member_confirm.php?url=<?php echo $bo_table; ?>" class="more-link"></a>
         </div>
+    </div>
 
 
 <?php } ?>
 
+<script src="js/index_card.js"></script>
+
 <div class="latest-card calendar-card" data-id="calendar">
   <div class="card">
     <div class="card-header"> </div>
+    <button class="collapse-btn">─</button>
     <div class="card-body">
       <div id="calendar"></div>
     </div>
@@ -77,12 +85,25 @@ include_once(G5_PATH.'/head.php');
 
 <div class="latest-card restore-card" data-id="restore">
   <div class="card">
-    <div class="card-body">
-      <button id="showRestoreList" class="restore-btn">숨겨진 카드 복원</button>
-      <ul id="restoreList" class="restore-list"></ul>
+    <div class="card-body restore-flex">
+      
+      <!-- 왼쪽 영역 -->
+      <div class="restore-left">
+        <button id="showRestoreList" class="restore-btn">숨겨진 카드 복원</button>
+        <ul id="restoreList" class="restore-list"></ul>
+      </div>
+
+      <!-- 오른쪽 영역 -->
+      <div class="restore-right">
+        <div id="perfInfo" class="perf-info">
+          <p>서버 성능 정보를 불러오는 중...</p>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
+
 
 <!-- FullCalendar 라이브러리 -->
 <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
@@ -90,14 +111,6 @@ include_once(G5_PATH.'/head.php');
 
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
-<style>
-/* 드래그 중인 카드 스타일 */
-.sortable-ghost {
-  opacity: 0.5;
-  background: #f0f0f0;
-  border: 2px dashed #999;
-}
-</style>
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
@@ -189,179 +202,6 @@ document.addEventListener('DOMContentLoaded', function () {
     calendar.refetchEvents();  // ✅ v5에서는 refetchEvents 사용
   });
 });
-});
-</script>
-
-
-<script>
-// ====== 기본 참조 ======
-document.addEventListener('DOMContentLoaded', function () {
-  const container     = document.getElementById('dashboard');                // 카드 그리드 래퍼
-  const restoreCard   = container.querySelector('.restore-card');            // "숨겨진 카드 관리" 카드
-  const showRestoreBtn= document.getElementById('showRestoreList');          // 복원 버튼
-  const restoreList   = document.getElementById('restoreList');              // 복원 목록 UL
-
-  // ====== 상태 로드 ======
-  const savedOrder  = safeParse(localStorage.getItem('dashboardOrder'), []);
-  const hiddenCards = safeParse(localStorage.getItem('hiddenCards'), []);
-
-  // ====== 초기 렌더: 순서/숨김 적용 ======
-  applySavedOrder();
-  applyHiddenState();
-
-  // 항상 restore-card는 맨 아래 고정
-  pinRestoreCard();
-
-  // ====== SortableJS 활성화(restore-card, 숨김카드 드래그 금지) ======
-  if (typeof Sortable !== 'undefined') {
-    Sortable.create(container, {
-      animation: 150,
-      ghostClass: 'sortable-ghost',
-      filter: '.restore-card, .hidden-card',
-      preventOnFilter: false,
-      onEnd: saveOrder
-    });
-  }
-
-  // ====== 더블클릭 → 카드 숨김 ======
-  container.addEventListener('dblclick', function (e) {
-    const card = e.target.closest('.latest-card, .calendar-card');
-    if (!card || card.classList.contains('restore-card')) return;
-
-    // 이미 숨김이면 무시
-    if (card.classList.contains('hidden-card')) return;
-
-    card.classList.add('hidden-card');
-    saveHidden();
-    pinRestoreCard();      // restore 카드 맨 아래 유지
-  });
-
-  // ====== 복원 리스트 토글 버튼 ======
-  showRestoreBtn.addEventListener('click', function () {
-    const isOpen = restoreList.dataset.open === '1';
-    if (isOpen) {
-      closeRestoreList();
-    } else {
-      openRestoreList();
-    }
-  });
-
-  // ====== 도우미들 ======
-  function safeParse(json, fallback) {
-    try { return JSON.parse(json || ''); } catch(e) { return fallback; }
-  }
-
-  function cardById(id) {
-    return container.querySelector(`[data-id="${CSS.escape(id)}"], #${CSS.escape(id)}`);
-  }
-
-  function pinRestoreCard() {
-    if (restoreCard && restoreCard.parentNode !== container) return;
-    container.appendChild(restoreCard);
-  }
-
-    function applySavedOrder() {
-  const savedOrder = safeParse(localStorage.getItem("dashboardOrder"), []);
-  if (!Array.isArray(savedOrder) || !savedOrder.length) return;
-
-  savedOrder
-    .filter(id => id && id.trim() !== "")   // ✅ 빈 값 걸러내기
-    .forEach(id => {
-      const el = cardById(id);
-      if (el) container.insertBefore(el, restoreCard);
-    });
-
-  pinRestoreCard();
-}
-
-
-  function applyHiddenState() {
-    if (!Array.isArray(hiddenCards)) return;
-    hiddenCards.forEach(id => {
-      const el = cardById(id);
-      if (el && !el.classList.contains('restore-card')) {
-        el.classList.add('hidden-card');
-      }
-    });
-  }
-
-    function saveOrder() {
-  const order = Array.from(container.children)
-    .filter(card => !card.classList.contains("restore-card"))
-    .map(card => card.dataset.id || card.id)
-    .filter(id => id && id.trim() !== "");   // ✅ 빈 값 제거
-
-  localStorage.setItem("dashboardOrder", JSON.stringify(order));
-
-  if (restoreCard) container.appendChild(restoreCard);
-}
-
-  function saveHidden() {
-    const hidden = Array.from(container.querySelectorAll('.hidden-card'))
-      .filter(el => !el.classList.contains('restore-card'))
-      .map(el => el.dataset.id || el.id);
-
-    localStorage.setItem('hiddenCards', JSON.stringify(hidden));
-    // console.log('saved hidden:', hidden);
-  }
-
-  function openRestoreList() {
-    // 최신 hidden 목록으로 새로 그리기
-    const hidden = safeParse(localStorage.getItem('hiddenCards'), []);
-    restoreList.innerHTML = '';
-
-    if (!hidden.length) {
-      restoreList.dataset.open = '0';
-      restoreList.style.display = 'none';
-      showRestoreBtn.textContent = '숨겨진 카드 복원';
-      alert('숨겨진 카드가 없습니다.');
-      return;
-    }
-
-    hidden.forEach(id => {
-      const li = document.createElement('li');
-      li.className = 'restore-item';
-
-      const label = document.createElement('span');
-      label.className = 'restore-item__label';
-      label.textContent = id;
-
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'restore-item__btn';
-      btn.textContent = '복원';
-      btn.addEventListener('click', function () {
-        const el = cardById(id);
-        if (el) {
-          el.classList.remove('hidden-card');
-          // 복원된 카드는 restore-card 위로 올려주고 순서 저장
-          container.insertBefore(el, restoreCard);
-          saveHidden();
-          saveOrder();
-        }
-        li.remove();
-        // 항목이 더 없으면 자동 닫기
-        if (!restoreList.querySelector('li')) {
-          closeRestoreList();
-        }
-      });
-
-      li.appendChild(label);
-      li.appendChild(btn);
-      restoreList.appendChild(li);
-    });
-
-    restoreList.dataset.open = '1';
-    restoreList.style.display = 'block';
-    showRestoreBtn.textContent = '복원 닫기';
-  }
-
-  function closeRestoreList() {
-    restoreList.innerHTML = '';
-    restoreList.dataset.open = '0';
-    restoreList.style.display = 'none';
-    showRestoreBtn.textContent = '숨겨진 카드 복원';
-  }
 });
 </script>
 

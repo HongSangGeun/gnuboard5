@@ -255,3 +255,69 @@
 .restore-list button:hover {
   background: #357ABD;
 }
+
+
+/* 드래그 중인 카드 스타일 */
+.sortable-chosen {
+  opacity: 0.9;
+  /*transform: scale(1.01);*/
+  z-index: 1000;
+}
+
+/* 원래 자리에 남아 있는 placeholder */
+.sortable-ghost {
+  opacity: 0.9;
+  /*background: #f0f0f0;*/
+  border: 3px dashed #999;
+  min-height: 80px; /* 카드 높이에 맞게 조정 */
+}
+
+/* 접기 버튼 */
+.collapse-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  float: right;
+  color: #666;
+}
+.collapse-btn:hover {
+  color: #000;
+}
+
+/* 접힌 상태 */
+.latest-card.collapsed .card-body {
+  display: none;
+}
+
+/* Perf Info */
+.restore-flex {
+  display: flex;
+  justify-content: space-between; /* 좌우 배치 */
+  align-items: center;        /* 위쪽 정렬 */
+  gap: 20px;                      /* 좌우 간격 */
+}
+
+.restore-left {
+  flex: 1;
+}
+
+.restore-right {
+  flex: 1;
+  text-align: right;              /* 오른쪽 정렬 */
+  padding: 16px 10px;
+}
+
+.restore-list {
+  margin-top: 10px;
+  list-style: none;
+  padding: 0;
+}
+
+.restore-list li {
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  margin-bottom: 5px;
+  border-radius: 4px;
+  background: #fafafa;
+}
