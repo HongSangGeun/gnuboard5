@@ -80,15 +80,15 @@ document.addEventListener('DOMContentLoaded', function () {
 }
 
 
-  function applyHiddenState() {
-    if (!Array.isArray(hiddenCards)) return;
-    hiddenCards.forEach(id => {
-      const el = cardById(id);
-      if (el && !el.classList.contains('restore-card')) {
-        el.classList.add('hidden-card');
-      }
-    });
-  }
+
+// ====== 숨김 적용 함수 수정 ======
+function applyHiddenState() {
+  const hiddenCards = safeParse(localStorage.getItem('hiddenCards'), []);
+  hiddenCards.forEach(hc => {
+    const card = container.querySelector(`.latest-card[data-id="${hc.id}"]`);
+    if (card) card.classList.add('hidden-card');
+  });
+}
 
     function saveOrder() {
   const order = Array.from(container.children)
@@ -101,65 +101,68 @@ document.addEventListener('DOMContentLoaded', function () {
   if (restoreCard) container.appendChild(restoreCard);
 }
 
-  function saveHidden() {
-    const hidden = Array.from(container.querySelectorAll('.hidden-card'))
-      .filter(el => !el.classList.contains('restore-card'))
-      .map(el => el.dataset.id || el.id);
 
-    localStorage.setItem('hiddenCards', JSON.stringify(hidden));
-    // console.log('saved hidden:', hidden);
-  }
-
-  function openRestoreList() {
-    // 최신 hidden 목록으로 새로 그리기
-    const hidden = safeParse(localStorage.getItem('hiddenCards'), []);
-    restoreList.innerHTML = '';
-
-    if (!hidden.length) {
-      restoreList.dataset.open = '0';
-      restoreList.style.display = 'none';
-      showRestoreBtn.textContent = '숨겨진 카드 복원';
-      alert('숨겨진 카드가 없습니다.');
-      return;
+    // ====== 숨김 저장 함수 수정 ======
+    function saveHidden() {
+        const hiddenCards = [];
+        container.querySelectorAll('.hidden-card').forEach(card => {
+        const id = card.dataset.id;
+        // 카드 이름 추출 (원하는 위치 맞게 조정!)
+        const name = card.querySelector('.lat_title')?.innerText.trim() || id;
+        hiddenCards.push({ id, name });
+        });
+        localStorage.setItem('hiddenCards', JSON.stringify(hiddenCards));
     }
 
-    hidden.forEach(id => {
-      const li = document.createElement('li');
-      li.className = 'restore-item';
+function openRestoreList() {
+  // 최신 hidden 목록으로 새로 그리기
+  const hidden = safeParse(localStorage.getItem('hiddenCards'), []);
+  restoreList.innerHTML = '';
 
-      const label = document.createElement('span');
-      label.className = 'restore-item__label';
-      label.textContent = id;
+  if (!hidden.length) {
+    restoreList.dataset.open = '0';
+    restoreList.style.display = 'none';
+    showRestoreBtn.textContent = '숨겨진 카드 복원';
+    //alert('숨겨진 카드가 없습니다.');
+    return;
+  }
 
-      const btn = document.createElement('button');
-      btn.type = 'button';
-      btn.className = 'restore-item__btn';
-      btn.textContent = '복원';
-      btn.addEventListener('click', function () {
-        const el = cardById(id);
-        if (el) {
-          el.classList.remove('hidden-card');
-          // 복원된 카드는 restore-card 위로 올려주고 순서 저장
-          container.insertBefore(el, restoreCard);
-          saveHidden();
-          saveOrder();
-        }
-        li.remove();
-        // 항목이 더 없으면 자동 닫기
-        if (!restoreList.querySelector('li')) {
-          closeRestoreList();
-        }
-      });
+  hidden.forEach(hc => {
+    const li = document.createElement('li');
+    li.className = 'restore-item';
 
-      li.appendChild(label);
-      li.appendChild(btn);
-      restoreList.appendChild(li);
+    // ✅ 사람이 읽는 이름 표시
+    const label = document.createElement('span');
+    label.className = 'restore-item__label';
+    label.textContent = hc.name || hc.id;
+
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'restore-item__btn';
+    btn.textContent = '복원';
+    btn.addEventListener('click', function () {
+      const el = cardById(hc.id);
+      if (el) {
+        el.classList.remove('hidden-card');
+        container.insertBefore(el, restoreCard); // restore-card 위로 올림
+        saveHidden();
+        saveOrder();
+      }
+      li.remove();
+      if (!restoreList.querySelector('li')) {
+        closeRestoreList();
+      }
     });
 
-    restoreList.dataset.open = '1';
-    restoreList.style.display = 'block';
-    showRestoreBtn.textContent = '복원 닫기';
-  }
+    li.appendChild(label);
+    li.appendChild(btn);
+    restoreList.appendChild(li);
+  });
+
+  restoreList.dataset.open = '1';
+  restoreList.style.display = 'block';
+  showRestoreBtn.textContent = '복원 닫기';
+}
 
   function closeRestoreList() {
     restoreList.innerHTML = '';

@@ -43,13 +43,14 @@ include_once(G5_PATH.'/head.php');
     if ($i%3 !== 0 ) $lt_style = "margin-left:2%";
     ?>
     <div class="latest-card" data-id="<?php echo $row['bo_table']; ?>">
-        <div class="card">
-            <div class="card-header">
-                <button class="collapse-btn">─</button>
-            </div>
+      <div class="card">
+        <div class="card-header"> </div>
+        <!--button class="collapse-btn"></button-->
+        <div class="card-body">
             <?php echo latest('basic', $row['bo_table'], 6, 24); ?>
             <a href="<?php echo G5_BBS_URL; ?>/member_confirm.php?url=<?php echo $bo_table; ?>" class="more-link"></a>
         </div>
+      </div>
     </div>
 
 
@@ -60,7 +61,7 @@ include_once(G5_PATH.'/head.php');
 <div class="latest-card calendar-card" data-id="calendar">
   <div class="card">
     <div class="card-header"> </div>
-    <button class="collapse-btn">─</button>
+    <button class="collapse-btn"></button>
     <div class="card-body">
       <div id="calendar"></div>
     </div>
@@ -89,8 +90,9 @@ include_once(G5_PATH.'/head.php');
       
       <!-- 왼쪽 영역 -->
       <div class="restore-left">
-        <span>카드를 더블클릭하면 해당카드는 숨겨집니다.</span>
         <button id="showRestoreList" class="restore-btn">숨겨진 카드 복원</button>
+        <span style="display:inline-block; width:16px;"></span>
+        <span>카드를 더블클릭하면 해당카드는 숨겨집니다.</span>
         <ul id="restoreList" class="restore-list"></ul>
       </div>
 
