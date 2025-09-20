@@ -64,3 +64,378 @@ a.fc-event:hover {color: #fff;text-decoration: underline;}*/
 	display: none;
 }
 
+@charset "utf-8";
+
+/*a.fc-event:link, a.fc-event:visited {color:#fff;}
+a.fc-event:hover {color: #fff;text-decoration: underline;}*/
+.fc-view, .fc-view > table {background-color: #fff;}
+.fc-view .fc-day-header {padding:10px 0}
+
+.wz_tbl_1,.wz_tbl_1 th,.wz_tbl_1 td{border:0;}
+.wz_tbl_1{width:100%;text-align:center;margin: 7px 0 0px;}
+.wz_tbl_1 table {clear:both;width:100%;border-collapse:collapse;border-spacing:0;background-color:#fff}
+.wz_tbl_1 tbody, .wz_tbl_1 tr, .wz_tbl_1 td {vertical-align:middle}
+.wz_tbl_1 caption{display:none}
+.wz_tbl_1 th{padding:10px 0;border:1px solid #dcdcdc;color:#666;text-align:center;font-weight:bold;background-color: #fbfbfb;}
+.wz_tbl_1 td{padding:5px;border:1px solid #e5e5e5;color:#4c4c4c;text-align:left;}
+.wz_tbl_1 th span.last:after {border:none;}
+.wz_tbl_1 td .numberic {text-align:right;padding-right:4px;}
+
+/* 카테고리별 색상 (투명도 0.8 추가) */
+.bo_v_cate.하드웨어   { background-color: rgba(78, 205, 196, 0.8); }
+.bo_v_cate.데이터허브 { background-color: rgba(74, 144, 226, 0.8); }
+.bo_v_cate.유지보수   { background-color: rgba(255, 107, 107, 0.8); }
+.bo_v_cate.응급의료   { background-color: rgba(162, 155, 254, 0.8); }
+.bo_v_cate.집중관제   { background-color: rgba(254, 251, 155, 0.8); color: #000 !important; }
+.bo_v_cate.기타       { background-color: rgba(124, 124, 124, 0.8); color: #fff; }
+
+.scdate-txt { 
+	margin:0 0 5px; 
+	font-size: 20px;
+}
+
+.all-day-label,
+.all-day-time-label {
+  display: inline-block;
+  vertical-align: middle;   /* 텍스트와 수직 정렬 */
+  line-height: 1.2;         /* 높이 맞춤 */
+  position: relative;
+  top: -2px;                /* 필요시 살짝 위로 올림 */
+}
+
+.all-day-label {
+  display: inline-block;
+  background: rgba(224, 224, 224, 0.7); /* 회색 + 70% 불투명 */
+  color: #333;
+  font-size: 14px;
+  vertical-align: middle;   /* 텍스트와 수직 정렬 */
+  font-weight: bold;
+  padding: 2px 10px;
+  border-radius: 12px;
+  margin-right: 5px;
+}
+
+.all-day-time-label {
+  display: inline-block;
+  background: rgba(115, 147, 255, 0.85); /* 파랑 + 85% 불투명 */
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  padding: 2px 10px;
+  border-radius: 12px;
+  margin-right: 5px;
+}
+.date-txt {font-weight:bold}
+#bo_v_share {
+	display: none;
+}
+
+/* 기본 네모 스타일 초기화 */
+.ui-datepicker td a,
+.ui-datepicker td span {
+  border: none !important;
+  background: none !important;
+  box-shadow: none !important;
+  padding: 0 !important;
+  margin: 2px 2px !important;
+  width: 42px !important;
+  height: 42px !important;
+  line-height: 42px !important;
+  border-radius: 40% !important;  /* 원형 */
+  display: inline-block !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+  box-sizing: border-box !important;
+}
+
+/* 일반 날짜 */
+.ui-datepicker td a {
+  background: #f5f5f5 !important;
+  color: #333 !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+}
+
+/* hover 효과 */
+.ui-datepicker td a:hover {
+  background: #4a90e2 !important;
+  color: #fff !important;
+}
+
+/* 오늘 날짜 */
+.ui-datepicker td.ui-datepicker-today a {
+  background: #ff6b6b !important;
+  color: #fff !important;
+  font-weight: bold !important;
+}
+
+/* 선택된 날짜 */
+.ui-datepicker td a.ui-state-active {
+  background: #4a90e2 !important;
+  color: #fff !important;
+  font-weight: bold !important;
+}
+
+.ui-datepicker .ui-datepicker-header {
+  background: #fff !important;
+  border: none !important;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 8px 0;
+}
+.ui-datepicker .ui-datepicker-prev,
+.ui-datepicker .ui-datepicker-next {
+  background: #f5f5f5 !important;
+  width: 28px; height: 28px;
+  top: 6px !important;
+}
+
+.ui-datepicker th {
+  color: #999;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 4px 0;
+}
+
+.ui-datepicker td a {
+  background: #f5f5f5 !important;
+  color: #333 !important;
+}
+.ui-datepicker td a:hover {
+  background: #4a90e2 !important;
+  color: #fff !important;
+}
+.ui-datepicker td.ui-datepicker-today a {
+  background: #ff6b6b !important;
+  color: #fff !important;
+}
+.ui-datepicker td a.ui-state-active {
+  background: #4a90e2 !important;
+  color: #fff !important;
+}
+
+.ui-datepicker {
+  width: 100% !important;      /* 부모 영역 꽉 채우기 */
+  max-width: 400px;            /* 필요 시 적당히 제한 */
+  box-sizing: border-box;
+}
+
+.ui-datepicker table {
+  width: 100% !important;
+  table-layout: fixed;          /* 칸 폭 균등 */
+}
+
+.ui-datepicker td {
+  padding: 4px !important;
+  width: 14.28% !important;   /* 100 ÷ 7일 = 균등 배분 */
+  text-align: center !important;
+}
+
+.ui-datepicker .ui-datepicker-title .ui-datepicker-month,
+.ui-datepicker .ui-datepicker-title .ui-datepicker-year {
+  color: #000 !important;
+}
+
+/* Time 라벨 */
+.ui-timepicker-div dl dt {
+  font-weight: 600;
+  margin-bottom: 4px;
+  font-size: 13px;
+  color: #333;
+}
+
+/* 시/분 선택 select 박스 */
+.ui-timepicker-div select {
+  border: none !important;          /* 테두리 제거 */
+  border-radius: 6px !important;    /* 둥근 모서리 유지 */
+  padding: 4px 6px !important;
+  font-size: 14px !important;
+  background: #fff !important;
+  color: #333 !important;
+  appearance: auto !important;
+  margin: 2px;
+}
+/* "Time" 텍스트 라벨 영역 정리 */
+.ui-datepicker .ui_tpicker_time_label,
+.ui-datepicker .ui_tpicker_time {
+  font-size: 14px !important;
+  font-weight: 500;
+  color: #333 !important;
+}
+
+/* 하단 버튼 (Now, Done) */
+.ui-datepicker-buttonpane button {
+  background: #4a90e2 !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 6px 12px !important;
+  margin: 4px 6px !important;
+  font-weight: 500 !important;
+  cursor: pointer;
+}
+.ui-datepicker-buttonpane button:hover {
+  background: #357ab8 !important;
+}
+
+/* Time picker 전체 박스 테두리 제거 */
+.ui-timepicker-div,
+.ui-timepicker-div dl,
+.ui-timepicker-div div,
+.ui-datepicker .ui-timepicker-div {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important; /* 배경까지 깔끔하게 */
+}
+
+/* 시/분 select 부모 td나 컨테이너의 회색 라인 제거 */
+.ui-timepicker-div td,
+.ui-timepicker-div th {
+  border: none !important;
+}
+  border-radius: 40% !important;  /* 원형 */
+  display: inline-block !important;
+  text-align: center !important;
+  vertical-align: middle !important;
+  box-sizing: border-box !important;
+}
+
+/* 일반 날짜 */
+.ui-datepicker td a {
+  background: #f5f5f5 !important;
+  color: #333 !important;
+  font-weight: 500 !important;
+  font-size: 14px !important;
+}
+
+/* hover 효과 */
+.ui-datepicker td a:hover {
+  background: #4a90e2 !important;
+  color: #fff !important;
+}
+
+/* 오늘 날짜 */
+.ui-datepicker td.ui-datepicker-today a {
+  background: #ff6b6b !important;
+  color: #fff !important;
+  font-weight: bold !important;
+}
+
+/* 선택된 날짜 */
+.ui-datepicker td a.ui-state-active {
+  background: #4a90e2 !important;
+  color: #fff !important;
+  font-weight: bold !important;
+}
+
+.ui-datepicker .ui-datepicker-header {
+  background: #fff !important;
+  border: none !important;
+  font-size: 16px;
+  font-weight: bold;
+  padding: 8px 0;
+}
+.ui-datepicker .ui-datepicker-prev,
+.ui-datepicker .ui-datepicker-next {
+  background: #f5f5f5 !important;
+  width: 28px; height: 28px;
+  top: 6px !important;
+}
+
+.ui-datepicker th {
+  color: #999;
+  font-weight: 600;
+  font-size: 13px;
+  padding: 4px 0;
+}
+
+.ui-datepicker td a {
+  background: #f5f5f5 !important;
+  color: #333 !important;
+}
+.ui-datepicker td a:hover {
+  background: #4a90e2 !important;
+  color: #fff !important;
+}
+.ui-datepicker td.ui-datepicker-today a {
+  background: #ff6b6b !important;
+  color: #fff !important;
+}
+.ui-datepicker td a.ui-state-active {
+  background: #4a90e2 !important;
+  color: #fff !important;
+}
+
+.ui-datepicker table {
+  width: 100% !important;
+  table-layout: fixed;          /* 칸 폭 균등 */
+}
+
+.ui-datepicker td {
+  padding: 4px !important;
+  width: 14.28% !important;   /* 100 ÷ 7일 = 균등 배분 */
+  text-align: center !important;
+}
+
+.ui-datepicker .ui-datepicker-title .ui-datepicker-month,
+.ui-datepicker .ui-datepicker-title .ui-datepicker-year {
+  color: #000 !important;
+}
+
+/* Time 라벨 */
+.ui-timepicker-div dl dt {
+  font-weight: 600;
+  margin-bottom: 4px;
+  font-size: 13px;
+  color: #333;
+}
+
+/* 시/분 선택 select 박스 */
+.ui-timepicker-div select {
+  border: none !important;          /* 테두리 제거 */
+  border-radius: 6px !important;    /* 둥근 모서리 유지 */
+  padding: 4px 6px !important;
+  font-size: 14px !important;
+  background: #fff !important;
+  color: #333 !important;
+  appearance: auto !important;
+  margin: 2px;
+}
+/* "Time" 텍스트 라벨 영역 정리 */
+.ui-datepicker .ui_tpicker_time_label,
+.ui-datepicker .ui_tpicker_time {
+  font-size: 14px !important;
+  font-weight: 500;
+  color: #333 !important;
+}
+
+/* 하단 버튼 (Now, Done) */
+.ui-datepicker-buttonpane button {
+  background: #4a90e2 !important;
+  color: #fff !important;
+  border: none !important;
+  border-radius: 6px !important;
+  padding: 6px 12px !important;
+  margin: 4px 6px !important;
+  font-weight: 500 !important;
+  cursor: pointer;
+}
+.ui-datepicker-buttonpane button:hover {
+  background: #357ab8 !important;
+}
+
+/* Time picker 전체 박스 테두리 제거 */
+.ui-timepicker-div,
+.ui-timepicker-div dl,
+.ui-timepicker-div div,
+.ui-datepicker .ui-timepicker-div {
+  border: none !important;
+  box-shadow: none !important;
+  background: transparent !important; /* 배경까지 깔끔하게 */
+}
+
+/* 시/분 select 부모 td나 컨테이너의 회색 라인 제거 */
+.ui-timepicker-div td,
+.ui-timepicker-div th {
+  border: none !important;
+}
