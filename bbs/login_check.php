@@ -86,16 +86,23 @@ if($config['cf_use_point']) {
 }
 
 // 3.26
-// 아이디 쿠키에 한달간 저장
-if (isset($auto_login) && $auto_login) {
-    // 3.27
+// 아이디 쿠키에 한달간 저장 (안전한 처리)
+// $auto_login 는 POST 값에서 받아옵니다.
+$auto_login = (isset($_POST['auto_login']) && $_POST['auto_login']) ? true : false;
+
+if ($auto_login) {
     // 자동로그인 ---------------------------
     // 쿠키 한달간 저장
-    $key = md5($_SERVER['SERVER_ADDR'] . $_SERVER['SERVER_SOFTWARE'] . $_SERVER['HTTP_USER_AGENT'] . $mb['mb_password']);
-    set_cookie('ck_mb_id', $mb['mb_id'], 86400 * 31);
+    // 기존에는 패스워드 기반의 약한 MD5 키를 사용했음 -> SHA-256 + 세션 기반 값으로 대체
+    $key_source = $_SERVER['SERVER_ADDR'] . '|' . $_SERVER['SERVER_SOFTWARE'] . '|' . (isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : '') . '|' . (isset($mb['mb_password']) ? $mb['mb_password'] : '') . '|' . session_id();
+    $key = hash('sha256', $key_source);
+
+    // 쿠키 값은 직접 비밀번호를 저장하지 않고, 서버에서 검증 가능한 토큰을 사용
+    set_cookie('ck_mb_id', rawurlencode($mb['mb_id']), 86400 * 31);
     set_cookie('ck_auto', $key, 86400 * 31);
     // 자동로그인 end ---------------------------
 } else {
+    // 쿠키 삭제 (안전하게 빈값 및 만료)
     set_cookie('ck_mb_id', '', 0);
     set_cookie('ck_auto', '', 0);
 }
@@ -104,16 +111,12 @@ if ($url) {
     // url 체크
     check_url_host($url, '', G5_URL, true);
 
-    $link = urldecode($url);
-    // 2003-06-14 추가 (다른 변수들을 넘겨주기 위함)
-    if (preg_match("/\?/", $link))
-        $split= "&amp;";
-    else
-        $split= "?";
+    // do not urldecode user-supplied redirect url. Use as-is after validation.
+    $link = $url;
 
     // $_POST 배열변수에서 아래의 이름을 가지지 않은 것만 넘김
     $post_check_keys = array('mb_id', 'mb_password', 'x', 'y', 'url', 'menu');
-    
+
     //소셜 로그인 추가
     if($is_social_login){
         $post_check_keys[] = 'provider';
@@ -121,11 +124,24 @@ if ($url) {
 
     $post_check_keys = run_replace('login_check_post_check_keys', $post_check_keys, $link, $is_social_login);
 
-    foreach($_POST as $key=>$value) {
+    // Collect additional params and append safely using http_build_query
+    $append_params = array();
+    foreach($_POST as $key => $value) {
         if ($key && !in_array($key, $post_check_keys)) {
-            $link .= "$split$key=$value";
-            $split = "&amp;";
+            // allow-list on key names (alphanumeric, underscore, dash)
+            if (!preg_match('/^[A-Za-z0-9_\\-]+$/', $key)) {
+                continue;
+            }
+            // cast scalar values only
+            if (is_scalar($value)) {
+                $append_params[$key] = $value;
+            }
         }
+    }
+
+    if (!empty($append_params)) {
+        $query = http_build_query($append_params, '', '&', PHP_QUERY_RFC3986);
+        $link .= (strpos($link, '?') === false ? '?' : '&') . $query;
     }
 
 } else  {
