@@ -11,7 +11,7 @@ add_stylesheet('<link rel="stylesheet" href="'.$board_skin_url.'/style.css">', 1
 
 <!-- 밑에 add_stylesheet 함수를 사용하지 않는이유은 가끔 홈페이지 개발시 오류로 add_stylesheet 함수가 먹지 않는 현상으로 인해 사용하지 않습니다. -->
 
-<script type="text/javascript" src="<?php echo $board_skin_url;?>/wz.js/moment.min.js"></script>
+<!-- <script type="text/javascript" src="<?php echo $board_skin_url;?>/wz.js/moment.min.js"></script> -->
 <script type="text/javascript" src="<?php echo $board_skin_url;?>/wz.js/fullcalendar.js"></script>
 <script type="text/javascript" src="<?php echo $board_skin_url;?>/wz.js/ko.js"></script>
 
