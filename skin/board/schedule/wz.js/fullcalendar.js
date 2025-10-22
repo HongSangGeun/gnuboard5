@@ -6,15 +6,15 @@
 
 (function(factory) {
 	if (typeof define === 'function' && define.amd) {
-		define([ 'jquery', 'moment' ], factory);
+		define([ 'jquery', 'dayjs' ], factory);
 	}
 	else if (typeof exports === 'object') { // Node/CommonJS
-		module.exports = factory(require('jquery'), require('moment'));
+		module.exports = factory(require('jquery'), require('dayjs'));
 	}
 	else {
-		factory(jQuery, moment);
+		factory(jQuery, dayjs);
 	}
-})(function($, moment) {
+})(function($, dayjs) {
 
 ;;
 
@@ -610,7 +610,7 @@ var unitsDesc = [ 'year', 'month', 'week', 'day', 'hour', 'minute', 'second', 'm
 // Diffs the two moments into a Duration where full-days are recorded first, then the remaining time.
 // Moments will have their timezones normalized.
 function diffDayTime(a, b) {
-	return moment.duration({
+	return dayjs.duration({
 		days: a.clone().stripTime().diff(b.clone().stripTime(), 'days'),
 		ms: a.time() - b.time() // time-of-day from day start. disregards timezone
 	});
@@ -619,7 +619,7 @@ function diffDayTime(a, b) {
 
 // Diffs the two moments via their start-of-day (regardless of timezone). Produces whole-day durations.
 function diffDay(a, b) {
-	return moment.duration({
+	return dayjs.duration({
 		days: a.clone().stripTime().diff(b.clone().stripTime(), 'days')
 	});
 }
@@ -627,7 +627,7 @@ function diffDay(a, b) {
 
 // Diffs two moments, producing a duration, made of a whole-unit-increment of the given unit. Uses rounding.
 function diffByUnit(a, b, unit) {
-	return moment.duration(
+	return dayjs.duration(
 		Math.round(a.diff(b, unit, true)), // returnFloat=true
 		unit
 	);
@@ -724,13 +724,13 @@ function multiplyDuration(dur, n) {
 	var months;
 
 	if (durationHasTime(dur)) {
-		return moment.duration(dur * n);
+		return dayjs.duration(dur * n);
 	}
 	months = dur.asMonths();
 	if (Math.abs(months) >= 1 && isInt(months)) {
-		return moment.duration({ months: months * n });
+		return dayjs.duration({ months: months * n });
 	}
-	return moment.duration({ days: dur.asDays() * n });
+	return dayjs.duration({ days: dur.asDays() * n });
 }
 
 
@@ -1099,8 +1099,8 @@ function makeMoment(args, parseAsUTC, parseZone) {
 	var ambigMatch;
 	var mom;
 
-	if (moment.isMoment(input) || isNativeDate(input) || input === undefined) {
-		mom = moment.apply(null, args);
+	if (dayjs.isDayjs(input) || isNativeDate(input) || input === undefined) {
+		mom = dayjs(null, args);
 	}
 	else { // "parsing" is required
 		isAmbigTime = false;
@@ -1129,7 +1129,7 @@ function makeMoment(args, parseAsUTC, parseZone) {
 			mom = moment.utc.apply(moment, args);
 		}
 		else {
-			mom = moment.apply(null, args);
+			mom = dayjs(null, args);
 		}
 
 		if (isAmbigTime) {
@@ -1191,7 +1191,7 @@ newMomentProto.time = function(time) {
 	}
 
 	if (time == null) { // getter
-		return moment.duration({
+		return dayjs.duration({
 			hours: this.hours(),
 			minutes: this.minutes(),
 			seconds: this.seconds(),
@@ -1202,8 +1202,8 @@ newMomentProto.time = function(time) {
 
 		this._ambigTime = false; // mark that the moment now has a time
 
-		if (!moment.isDuration(time) && !moment.isMoment(time)) {
-			time = moment.duration(time);
+		if (!dayjs.isDuration(time) && !dayjs.isDayjs(time)) {
+			time = dayjs.duration(time);
 		}
 
 		// The day value should cause overflow (so 24 hours becomes 00:00:00 of next day).
@@ -5467,8 +5467,8 @@ function getDraggedElMeta(el) {
 	if (stick == null) { stick = el.data(prefix + 'stick'); }
 
 	// massage into correct data types
-	startTime = startTime != null ? moment.duration(startTime) : null;
-	duration = duration != null ? moment.duration(duration) : null;
+	startTime = startTime != null ? dayjs.duration(startTime) : null;
+	duration = duration != null ? dayjs.duration(duration) : null;
 	stick = Boolean(stick);
 
 	return { eventProps: eventProps, startTime: startTime, duration: duration, stick: stick };
@@ -6398,7 +6398,7 @@ var DateComponent = FC.DateComponent = Component.extend({
 		this.uid = String(DateComponent.guid++);
 		this.childrenByUid = {};
 
-		this.nextDayThreshold = moment.duration(this.opt('nextDayThreshold'));
+		this.nextDayThreshold = dayjs.duration(this.opt('nextDayThreshold'));
 		this.isRTL = this.opt('isRTL');
 
 		if (this.fillRendererClass) {
@@ -8379,7 +8379,7 @@ var View = FC.View = InteractiveDateComponent.extend({
 				this.nowIndicatorTimeoutID = setTimeout(function() {
 					_this.nowIndicatorTimeoutID = null;
 					update();
-					delay = +moment.duration(1, unit);
+					delay = +dayjs.duration(1, unit);
 					delay = Math.max(100, delay); // prevent too frequent
 					_this.nowIndicatorIntervalID = setInterval(update, delay); // update every interval
 				}, delay);
@@ -8528,7 +8528,7 @@ var View = FC.View = InteractiveDateComponent.extend({
 		this.triggerEventDrop(
 			eventInstance,
 			// a drop doesn't necessarily mean a date mutation (ex: resource change)
-			(dateMutation && dateMutation.dateDelta) || moment.duration(),
+			(dateMutation && dateMutation.dateDelta) || dayjs.duration(),
 			undoFunc,
 			el, ev
 		);
@@ -8952,8 +8952,8 @@ View.mixin({
 			activeUnzonedRange = activeUnzonedRange.intersect(currentInfo.unzonedRange);
 		}
 
-		minTime = moment.duration(this.opt('minTime'));
-		maxTime = moment.duration(this.opt('maxTime'));
+		minTime = dayjs.duration(this.opt('minTime'));
+		maxTime = dayjs.duration(this.opt('maxTime'));
 		activeUnzonedRange = this.adjustActiveRange(activeUnzonedRange, minTime, maxTime);
 		activeUnzonedRange = activeUnzonedRange.intersect(validUnzonedRange); // might return null
 
@@ -9050,7 +9050,7 @@ View.mixin({
 
 
 	getFallbackDuration: function() {
-		return moment.duration({ days: 1 });
+		return dayjs.duration({ days: 1 });
 	},
 
 
@@ -9098,7 +9098,7 @@ View.mixin({
 			dateIncrementInput = this.opt('dateIncrement');
 
 			if (dateIncrementInput) {
-				dateIncrementDuration = moment.duration(dateIncrementInput);
+				dateIncrementDuration = dayjs.duration(dateIncrementInput);
 
 				// use the smaller of the two units
 				if (dateIncrementDuration < duration) {
@@ -9179,16 +9179,16 @@ View.mixin({
 		var customAlignment;
 
 		if (dateIncrementInput) {
-			return moment.duration(dateIncrementInput);
+			return dayjs.duration(dateIncrementInput);
 		}
 		else if ((customAlignment = this.opt('dateAlignment'))) {
-			return moment.duration(1, customAlignment);
+			return dayjs.duration(1, customAlignment);
 		}
 		else if (fallback) {
 			return fallback;
 		}
 		else {
-			return moment.duration({ days: 1 });
+			return dayjs.duration({ days: 1 });
 		}
 	},
 
@@ -9269,7 +9269,7 @@ View.mixin({
 	// Is the current day hidden?
 	// `day` is a day-of-week index (0-6), or a Moment
 	isHiddenDay: function(day) {
-		if (moment.isMoment(day)) {
+		if (dayjs.isDayjs(day)) {
 			day = day.day();
 		}
 		return this.isHiddenDayHash[day];
@@ -9744,7 +9744,7 @@ var Calendar = FC.Calendar = Class.extend(EmitterMixin, ListenerMixin, {
 
 
 	incrementDate: function(delta) {
-		this.currentDate.add(moment.duration(delta));
+		this.currentDate.add(dayjs.duration(delta));
 		this.renderView();
 	},
 
@@ -10047,8 +10047,8 @@ Calendar.mixin({
 	initMomentInternals: function() {
 		var _this = this;
 
-		this.defaultAllDayEventDuration = moment.duration(this.opt('defaultAllDayEventDuration'));
-		this.defaultTimedEventDuration = moment.duration(this.opt('defaultTimedEventDuration'));
+		this.defaultAllDayEventDuration = dayjs.duration(this.opt('defaultAllDayEventDuration'));
+		this.defaultTimedEventDuration = dayjs.duration(this.opt('defaultTimedEventDuration'));
 
 		// Called immediately, and when any of the options change.
 		// Happens before any internal objects rebuild or rerender, because this is very core.
@@ -10116,7 +10116,7 @@ Calendar.mixin({
 		var mom;
 
 		if (this.opt('timezone') === 'local') {
-			mom = FC.moment.apply(null, arguments);
+			mom = FC.dayjs(null, arguments);
 
 			// Force the moment to be local, because FC.moment doesn't guarantee it.
 			if (mom.hasTime()) { // don't give ambiguously-timed moments a local zone
@@ -10376,7 +10376,7 @@ Calendar.mixin({
 			this.overrides.duration;
 
 		if (durationInput) {
-			duration = moment.duration(durationInput);
+			duration = dayjs.duration(durationInput);
 
 			if (duration.valueOf()) { // valid?
 
@@ -11832,11 +11832,11 @@ var UnzonedRange = FC.UnzonedRange = Class.extend({
 
 	constructor: function(startInput, endInput) {
 
-		if (moment.isMoment(startInput)) {
+		if (dayjs.isDayjs(startInput)) {
 			startInput = startInput.clone().stripZone();
 		}
 
-		if (moment.isMoment(endInput)) {
+		if (moment.dayjs.isDayjs(endInput)) {
 			endInput = endInput.clone().stripZone();
 		}
 
@@ -13251,11 +13251,11 @@ var RecurringEventDef = EventDef.extend({
 		var def = EventDef.prototype.clone.call(this);
 
 		if (def.startTime) {
-			def.startTime = moment.duration(this.startTime);
+			def.startTime = dayjs.duration(this.startTime);
 		}
 
 		if (def.endTime) {
-			def.endTime = moment.duration(this.endTime);
+			def.endTime = dayjs.duration(this.endTime);
 		}
 
 		if (this.dowHash) {
@@ -13273,11 +13273,11 @@ var RecurringEventDef = EventDef.extend({
 		var superSuccess = EventDef.prototype.applyProps.apply(this, arguments);
 
 		if (rawProps.start) {
-			this.startTime = moment.duration(rawProps.start);
+			this.startTime = dayjs.duration(rawProps.start);
 		}
 
 		if (rawProps.end) {
-			this.endTime = moment.duration(rawProps.end);
+			this.endTime = dayjs.duration(rawProps.end);
 		}
 
 		if (rawProps.dow) {
@@ -16928,8 +16928,8 @@ var TimeGrid = FC.TimeGrid = InteractiveDateComponent.extend(StandardInteraction
 		var snapDuration = this.opt('snapDuration');
 		var input;
 
-		slotDuration = moment.duration(slotDuration);
-		snapDuration = snapDuration ? moment.duration(snapDuration) : slotDuration;
+		slotDuration = dayjs.duration(slotDuration);
+		snapDuration = snapDuration ? dayjs.duration(snapDuration) : slotDuration;
 
 		this.slotDuration = slotDuration;
 		this.snapDuration = snapDuration;
@@ -16947,7 +16947,7 @@ var TimeGrid = FC.TimeGrid = InteractiveDateComponent.extend(StandardInteraction
 
 		input = this.opt('slotLabelInterval');
 		this.labelInterval = input ?
-			moment.duration(input) :
+			dayjs.duration(input) :
 			this.computeLabelInterval(slotDuration);
 	},
 
@@ -16960,14 +16960,14 @@ var TimeGrid = FC.TimeGrid = InteractiveDateComponent.extend(StandardInteraction
 
 		// find the smallest stock label interval that results in more than one slots-per-label
 		for (i = AGENDA_STOCK_SUB_DURATIONS.length - 1; i >= 0; i--) {
-			labelInterval = moment.duration(AGENDA_STOCK_SUB_DURATIONS[i]);
+			labelInterval = dayjs.duration(AGENDA_STOCK_SUB_DURATIONS[i]);
 			slotsPerLabel = divideDurationByDuration(labelInterval, slotDuration);
 			if (isInt(slotsPerLabel) && slotsPerLabel > 1) {
 				return labelInterval;
 			}
 		}
 
-		return moment.duration(slotDuration); // fall back. clone
+		return dayjs.duration(slotDuration); // fall back. clone
 	},
 
 
@@ -17029,8 +17029,8 @@ var TimeGrid = FC.TimeGrid = InteractiveDateComponent.extend(StandardInteraction
 		var isRTL = this.isRTL;
 		var dateProfile = this.dateProfile;
 		var html = '';
-		var slotTime = moment.duration(+dateProfile.minTime); // wish there was .clone() for durations
-		var slotIterator = moment.duration(0);
+		var slotTime = dayjs.duration(+dateProfile.minTime); // wish there was .clone() for durations
+		var slotIterator = dayjs.duration(0);
 		var slotDate; // will be on the view's first day, but we only care about its time
 		var isLabeled;
 		var axisHtml;
@@ -17268,7 +17268,7 @@ var TimeGrid = FC.TimeGrid = InteractiveDateComponent.extend(StandardInteraction
 	// A `startOfDayDate` must be given for avoiding ambiguity over how to treat midnight.
 	computeDateTop: function(ms, startOfDayDate) {
 		return this.computeTimeTop(
-			moment.duration(
+			dayjs.duration(
 				ms - startOfDayDate.clone().stripTime()
 			)
 		);
@@ -17416,7 +17416,7 @@ var TimeGrid = FC.TimeGrid = InteractiveDateComponent.extend(StandardInteraction
 
 	// Given a row number of the grid, representing a "snap", returns a time (Duration) from its start-of-day
 	computeSnapTime: function(snapIndex) {
-		return moment.duration(this.dateProfile.minTime + this.snapDuration * snapIndex);
+		return dayjs.duration(this.dateProfile.minTime + this.snapDuration * snapIndex);
 	},
 
 
@@ -17731,7 +17731,7 @@ var AgendaView = FC.AgendaView = View.extend({
 
 	// Computes the initial pre-configured scroll state prior to allowing the user to change it
 	computeInitialDateScroll: function() {
-		var scrollTime = moment.duration(this.opt('scrollTime'));
+		var scrollTime = dayjs.duration(this.opt('scrollTime'));
 		var top = this.timeGrid.computeTimeTop(scrollTime);
 
 		// zoom can give weird floating-point values. rather scroll a little bit further
