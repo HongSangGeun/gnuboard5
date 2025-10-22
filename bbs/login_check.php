@@ -195,4 +195,14 @@ if( is_admin($mb['mb_id']) && is_dir(G5_DATA_PATH.'/tmp/') ){
     }
 }
 
+// Validate final redirect URL
+if (!preg_match('/^https?:\/\//', $link)) {
+    $link = G5_URL;
+}
+
+if (!check_url_host($link, '', G5_URL, true)) {
+    // fallback if invalid redirect target
+    $link = G5_URL;
+}
+
 goto_url($link);
