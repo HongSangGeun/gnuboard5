@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout/layout}">
+<head>
+    <title>게시판관리</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <div class="local_ov01 local_ov">
+        <span class="btn_ov01"><span class="ov_txt">생성된 게시판수</span><span class="ov_num" th:text="${boards.size()} + '개'">0개</span></span>
+    </div>
+
+    <form name="fsearch" id="fsearch" class="local_sch01 local_sch" method="get">
+        <label for="sfl" class="sound_only">검색대상</label>
+        <select name="sfl" id="sfl">
+            <option value="bo_table">TABLE</option>
+            <option value="bo_subject">제목</option>
+            <option value="gr_id">그룹ID</option>
+        </select>
+        <label for="stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
+        <input type="text" name="stx" id="stx" class="required frm_input">
+        <input type="submit" value="검색" class="btn_submit">
+    </form>
+
+    <form name="fboardlist" id="fboardlist" method="post">
+        <div class="tbl_head01 tbl_wrap">
+            <table>
+                <caption>게시판관리 목록</caption>
+                <thead>
+                <tr>
+                    <th scope="col">
+                        <label for="chkall" class="sound_only">게시판 전체</label>
+                        <input type="checkbox" name="chkall" value="1" id="chkall">
+                    </th>
+                    <th scope="col">그룹</th>
+                    <th scope="col">TABLE</th>
+                    <th scope="col">스킨</th>
+                    <th scope="col">모바일<br>스킨</th>
+                    <th scope="col">제목</th>
+                    <th scope="col">읽기P</th>
+                    <th scope="col">쓰기P</th>
+                    <th scope="col">댓글P</th>
+                    <th scope="col">다운P</th>
+                    <th scope="col">SNS<br>사용</th>
+                    <th scope="col">검색<br>사용</th>
+                    <th scope="col">출력<br>순서</th>
+                    <th scope="col">접속기기</th>
+                    <th scope="col">관리</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="board, iterStat : ${boards}" th:class="${iterStat.index % 2 == 0} ? 'bg0' : 'bg1'">
+                    <td class="td_chk">
+                        <input type="checkbox" name="chk[]" th:value="${iterStat.index}" th:id="${'chk_' + iterStat.index}">
+                    </td>
+                    <td>미정</td>
+                    <td>
+                        <a th:href="@{'/bbs/' + ${board.boTable} + '/list'}" th:text="${board.boTable}">table</a>
+                    </td>
+                    <td th:text="${board.boSkin}">skin</td>
+                    <td th:text="${board.boMobileSkin}">mobile</td>
+                    <td th:text="${board.boSubject}">subject</td>
+                    <td class="td_numsmall">0</td>
+                    <td class="td_numsmall">0</td>
+                    <td class="td_numsmall">0</td>
+                    <td class="td_numsmall">0</td>
+                    <td class="td_numsmall">0</td>
+                    <td class="td_numsmall">0</td>
+                    <td class="td_numsmall">0</td>
+                    <td class="td_mngsmall">both</td>
+                    <td class="td_mng td_mng_m">
+                        <a th:href="@{'/mgmt/board/' + ${board.boTable} + '/edit'}" class="btn btn_03">수정</a>
+                        <a th:href="@{'/mgmt/board/' + ${board.boTable} + '/copy'}" class="btn btn_02">복사</a>
+                    </td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(boards)}">
+                    <td colspan="15" class="empty_table">자료가 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="btn_fixed_top">
+            <input type="submit" value="선택수정" class="btn_02 btn">
+            <input type="submit" value="선택삭제" class="btn_02 btn">
+            <a th:href="@{/mgmt/board/new}" id="bo_add" class="btn_01 btn">게시판 추가</a>
+        </div>
+    </form>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/css/default.css}">
+    <link rel="stylesheet" th:href="@{/css/mobile.css}">
+    <link rel="stylesheet" th:href="@{/css/mobile-board-skin.css}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <title th:text="${post.wrSubject} + ' - 보기'">게시글 보기</title>
+    <link rel="stylesheet" th:href="@{/skin/board/gallery/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div id="wrapper">
+    <div id="container_wr">
+        <div id="container">
+            <h1 id="container_title" th:text="${pageTitle} ?: (board != null ? board.boSubject : '갤러리')">갤러리</h1>
+
+            <article id="bo_v">
+                <header>
+                    <h2 id="bo_v_title">
+                        <span class="bo_v_cate" th:if="${post.caName != null && post.caName != ''}" th:text="${post.caName}">분류</span>
+                        <span class="bo_v_tit" th:text="${post.wrSubject}">제목</span>
+                    </h2>
+                </header>
+
+                <section id="bo_v_info">
+                    <h2>페이지 정보</h2>
+                    <div class="profile_info">
+                        <div class="pf_img"></div>
+                        <div class="profile_info_ct">
+                            <span class="sound_only">작성자</span>
+                            <strong th:text="${post.wrName}">작성자</strong>
+                            <br>
+                            <span class="sound_only">댓글</span>
+                            <strong><a href="#bo_vc"><i class="fa fa-commenting-o" aria-hidden="true"></i> <span th:text="${post.wrComment}">0</span>건</a></strong>
+                            <span class="sound_only">조회</span>
+                            <strong><i class="fa fa-eye" aria-hidden="true"></i> <span th:text="${post.wrHit}">0</span>회</strong>
+                            <strong class="if_date"><span class="sound_only">작성일</span><i class="fa fa-clock-o" aria-hidden="true"></i> <span th:text="${post.wrDatetime}">작성일</span></strong>
+                        </div>
+                    </div>
+
+                    <div id="bo_v_top">
+                        <ul class="btn_bo_user bo_v_com">
+                            <li><a th:href="@{'/bbs/' + ${boTable} + '/list'}" class="btn_b01 btn" title="목록"><i class="fa fa-list" aria-hidden="true"></i><span class="sound_only">목록</span></a></li>
+                            <li th:if="${(loginUser != null && loginUser.level >= board.boWriteLevel) || (loginUser == null && board.boWriteLevel <= 1)}">
+                                <a th:href="@{'/bbs/' + ${boTable} + '/write'}" class="btn_b01 btn" title="글쓰기"><i class="fa fa-pencil" aria-hidden="true"></i><span class="sound_only">글쓰기</span></a>
+                            </li>
+                            <li>
+                                <button type="button" class="btn_more_opt is_view_btn btn_b01 btn"><i class="fa fa-ellipsis-v" aria-hidden="true"></i><span class="sound_only">갤러리 리스트 옵션</span></button>
+                                <ul class="more_opt is_view_btn">
+                                    <li><a th:href="@{'/bbs/' + ${boTable} + '/edit/' + ${post.wrId}}">수정<i class="fa fa-pencil-square-o" aria-hidden="true"></i></a></li>
+                                    <li>
+                                        <form th:action="@{'/bbs/' + ${boTable} + '/delete/' + ${post.wrId}}" method="post" style="display:inline;">
+                                            <input type="hidden" name="password" value="" th:if="${loginUser != null}" />
+                                            <button type="submit" class="linklike">삭제<i class="fa fa-trash-o" aria-hidden="true"></i></button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+
+                <section id="bo_v_atc">
+                    <h2 id="bo_v_atc_title">본문</h2>
+                    <div id="bo_v_con" th:utext="${post.wrContent}">내용</div>
+
+                    <div id="bo_v_act" th:if="${board.boUseGood == 1 || board.boUseNogood == 1}">
+                        <span class="bo_v_good" th:if="${board.boUseGood == 1}"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i><span class="sound_only">추천</span><strong th:text="${post.wrGood}">0</strong></span>
+                        <span class="bo_v_nogood" th:if="${board.boUseNogood == 1}"><i class="fa fa-thumbs-o-down" aria-hidden="true"></i><span class="sound_only">비추천</span><strong th:text="${post.wrNogood}">0</strong></span>
+                    </div>
+                </section>
+
+                <section id="bo_v_file" th:if="${!#lists.isEmpty(files)}">
+                    <h2>첨부파일</h2>
+                    <ul>
+                        <li th:each="file : ${files}">
+                            <i class="fa fa-folder-open" aria-hidden="true"></i>
+                            <a th:href="@{'/bbs/' + ${boTable} + '/download/' + ${post.wrId} + '/' + ${file.bfNo}}" class="view_file_download">
+                                <strong th:text="${file.bfSource}">파일</strong>
+                                <span th:text="${file.bfContent}"></span>
+                            </a>
+                            <br>
+                            <span class="bo_v_file_cnt" th:text="${file.bfDownload} + '회 다운로드 | DATE : ' + ${file.bfDatetime}">0회 다운로드</span>
+                        </li>
+                    </ul>
+                </section>
+
+                <div class="bo_v_nb">
+                    <!-- 이전/다음글은 현재 모델에 없어서 구조만 유지 -->
+                </div>
+
+                <button type="button" class="cmt_btn"><span class="total"><b>댓글</b> <span th:text="${post.wrComment}">0</span></span><span class="cmt_more"></span></button>
+                <section id="bo_vc">
+                    <h2>댓글목록</h2>
+                    <article th:each="comment : ${comments}"
+                             th:id="${'c_' + comment.wrId}"
+                             th:with="displayName=${#strings.isEmpty(comment.wrName) ? (!#strings.isEmpty(comment.mbId) ? comment.mbId : '익명') : comment.wrName},
+                                      guestComment=${comment.mbId == null || comment.mbId == ''},
+                                      canManage=${(loginUser != null && (loginUser.level >= 10 || (comment.mbId != null && comment.mbId != '' && comment.mbId == loginUser.id))) || (loginUser == null && (comment.mbId == null || comment.mbId == ''))}"
+                             th:attr="data-comment-id=${comment.wrId},data-comment-name=${displayName}"
+                             th:style="${comment.wrCommentReply != null && #strings.length(comment.wrCommentReply) > 1} ? 'margin-left:' + ((${#strings.length(comment.wrCommentReply)} - 1) * 26) + 'px;' : ''"
+                             >
+                        <div class="pf_img"></div>
+                        <div class="cm_wrap">
+                            <header style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:nowrap;">
+                                <div style="flex:1 1 auto;min-width:0;">
+                                    <h2>
+                                        <span th:if="${comment.wrCommentReply != null && #strings.length(comment.wrCommentReply) > 1}" style="margin-right:4px;color:#666;">↳</span>
+                                        <span th:text="${displayName}">작성자</span>님의 댓글
+                                    </h2>
+                                    <span class="bo_vc_hdinfo">
+                                        <i class="fa fa-user" aria-hidden="true"></i>
+                                        <span th:text="${displayName}">작성자</span>
+                                        <span style="margin:0 6px;color:#9aa4b2;">|</span>
+                                        <i class="fa fa-clock-o" aria-hidden="true"></i>
+                                        <time th:text="${comment.wrDatetime}">작성일</time>
+                                    </span>
+                                </div>
+                                <div class="cmt_reply_actions" style="display:flex;gap:6px;flex-wrap:nowrap;justify-content:flex-end;align-items:flex-start;flex:0 0 auto;margin-left:auto;">
+                                    <button type="button"
+                                            class="btn_comment_reply"
+                                            style="border:1px solid #d8deea;background:#fff;color:#3b4a6b;padding:3px 10px;border-radius:12px;font-size:12px;cursor:pointer;"
+                                            th:attr="data-reply-id=${comment.wrId},data-reply-name=${displayName}">답글</button>
+                                    <button type="button"
+                                            class="btn_comment_edit_toggle"
+                                            th:if="${canManage}"
+                                            style="border:1px solid #d8deea;background:#fff;color:#3b4a6b;padding:3px 10px;border-radius:12px;font-size:12px;cursor:pointer;">수정</button>
+                                    <form th:if="${canManage}"
+                                          th:action="@{'/bbs/' + ${boTable} + '/comment/' + ${post.wrId} + '/delete/' + ${comment.wrId}}"
+                                          method="post"
+                                          class="comment_delete_form"
+                                          th:attr="data-guest-comment=${guestComment}"
+                                          style="display:inline;">
+                                        <input type="hidden" name="password" class="comment_password_input">
+                                        <button type="submit"
+                                                style="border:1px solid #f1d3d7;background:#fff;color:#b42333;padding:3px 10px;border-radius:12px;font-size:12px;cursor:pointer;">삭제</button>
+                                    </form>
+                                </div>
+                            </header>
+                            <div class="cmt_contents">
+                                <p th:utext="${comment.wrContent}">댓글</p>
+                            </div>
+                            <form th:if="${canManage}"
+                                  th:action="@{'/bbs/' + ${boTable} + '/comment/' + ${post.wrId} + '/edit/' + ${comment.wrId}}"
+                                  method="post"
+                                  class="comment_edit_form"
+                                  th:attr="data-guest-comment=${guestComment}"
+                                  style="display:none;margin-top:8px;border:1px solid #e1e6ef;border-radius:8px;padding:10px;background:#fafcff;">
+                                <textarea name="content" required maxlength="10000" class="frm_input" style="width:100%;min-height:86px;box-sizing:border-box;" th:text="${comment.wrContent}"></textarea>
+                                <div style="margin-top:8px;display:flex;gap:6px;justify-content:flex-end;align-items:center;">
+                                    <input th:if="${guestComment}" type="password" name="password" class="frm_input comment_password_input" placeholder="댓글 비밀번호" style="max-width:170px;">
+                                    <button type="submit" class="btn_submit" style="height:32px;line-height:30px;padding:0 12px;">저장</button>
+                                    <button type="button" class="btn_comment_edit_cancel" style="border:1px solid #ccd5e3;background:#fff;color:#3b4a6b;height:32px;line-height:30px;padding:0 12px;border-radius:4px;cursor:pointer;">취소</button>
+                                </div>
+                            </form>
+                        </div>
+                    </article>
+                    <p id="bo_vc_empty" th:if="${#lists.isEmpty(comments)}">등록된 댓글이 없습니다.</p>
+                </section>
+
+                <aside id="bo_vc_w" class="bo_vc_w" th:if="${(loginUser != null && loginUser.level >= board.boCommentLevel) || (loginUser == null && board.boCommentLevel <= 1)}">
+                    <h2>댓글쓰기</h2>
+                    <form th:action="@{'/bbs/' + ${boTable} + '/comment/' + ${post.wrId}}" method="post" autocomplete="off">
+                        <span class="sound_only">내용</span>
+                        <textarea id="wr_content" name="content" maxlength="10000" required class="required" title="내용" placeholder="댓글내용을 입력해주세요"></textarea>
+                        <input type="hidden" name="replyTo" id="reply_to_id">
+                        <div id="reply_target_box" style="display:none;margin:8px 0;padding:8px 10px;border:1px solid #d8e2f2;border-radius:8px;background:#f7faff;font-size:13px;color:#334155;">
+                            <span id="reply_target_text"></span>
+                            <button type="button" id="reply_cancel_btn" style="margin-left:8px;border:0;background:transparent;color:#2563eb;cursor:pointer;">취소</button>
+                        </div>
+                        <div class="bo_vc_w_wr">
+                            <div class="bo_vc_w_info">
+                                <div th:if="${loginUser == null}">
+                                    <label for="wr_name" class="sound_only">이름<strong> 필수</strong></label>
+                                    <input type="text" name="name" id="wr_name" required class="frm_input required" size="25" placeholder="이름">
+                                    <label for="wr_password" class="sound_only">비밀번호<strong> 필수</strong></label>
+                                    <input type="password" name="password" id="wr_password" required class="frm_input required" size="25" placeholder="비밀번호">
+                                </div>
+                            </div>
+                            <div class="btn_confirm">
+                                <button type="submit" id="btn_submit" class="btn_submit">댓글등록</button>
+                            </div>
+                        </div>
+                    </form>
+                </aside>
+            </article>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/nav :: nav_end}"></div>
+<script>
+    (function() {
+        var btn = document.querySelector('.btn_more_opt.is_view_btn');
+        var menu = document.querySelector('.more_opt.is_view_btn');
+        if (!btn || !menu) return;
+        btn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+        });
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.is_view_btn')) {
+                menu.style.display = 'none';
+            }
+        });
+    })();
+    (function() {
+        var form = document.querySelector('#bo_vc_w form');
+        var writeBox = document.querySelector('#bo_vc_w');
+        var originalParent = writeBox ? writeBox.parentNode : null;
+        var originalNext = writeBox ? writeBox.nextSibling : null;
+        if (!form) return;
+        var replyInput = form.querySelector('#reply_to_id');
+        var replyBox = form.querySelector('#reply_target_box');
+        var replyText = form.querySelector('#reply_target_text');
+        var replyCancel = form.querySelector('#reply_cancel_btn');
+        var textarea = form.querySelector('textarea[name=\"content\"]');
+        var defaultPlaceholder = textarea ? textarea.getAttribute('placeholder') : '';
+        var buttons = document.querySelectorAll('.btn_comment_reply');
+
+        function moveWriteBoxAfter(article) {
+            if (!writeBox || !article) return;
+            article.insertAdjacentElement('afterend', writeBox);
+        }
+
+        function restoreWriteBoxPosition() {
+            if (!writeBox || !originalParent) return;
+            if (originalNext && originalNext.parentNode === originalParent) {
+                originalParent.insertBefore(writeBox, originalNext);
+            } else {
+                originalParent.appendChild(writeBox);
+            }
+        }
+
+        function clearReplyTarget() {
+            if (replyInput) replyInput.value = '';
+            if (replyBox) replyBox.style.display = 'none';
+            if (replyText) replyText.textContent = '';
+            if (textarea) textarea.setAttribute('placeholder', defaultPlaceholder || '댓글내용을 입력해주세요');
+            restoreWriteBoxPosition();
+        }
+
+        buttons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                var replyId = this.getAttribute('data-reply-id');
+                var replyName = this.getAttribute('data-reply-name') || '작성자';
+                var article = this.closest('article');
+                if (!replyId || !replyInput) return;
+                replyInput.value = replyId;
+                if (replyText) replyText.textContent = replyName + '님에게 답글 작성 중';
+                if (replyBox) replyBox.style.display = 'block';
+                moveWriteBoxAfter(article);
+                if (textarea) {
+                    textarea.setAttribute('placeholder', replyName + '님에게 답글을 입력해주세요');
+                    textarea.focus();
+                }
+            });
+        });
+        if (replyCancel) {
+            replyCancel.addEventListener('click', clearReplyTarget);
+        }
+    })();
+    (function() {
+        var editButtons = document.querySelectorAll('.btn_comment_edit_toggle');
+        editButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                var article = this.closest('article');
+                if (!article) return;
+                var form = article.querySelector('.comment_edit_form');
+                if (!form) return;
+                form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
+            });
+        });
+
+        var editCancelButtons = document.querySelectorAll('.btn_comment_edit_cancel');
+        editCancelButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                var form = this.closest('.comment_edit_form');
+                if (!form) return;
+                form.style.display = 'none';
+            });
+        });
+
+        var editForms = document.querySelectorAll('.comment_edit_form');
+        editForms.forEach(function(form) {
+            form.addEventListener('submit', function(e) {
+                if (form.getAttribute('data-guest-comment') !== 'true') return;
+                var input = form.querySelector('.comment_password_input');
+                if (!input) return;
+                if (input.value && input.value.trim() !== '') return;
+                var password = window.prompt('댓글 비밀번호를 입력해주세요.');
+                if (!password) {
+                    e.preventDefault();
+                    return;
+                }
+                input.value = password;
+            });
+        });
+
+        var deleteForms = document.querySelectorAll('.comment_delete_form');
+        deleteForms.forEach(function(form) {
+            form.addEventListener('submit', function(e) {
+                if (!window.confirm('댓글을 삭제하시겠습니까?')) {
+                    e.preventDefault();
+                    return;
+                }
+                if (form.getAttribute('data-guest-comment') !== 'true') return;
+                var input = form.querySelector('.comment_password_input');
+                if (!input) return;
+                if (input.value && input.value.trim() !== '') return;
+                var password = window.prompt('댓글 비밀번호를 입력해주세요.');
+                if (!password) {
+                    e.preventDefault();
+                    return;
+                }
+                input.value = password;
+            });
+        });
+    })();
+</script>
+</body>
+</html>

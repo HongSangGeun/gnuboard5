@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" th:replace="~{layout/mgmt :: layout(~{::content})}">
+
+<head>
+</head>
+
+<body>
+
+    <div th:fragment="content">
+        <section>
+            <h2 class="h2_frm" th:text="${pageTitle}">페이지 제목</h2>
+            <div class="local_desc01 local_desc">
+                <p>이 페이지는 아직 구현되지 않았습니다.</p>
+            </div>
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>준비중</caption>
+                    <tbody>
+                        <tr>
+                            <td style="text-align:center; padding: 50px;">
+                                <h3>준비중입니다.</h3>
+                                <p>빠른 시일 내에 업데이트 하겠습니다.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+</body>
+
+</html>

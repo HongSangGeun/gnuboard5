@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>게시판 설정</title>
+</head>
+
+<body>
+
+    <div layout:fragment="content">
+
+        <div th:if="${error}" th:text="${error}" class="local_desc01 local_desc" style="color: red;"></div>
+
+        <form th:action="${mode == 'create'} ? @{/mgmt/board} : @{'/mgmt/board/' + ${form.boTable} + '/edit'}"
+              method="post" class="tbl_frm01 tbl_wrap">
+            <input type="hidden" name="_csrf" th:value="${csrfToken}">
+            <table>
+                <caption th:text="${mode == 'create' ? '게시판 생성' : '게시판 수정'}">게시판</caption>
+                <tbody>
+                <tr>
+                    <th scope="row">테이블 ID</th>
+                    <td>
+                        <input th:if="${mode == 'create'}" type="text" name="boTable" th:value="${form.boTable}"
+                               required class="frm_input">
+                        <input th:if="${mode != 'create'}" type="text" name="boTable" th:value="${form.boTable}"
+                               readonly class="frm_input">
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">게시판 제목</th>
+                    <td><input type="text" name="boSubject" th:value="${form.boSubject}" required class="frm_input"></td>
+                </tr>
+                <tr>
+                    <th scope="row">게시판 그룹</th>
+                    <td>
+                        <select name="grId" class="frm_input">
+                            <option value="">선택안함</option>
+                            <option th:each="group : ${boardGroupOptions}"
+                                    th:value="${group.grId}"
+                                    th:selected="${form.grId == group.grId}"
+                                    th:text="${group.grId + ' (' + group.grSubject + ')'}">group01 (기본그룹)</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">스킨</th>
+                    <td>
+                        <select name="boSkin" class="frm_input">
+                            <option value="">선택안함</option>
+                            <option th:each="skin : ${boardSkinOptions}"
+                                    th:value="${skin}"
+                                    th:selected="${form.boSkin == skin}"
+                                    th:text="${skin}">basic</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">목록 레벨</th>
+                    <td><input type="number" name="boListLevel" th:value="${form.boListLevel}" class="frm_input"></td>
+                </tr>
+                <tr>
+                    <th scope="row">읽기 레벨</th>
+                    <td><input type="number" name="boReadLevel" th:value="${form.boReadLevel}" class="frm_input"></td>
+                </tr>
+                <tr>
+                    <th scope="row">쓰기 레벨</th>
+                    <td><input type="number" name="boWriteLevel" th:value="${form.boWriteLevel}" class="frm_input"></td>
+                </tr>
+                <tr>
+                    <th scope="row">댓글 레벨</th>
+                    <td><input type="number" name="boCommentLevel" th:value="${form.boCommentLevel}" class="frm_input"></td>
+                </tr>
+                <tr>
+                    <th scope="row">업로드 레벨</th>
+                    <td><input type="number" name="boUploadLevel" th:value="${form.boUploadLevel}" class="frm_input"></td>
+                </tr>
+                <tr>
+                    <th scope="row">첨부 가능 파일 개수</th>
+                    <td><input type="number" name="boUploadCount" th:value="${form.boUploadCount}" min="0" class="frm_input"></td>
+                </tr>
+                <tr>
+                    <th scope="row">다운로드 레벨</th>
+                    <td><input type="number" name="boDownloadLevel" th:value="${form.boDownloadLevel}" class="frm_input"></td>
+                </tr>
+                <tr>
+                    <th scope="row">페이지 글수</th>
+                    <td><input type="number" name="boPageRows" th:value="${form.boPageRows}" class="frm_input"></td>
+                </tr>
+                <tr>
+                    <th scope="row">카테고리 사용</th>
+                    <td>
+                        <input type="checkbox" name="boUseCategory" value="1" th:checked="${form.boUseCategory == 1}"> 사용
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">카테고리 목록</th>
+                    <td>
+                        <textarea name="boCategoryList" th:text="${form.boCategoryList}" class="frm_input" rows="3"></textarea>
+                        <div class="frm_info">구분자는 | 입니다.</div>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">비밀글</th>
+                    <td>
+                        <select name="boUseSecret" class="frm_input">
+                            <option value="0" th:selected="${form.boUseSecret == 0}">사용안함</option>
+                            <option value="1" th:selected="${form.boUseSecret == 1}">선택</option>
+                            <option value="2" th:selected="${form.boUseSecret == 2}">무조건</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">에디터 사용</th>
+                    <td>
+                        <input type="checkbox" name="boUseDhtmlEditor" value="1" th:checked="${form.boUseDhtmlEditor == 1}"> 사용
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">에디터 선택</th>
+                    <td>
+                        <select name="boSelectEditor" class="frm_input">
+                            <option value="" th:selected="${form.boSelectEditor == null || form.boSelectEditor == ''}">사용안함</option>
+                            <option value="cheditor5" th:selected="${form.boSelectEditor == 'cheditor5'}">cheditor5</option>
+                            <option value="ckeditor4" th:selected="${form.boSelectEditor == 'ckeditor4'}">ckeditor4</option>
+                            <option value="smarteditor2" th:selected="${form.boSelectEditor == 'smarteditor2'}">smarteditor2</option>
+                        </select>
+                        <div class="frm_info">에디터 사용 체크 시 선택된 에디터가 적용됩니다.</div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="btn_fixed_top">
+                <button type="submit" class="btn btn_01">저장</button>
+                <a th:href="@{/mgmt/board}" class="btn btn_02">목록</a>
+            </div>
+        </form>
+
+    </div>
+</body>
+</html>

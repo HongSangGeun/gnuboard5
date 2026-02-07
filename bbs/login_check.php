@@ -6,6 +6,25 @@ $g5['title'] = "로그인 검사";
 $mb_id       = isset($_POST['mb_id']) ? trim($_POST['mb_id']) : '';
 $mb_password = isset($_POST['mb_password']) ? trim($_POST['mb_password']) : '';
 
+// Early input guards to mitigate SQL injection/tampering on login
+if (function_exists('g5_guard_params_or_die')) {
+    g5_guard_params_or_die(['mb_id','mb_password']);
+}
+
+// Normalize and validate mb_id: allow-list and length limit
+$mb_id = substr($mb_id, 0, 64);
+if ($mb_id === '' || !preg_match('/^[A-Za-z0-9_@\.\-]{3,64}$/', $mb_id)) {
+    // invalid id format - block and redirect
+    alert('유효하지 않은 회원아이디입니다.', G5_URL);
+}
+
+// Limit password length to avoid extreme payloads
+if ($mb_password !== '') {
+    if (mb_strlen($mb_password, '8bit') > 128) {
+        alert('비밀번호 형식이 올바르지 않습니다.', G5_URL);
+    }
+}
+
 run_event('member_login_check_before', $mb_id);
 
 if (!$mb_id || run_replace('check_empty_member_login_password', !$mb_password, $mb_id))

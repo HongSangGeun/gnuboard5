@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/css/default.css}">
+    <link rel="stylesheet" th:href="@{/css/mobile.css}">
+    <link rel="stylesheet" th:href="@{/css/mobile-board-skin.css}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <title th:text="${board.boSubject} + ' - 글쓰기'">글쓰기</title>
+    <link rel="stylesheet" th:href="@{/skin/board/gallery/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div id="wrapper">
+    <div id="container_wr">
+        <div id="container">
+            <h1 id="container_title" th:text="${pageTitle} ?: (board != null ? board.boSubject : '갤러리')">갤러리</h1>
+
+            <section id="bo_w">
+                <h2 class="sound_only">글쓰기</h2>
+                <form name="fwrite" id="fwrite" th:action="@{'/bbs/' + ${boTable} + '/write'}" method="post" enctype="multipart/form-data" autocomplete="off">
+                    <div class="bo_w_select write_div" th:if="${board.boUseCategory == 1}">
+                        <label for="ca_name" class="sound_only">분류<strong>필수</strong></label>
+                        <select name="caName" id="ca_name" required>
+                            <option value="">분류를 선택하세요</option>
+                            <option th:each="cat : ${#strings.arraySplit(board.boCategoryList, '|')}"
+                                    th:value="${cat}" th:text="${cat}">분류</option>
+                        </select>
+                    </div>
+
+                    <div class="bo_w_info write_div">
+                        <label for="wr_name" class="sound_only">이름<strong>필수</strong></label>
+                        <input type="text" name="name" id="wr_name" required class="frm_input half_input required" placeholder="이름" th:if="${loginUser == null}">
+
+                        <label for="wr_password" class="sound_only">비밀번호<strong>필수</strong></label>
+                        <input type="password" name="password" id="wr_password" class="frm_input half_input" placeholder="비밀번호" th:if="${loginUser == null}">
+
+                        <label for="wr_email" class="sound_only">이메일</label>
+                        <input type="text" name="email" id="wr_email" class="frm_input half_input email" placeholder="이메일">
+
+                        <label for="wr_homepage" class="sound_only">홈페이지</label>
+                        <input type="text" name="homepage" id="wr_homepage" class="frm_input half_input" placeholder="홈페이지">
+                    </div>
+
+                    <div class="bo_w_tit write_div">
+                        <label for="wr_subject" class="sound_only">제목<strong>필수</strong></label>
+                        <div id="autosave_wrapper" class="write_div">
+                            <input type="text" name="subject" id="wr_subject" required class="frm_input full_input required" maxlength="255" placeholder="제목">
+                        </div>
+                    </div>
+
+                    <div class="write_div">
+                        <label for="wr_content" class="sound_only">내용<strong>필수</strong></label>
+                        <div class="wr_content">
+                            <textarea id="wr_content" name="content" required class="frm_input" style="height:220px;"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="bo_w_flie write_div" th:if="${board.boUploadCount > 0}">
+                        <div class="file_wr write_div" th:each="idx : ${#numbers.sequence(1, board.boUploadCount)}">
+                            <label th:for="${'bf_file_' + idx}" class="lb_icon">
+                                <i class="fa fa-folder-open" aria-hidden="true"></i>
+                                <span class="sound_only" th:text="${'파일 첨부 #' + idx}">파일 첨부 #1</span>
+                            </label>
+                            <input type="file"
+                                   name="files"
+                                   th:id="${'bf_file_' + idx}"
+                                   class="frm_file">
+                        </div>
+                    </div>
+
+                    <div class="btn_confirm write_div">
+                        <a th:href="@{'/bbs/' + ${boTable} + '/list'}" class="btn_cancel btn">취소</a>
+                        <button type="submit" id="btn_submit" class="btn_submit btn">작성완료</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/nav :: nav_end}"></div>
+<script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'ckeditor4'}" th:src="@{/plugin/editor/ckeditor4/ckeditor.js}"></script>
+<script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'ckeditor4'}" th:src="@{/plugin/editor/ckeditor4/config.js}"></script>
+<script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'smarteditor2'}" th:src="@{/plugin/editor/smarteditor2/js/service/HuskyEZCreator.js}"></script>
+<script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'smarteditor2'}" th:src="@{/plugin/editor/smarteditor2/config.js}"></script>
+<script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'cheditor5'}" th:src="@{/plugin/editor/cheditor5/cheditor.js}"></script>
+<script th:inline="javascript">
+    /*<![CDATA[*/
+    var useEditor = /*[[${board.boUseDhtmlEditor}]]*/ 0;
+    var editorType = /*[[${board.boSelectEditor}]]*/ '';
+    var basePath = (window.APP_CONTEXT || '/').replace(/\/?$/, '/');
+    /*]]>*/
+    (function() {
+        if (!useEditor || !editorType) return;
+        var form = document.getElementById('fwrite');
+        var textarea = document.getElementById('wr_content');
+        if (editorType === 'ckeditor4' && window.CKEDITOR) {
+            CKEDITOR.replace('wr_content', { height: 300 });
+            form.addEventListener('submit', function() {
+                CKEDITOR.instances['wr_content'].updateElement();
+            });
+        }
+        if (editorType === 'smarteditor2' && window.nhn && window.nhn.husky) {
+            var oEditors = [];
+            nhn.husky.EZCreator.createInIFrame({
+                oAppRef: oEditors,
+                elPlaceHolder: 'wr_content',
+                sSkinURI: basePath + 'plugin/editor/smarteditor2/SmartEditor2Skin.html',
+                fCreator: 'createSEditor2'
+            });
+            form.addEventListener('submit', function() {
+                if (oEditors.getById) {
+                    oEditors.getById['wr_content'].exec('UPDATE_CONTENTS_FIELD', []);
+                }
+            });
+        }
+        if (editorType === 'cheditor5' && window.cheditor) {
+            var ed_wr_content = new cheditor('ed_wr_content');
+            ed_wr_content.config.editorWidth = '100%';
+            ed_wr_content.config.editorHeight = '300px';
+            ed_wr_content.config.editorPath = basePath + 'plugin/editor/cheditor5';
+            ed_wr_content.inputForm = 'wr_content';
+            ed_wr_content.run();
+            form.addEventListener('submit', function() {
+                document.getElementById('wr_content').value = ed_wr_content.outputBodyHTML();
+            });
+        }
+        if (textarea) {
+            textarea.removeAttribute('required');
+        }
+    })();
+</script>
+</body>
+</html>

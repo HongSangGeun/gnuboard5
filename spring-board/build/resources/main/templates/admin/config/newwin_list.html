@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>팝업레이어 관리</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="local_ov01 local_ov">
+            <span class="btn_ov01"><span class="ov_txt">전체 </span><span class="ov_num"
+                    th:text="${newWinList.size()} + '건'">0건</span></span>
+        </div>
+
+        <div class="btn_fixed_top ">
+            <a th:href="@{/mgmt/config/newwin/form}" class="btn btn_01">팝업레이어추가</a>
+        </div>
+
+        <div class="tbl_head01 tbl_wrap">
+            <table>
+                <caption>팝업레이어 관리 목록</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">번호</th>
+                        <th scope="col">제목</th>
+                        <th scope="col">접속기기</th>
+                        <th scope="col">시작일시</th>
+                        <th scope="col">종료일시</th>
+                        <th scope="col">시간</th>
+                        <th scope="col">Left</th>
+                        <th scope="col">Top</th>
+                        <th scope="col">Width</th>
+                        <th scope="col">Height</th>
+                        <th scope="col">관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="newWin : ${newWinList}">
+                        <td class="td_num" th:text="${newWin.nwId}">1</td>
+                        <td class="td_left" th:text="${newWin.nwSubject}">Subject</td>
+                        <td class="td_device" th:text="${newWin.nwDevice}">Device</td>
+                        <td class="td_datetime" th:text="${#temporals.format(newWin.nwBeginTime, 'yy-MM-dd HH:mm')}">
+                            Date</td>
+                        <td class="td_datetime" th:text="${#temporals.format(newWin.nwEndTime, 'yy-MM-dd HH:mm')}">Date
+                        </td>
+                        <td class="td_num" th:text="${newWin.nwDisableHours} + '시간'">24시간</td>
+                        <td class="td_num" th:text="${newWin.nwLeft} + 'px'">0px</td>
+                        <td class="td_num" th:text="${newWin.nwTop} + 'px'">0px</td>
+                        <td class="td_num" th:text="${newWin.nwWidth} + 'px'">0px</td>
+                        <td class="td_num" th:text="${newWin.nwHeight} + 'px'">0px</td>
+                        <td class="td_mng td_mng_m">
+                            <a th:href="@{/mgmt/config/newwin/form(nwId=${newWin.nwId})}" class="btn btn_03">수정</a>
+                            <a th:href="@{/mgmt/config/newwin/delete(nwId=${newWin.nwId})}"
+                                onclick="return confirm('삭제하시겠습니까?');" class="btn btn_02">삭제</a>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(newWinList)}">
+                        <td colspan="11" class="empty_table">자료가 한건도 없습니다.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>로그인</title>
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/css/mobile-login.css}">
+</head>
+<body class="mobile-login-body">
+<div class="mobile-login-shell">
+    <section class="mobile-login-card" aria-labelledby="mobile-login-title">
+        <header class="mobile-login-head">
+            <img class="mobile-login-logo" th:src="@{/img/logo_gn.svg}" alt="경남 스마트시티 관리포털">
+            <h1 id="mobile-login-title" class="mobile-login-title">로그인</h1>
+            <p class="mobile-login-subtitle">계정 정보를 입력해 주세요.</p>
+        </header>
+
+        <p th:if="${error}" class="mobile-login-error" th:text="${error}">로그인에 실패했습니다.</p>
+
+        <form class="mobile-login-form" th:action="@{/login}" method="post">
+            <input type="hidden" name="_csrf" th:value="${csrfToken}">
+
+            <div class="mobile-login-field">
+                <label class="mobile-login-label" for="login_id">아이디</label>
+                <div class="mobile-login-input-wrap">
+                    <i class="mobile-login-icon fa fa-user-o" aria-hidden="true"></i>
+                    <input class="mobile-login-input" type="text" name="mbId" id="login_id"
+                           placeholder="아이디" maxlength="20" autocomplete="username" required>
+                </div>
+            </div>
+
+            <div class="mobile-login-field">
+                <label class="mobile-login-label" for="login_pw">비밀번호</label>
+                <div class="mobile-login-input-wrap">
+                    <i class="mobile-login-icon fa fa-lock" aria-hidden="true"></i>
+                    <input class="mobile-login-input" type="password" name="password" id="login_pw"
+                           placeholder="비밀번호" maxlength="50" autocomplete="current-password" required>
+                </div>
+            </div>
+
+            <button class="mobile-login-submit" type="submit">로그인</button>
+
+            <div class="mobile-login-links">
+                아직 계정이 없으신가요?
+                <a th:href="@{/register}">회원가입</a>
+            </div>
+        </form>
+    </section>
+</div>
+</body>
+</html>

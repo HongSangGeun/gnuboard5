@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>시스템 정보 (phpinfo 대체)</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <section>
+            <h2 class="h2_frm">시스템 정보</h2>
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row">OS Name</th>
+                            <td th:text="${osName}">OS Name</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Java Version</th>
+                            <td th:text="${javaVersion}">Java Version</td>
+                        </tr>
+                        <tr>
+                            <th scope="row">Spring Boot Version</th>
+                            <td>3.2.6</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+</body>
+
+</html>

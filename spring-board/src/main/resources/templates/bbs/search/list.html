@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>전체검색 결과</title>
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/css/default.css}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/skin/search/basic/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div id="wrapper">
+    <div id="container_wr">
+        <div id="container">
+            <h1 id="container_title">전체검색 결과</h1>
+
+            <form id="fsearch" method="get" th:action="@{/bbs/search}">
+                <input type="hidden" name="page" value="1">
+                <fieldset id="sch_res_detail">
+                    <legend>상세검색</legend>
+                    <label for="gr_id" class="sound_only">게시판 그룹선택</label>
+                    <select name="gr_id" id="gr_id" class="select">
+                        <option value="">전체 분류</option>
+                        <option th:each="group : ${groupOptions}"
+                                th:value="${group.grId}"
+                                th:text="${group.grSubject}"
+                                th:selected="${grId == group.grId}">
+                            그룹
+                        </option>
+                    </select>
+
+                    <label for="sfl" class="sound_only">검색조건</label>
+                    <select name="sfl" id="sfl">
+                        <option value="wr_subject||wr_content" th:selected="${sfl == 'wr_subject||wr_content'}">제목+내용</option>
+                        <option value="wr_subject" th:selected="${sfl == 'wr_subject'}">제목</option>
+                        <option value="wr_content" th:selected="${sfl == 'wr_content'}">내용</option>
+                        <option value="mb_id" th:selected="${sfl == 'mb_id'}">회원아이디</option>
+                        <option value="wr_name" th:selected="${sfl == 'wr_name'}">이름</option>
+                    </select>
+
+                    <label for="stx" class="sound_only">검색어</label>
+                    <span class="sch_wr">
+                        <input type="text" name="stx" id="stx" required class="frm_input" size="40" th:value="${textStx}">
+                        <button type="submit" class="btn_submit"><i class="fa fa-search" aria-hidden="true"></i> 검색</button>
+                    </span>
+
+                    <div class="switch_field">
+                        <input type="radio" value="and" id="sop_and" name="sop" th:checked="${sop == 'and'}">
+                        <label for="sop_and">AND</label>
+                        <input type="radio" value="or" id="sop_or" name="sop" th:checked="${sop == 'or'}">
+                        <label for="sop_or">OR</label>
+                    </div>
+
+                    <label for="srows" class="sound_only">목록 수</label>
+                    <select name="srows" id="srows">
+                        <option value="10" th:selected="${srows == 10}">10개</option>
+                        <option value="20" th:selected="${srows == 20}">20개</option>
+                        <option value="30" th:selected="${srows == 30}">30개</option>
+                        <option value="50" th:selected="${srows == 50}">50개</option>
+                    </select>
+                </fieldset>
+            </form>
+
+            <div id="sch_result">
+                <section id="sch_res_ov" th:if="${textStx != null and textStx != '' and boardCount > 0}">
+                    <h2><strong th:text="${textStx}">검색어</strong> 전체검색 결과</h2>
+                    <ul>
+                        <li th:text="|게시판 ${boardCount}개|">게시판 0개</li>
+                        <li th:text="|게시물 ${#numbers.formatInteger(totalCount, 0)}개|">게시물 0개</li>
+                        <li th:text="|${currentPage}/${totalPage} 페이지 열람 중|">1/1 페이지</li>
+                    </ul>
+                </section>
+
+                <ul id="sch_res_board" th:if="${textStx != null and textStx != '' and boardCount > 0}">
+                    <li>
+                        <a th:href="@{/bbs/search(stx=${textStx}, sfl=${sfl}, sop=${sop}, srows=${srows}, gr_id=${grId}, page=1)}"
+                           th:classappend="${onetable == null || onetable == ''} ? 'sch_on' : ''">전체게시판</a>
+                    </li>
+                    <li th:each="tab : ${boardTabs}">
+                        <a th:href="@{/bbs/search(stx=${textStx}, sfl=${sfl}, sop=${sop}, srows=${srows}, gr_id=${grId}, onetable=${tab.boTable}, page=1)}"
+                           th:classappend="${onetable == tab.boTable} ? 'sch_on' : ''">
+                            <strong th:text="${tab.boSubject}">게시판</strong>
+                            <span class="cnt_cmt" th:text="${tab.count}">0</span>
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="empty_list" th:if="${textStx != null and textStx != '' and boardCount == 0}">
+                    검색된 자료가 하나도 없습니다.
+                </div>
+
+                <section class="sch_res_list" th:if="${textStx != null and textStx != '' and boardCount > 0}">
+                    <div class="search_board_result" th:each="result : ${boardResults}">
+                        <h2>
+                            <a th:href="@{'/bbs/' + ${result.boTable} + '/list'(sfl=${sfl}, stx=${textStx}, sop=${sop})}"
+                               th:text="${result.boSubject} + ' 게시판 내 결과'">게시판 결과</a>
+                        </h2>
+                        <a class="sch_more"
+                           th:href="@{'/bbs/' + ${result.boTable} + '/list'(sfl=${sfl}, stx=${textStx}, sop=${sop})}">더보기</a>
+                        <ul>
+                            <li th:each="item : ${result.items}">
+                                <div class="sch_tit">
+                                    <a th:href="@{${item.href}}" class="sch_res_title">
+                                        <span th:if="${item.comment}" class="cmt_def">
+                                            <i class="fa fa-commenting-o" aria-hidden="true"></i>
+                                            <span class="sound_only">댓글</span>
+                                        </span>
+                                        <span th:text="${item.subject}">제목</span>
+                                    </a>
+                                    <a th:href="@{${item.href}}" target="_blank" class="pop_a">
+                                        <i class="fa fa-window-restore" aria-hidden="true"></i>
+                                        <span class="sound_only">새창</span>
+                                    </a>
+                                </div>
+                                <p th:text="${item.content}">본문 일부</p>
+                                <div class="sch_info">
+                                    <span th:text="${item.writer}">작성자</span>
+                                    <span class="sch_datetime">
+                                        <i class="fa fa-clock-o" aria-hidden="true"></i>
+                                        <span th:text="${item.wrDatetime}">날짜</span>
+                                    </span>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </section>
+
+                <div class="pg_wrap" th:if="${totalPage > 1}">
+                    <span class="pg">
+                        <a class="pg_page pg_start"
+                           th:href="@{/bbs/search(stx=${textStx}, sfl=${sfl}, sop=${sop}, srows=${srows}, gr_id=${grId}, onetable=${onetable}, page=1)}">처음</a>
+                        <a class="pg_page pg_prev" th:if="${hasPrevPage}"
+                           th:href="@{/bbs/search(stx=${textStx}, sfl=${sfl}, sop=${sop}, srows=${srows}, gr_id=${grId}, onetable=${onetable}, page=${prevPage})}">이전</a>
+                        <th:block th:each="p : ${pageNumbers}">
+                            <span class="pg_current" th:if="${p == currentPage}" th:text="${p}">1</span>
+                            <a class="pg_page" th:if="${p != currentPage}" th:text="${p}"
+                               th:href="@{/bbs/search(stx=${textStx}, sfl=${sfl}, sop=${sop}, srows=${srows}, gr_id=${grId}, onetable=${onetable}, page=${p})}">1</a>
+                        </th:block>
+                        <a class="pg_page pg_next" th:if="${hasNextPage}"
+                           th:href="@{/bbs/search(stx=${textStx}, sfl=${sfl}, sop=${sop}, srows=${srows}, gr_id=${grId}, onetable=${onetable}, page=${nextPage})}">다음</a>
+                        <a class="pg_page pg_end"
+                           th:href="@{/bbs/search(stx=${textStx}, sfl=${sfl}, sop=${sop}, srows=${srows}, gr_id=${grId}, onetable=${onetable}, page=${totalPage})}">맨끝</a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/nav :: nav_end}"></div>
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>환경설정</title>
+</head>
+
+<body>
+
+    <div layout:fragment="content">
+
+        <form name="fconfigform" id="fconfigform" th:action="@{/mgmt/config}" th:object="${config}" method="post"
+            onsubmit="return fconfigform_submit(this);">
+
+            <section id="anc_cf_basic">
+                <h2 class="h2_frm">홈페이지 기본환경 설정</h2>
+                <ul class="anchor">
+                    <li><a href="#anc_cf_basic">기본환경</a></li>
+                    <li><a href="#anc_cf_board">게시판기본</a></li>
+                    <!-- Add other anchors -->
+                </ul>
+
+                <div class="tbl_frm01 tbl_wrap">
+                    <table>
+                        <caption>홈페이지 기본환경 설정</caption>
+                        <colgroup>
+                            <col class="grid_4">
+                            <col>
+                            <col class="grid_4">
+                            <col>
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th scope="row"><label for="cfTitle">홈페이지 제목<strong
+                                            class="sound_only">필수</strong></label></th>
+                                <td colspan="3"><input type="text" th:field="*{cfTitle}" id="cfTitle" required
+                                        class="required frm_input" size="40"></td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="cfAdmin">최고관리자<strong class="sound_only">필수</strong></label>
+                                </th>
+                                <td colspan="3">
+                                    <select th:field="*{cfAdmin}" id="cfAdmin" required class="required frm_input">
+                                        <option value="">선택하세요</option>
+                                        <option th:each="member : ${adminMemberOptions}"
+                                                th:value="${member.mbId}"
+                                                th:text="${member.mbId + ' (' + (#strings.isEmpty(member.mbNick) ? member.mbName : member.mbNick) + ')'}">
+                                            admin (관리자)
+                                        </option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="cfAdminEmail">관리자 메일 주소<strong
+                                            class="sound_only">필수</strong></label></th>
+                                <td colspan="3">
+                                    <input type="text" th:field="*{cfAdminEmail}" id="cfAdminEmail" required
+                                        class="required email frm_input" size="40">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="cfAdminEmailName">관리자 메일 발송이름<strong
+                                            class="sound_only">필수</strong></label></th>
+                                <td colspan="3">
+                                    <input type="text" th:field="*{cfAdminEmailName}" id="cfAdminEmailName" required
+                                        class="required frm_input" size="40">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="cfUsePoint">포인트 사용</label></th>
+                                <td colspan="3"><input type="checkbox" th:field="*{cfUsePoint}" value="1"
+                                        id="cfUsePoint"> 사용</td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="cfLoginPoint">로그인시 포인트<strong
+                                            class="sound_only">필수</strong></label></th>
+                                <td>
+                                    <input type="text" th:field="*{cfLoginPoint}" id="cfLoginPoint" required
+                                        class="required frm_input" size="5"> 점
+                                </td>
+                                <th scope="row"><label for="cfMemoSendPoint">쪽지보낼시 차감 포인트<strong
+                                            class="sound_only">필수</strong></label></th>
+                                <td>
+                                    <input type="text" th:field="*{cfMemoSendPoint}" id="cfMemoSendPoint" required
+                                        class="required frm_input" size="5"> 점
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="cfCutName">이름(닉네임) 표시</label></th>
+                                <td colspan="3">
+                                    <input type="text" th:field="*{cfCutName}" id="cfCutName" class="frm_input"
+                                        size="5"> 자리만 표시
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="cfNickModify">닉네임 수정</label></th>
+                                <td>수정하면 <input type="text" th:field="*{cfNickModify}" id="cfNickModify"
+                                        class="frm_input" size="3"> 일 동안 바꿀 수 없음</td>
+                                <th scope="row"><label for="cfOpenModify">정보공개 수정</label></th>
+                                <td>수정하면 <input type="text" th:field="*{cfOpenModify}" id="cfOpenModify"
+                                        class="frm_input" size="3"> 일 동안 바꿀 수 없음</td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="cfNewDel">최근게시물 삭제</label></th>
+                                <td>
+                                    <input type="text" th:field="*{cfNewDel}" id="cfNewDel" class="frm_input" size="5">
+                                    일
+                                </td>
+                                <th scope="row"><label for="cfMemoDel">쪽지 삭제</label></th>
+                                <td>
+                                    <input type="text" th:field="*{cfMemoDel}" id="cfMemoDel" class="frm_input"
+                                        size="5"> 일
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="cfVisitDel">접속자로그 삭제</label></th>
+                                <td>
+                                    <input type="text" th:field="*{cfVisitDel}" id="cfVisitDel" class="frm_input"
+                                        size="5"> 일
+                                </td>
+                                <th scope="row"><label for="cfPopularDel">인기검색어 삭제</label></th>
+                                <td>
+                                    <input type="text" th:field="*{cfPopularDel}" id="cfPopularDel" class="frm_input"
+                                        size="5"> 일
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="cfLoginMinutes">현재 접속자</label></th>
+                                <td>
+                                    <input type="text" th:field="*{cfLoginMinutes}" id="cfLoginMinutes"
+                                        class="frm_input" size="3"> 분
+                                </td>
+                                <th scope="row"><label for="cfNewRows">최근게시물 라인수</label></th>
+                                <td>
+                                    <input type="text" th:field="*{cfNewRows}" id="cfNewRows" class="frm_input"
+                                        size="3"> 라인
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="cfPageRows">한페이지당 라인수</label></th>
+                                <td>
+                                    <input type="text" th:field="*{cfPageRows}" id="cfPageRows" class="frm_input"
+                                        size="3"> 라인
+                                </td>
+                                <th scope="row"><label for="cfMobilePageRows">모바일 한페이지당 라인수</label></th>
+                                <td>
+                                    <input type="text" th:field="*{cfMobilePageRows}" id="cfMobilePageRows"
+                                        class="frm_input" size="3"> 라인
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="cfWritePages">페이지 표시 수<strong
+                                            class="sound_only">필수</strong></label></th>
+                                <td><input type="text" th:field="*{cfWritePages}" id="cfWritePages" required
+                                        class="required numeric frm_input" size="3"> 페이지씩 표시</td>
+                                <th scope="row"><label for="cfMobilePages">모바일 페이지 표시 수<strong
+                                            class="sound_only">필수</strong></label></th>
+                                <td><input type="text" th:field="*{cfMobilePages}" id="cfMobilePages" required
+                                        class="required numeric frm_input" size="3"> 페이지씩 표시</td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="cfNewSkin">최근게시물 스킨<strong
+                                            class="sound_only">필수</strong></label></th>
+                                <td>
+                                    <select th:field="*{cfNewSkin}" required class="required">
+                                        <option th:each="skin : ${latestSkinOptions}"
+                                                th:value="${skin}"
+                                                th:text="${skin}">basic</option>
+                                    </select>
+                                </td>
+                                <th scope="row"><label for="cfMobileNewSkin">모바일<br>최근게시물 스킨<strong
+                                            class="sound_only">필수</strong></label></th>
+                                <td>
+                                    <select th:field="*{cfMobileNewSkin}" required class="required">
+                                        <option th:each="skin : ${latestSkinOptions}"
+                                                th:value="${skin}"
+                                                th:text="${skin}">basic</option>
+                                    </select>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Board Basic Settings -->
+            <section id="anc_cf_board">
+                <h2 class="h2_frm">게시판 기본 설정</h2>
+                <div class="tbl_frm01 tbl_wrap">
+                    <table>
+                        <caption>게시판 기본 설정</caption>
+                        <colgroup>
+                            <col class="grid_4">
+                            <col>
+                            <col class="grid_4">
+                            <col>
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th scope="row"><label for="cfDelaySec">글쓰기 간격<strong
+                                            class="sound_only">필수</strong></label></th>
+                                <td><input type="text" th:field="*{cfDelaySec}" id="cfDelaySec" required
+                                        class="required numeric frm_input" size="3"> 초 지난후 가능</td>
+                                <th scope="row"><label for="cfLinkTarget">새창 링크</label></th>
+                                <td>
+                                    <select th:field="*{cfLinkTarget}">
+                                        <option value="_blank">_blank</option>
+                                        <option value="_self">_self</option>
+                                        <option value="_top">_top</option>
+                                        <option value="_new">_new</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="cfReadPoint">글읽기 포인트<strong
+                                            class="sound_only">필수</strong></label></th>
+                                <td><input type="text" th:field="*{cfReadPoint}" id="cfReadPoint" required
+                                        class="required frm_input" size="3"> 점</td>
+                                <th scope="row"><label for="cfWritePoint">글쓰기 포인트</label></th>
+                                <td><input type="text" th:field="*{cfWritePoint}" id="cfWritePoint" required
+                                        class="required frm_input" size="3"> 점</td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="cfCommentPoint">댓글쓰기 포인트</label></th>
+                                <td><input type="text" th:field="*{cfCommentPoint}" id="cfCommentPoint" required
+                                        class="required frm_input" size="3"> 점</td>
+                                <th scope="row"><label for="cfDownloadPoint">다운로드 포인트</label></th>
+                                <td><input type="text" th:field="*{cfDownloadPoint}" id="cfDownloadPoint" required
+                                        class="required frm_input" size="3"> 점</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <div class="btn_confirm01 btn_confirm">
+                <input type="submit" value="확인" class="btn_submit btn">
+                <a th:href="@{/mgmt/config}" class="btn_frmline">목록</a>
+            </div>
+
+        </form>
+
+        <script>
+            function fconfigform_submit(f) {
+                return true;
+            }
+        </script>
+    </div>
+
+</body>
+
+</html>

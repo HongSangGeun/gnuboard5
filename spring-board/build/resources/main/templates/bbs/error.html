@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+
+    <link rel="stylesheet" th:href="@{/css/default.css}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+
+    <title>에러</title>
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div id="wrapper">
+    <div id="container_wr">
+        <div id="container">
+            <h1 id="container_title" th:text="${pageTitle} ?: (board != null ? board.boSubject : '게시판')">게시판</h1>
+<h1>요청을 처리할 수 없습니다</h1>
+<p th:text="${error}">에러</p>
+        </div>
+    </div>
+</div>
+    <div th:replace="~{fragments/nav :: nav_end}"></div>
+</body>
+</html>

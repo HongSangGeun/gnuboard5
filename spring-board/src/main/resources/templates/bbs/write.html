@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+
+    <link rel="stylesheet" th:href="@{/css/default.css}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+
+    <title th:text="${board.boSubject} + ' - 글쓰기'"></title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        label { display: block; margin-top: 12px; }
+        input, textarea { width: 100%; padding: 8px; box-sizing: border-box; }
+        textarea { height: 220px; }
+        .actions { margin-top: 16px; }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div id="wrapper">
+    <div id="container_wr">
+        <div id="container">
+            <h1 id="container_title" th:text="${pageTitle} ?: (board != null ? board.boSubject : '게시판')">게시판</h1>
+<a th:href="@{'/bbs/' + ${boTable} + '/list'}">목록</a>
+<h1>글쓰기</h1>
+
+<div th:if="${error}" th:text="${error}" style="color: red; margin: 8px 0;"></div>
+
+<form th:action="@{'/bbs/' + ${boTable} + '/write'}" method="post" enctype="multipart/form-data">
+    <label>제목
+        <input type="text" name="subject" required />
+    </label>
+    <label>내용
+        <textarea name="content" required></textarea>
+    </label>
+    <div th:if="${loginUser != null}" style="margin-top: 12px;">
+        작성자: <strong th:text="${loginUser.name}">회원</strong>
+    </div>
+    <label th:if="${loginUser == null}">작성자
+        <input type="text" name="name" required />
+    </label>
+    <label th:if="${loginUser == null}">비밀번호
+        <input type="password" name="password" required />
+    </label>
+    <label>이메일
+        <input type="email" name="email" />
+    </label>
+    <label>홈페이지
+        <input type="text" name="homepage" />
+    </label>
+    <div th:if="${board.boUploadCount > 0}">
+        <div th:each="idx : ${#numbers.sequence(1, board.boUploadCount)}">
+            <label th:for="${'bf_file_' + idx}" th:text="${'첨부파일 #' + idx}">첨부파일 #1</label>
+            <input type="file" name="files" th:id="${'bf_file_' + idx}" />
+        </div>
+    </div>
+
+    <div class="actions">
+        <button type="submit">등록</button>
+    </div>
+</form>
+        </div>
+    </div>
+</div>
+    <div th:replace="~{fragments/nav :: nav_end}"></div>
+</body>
+</html>

@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/css/default.css}">
+    <link rel="stylesheet" th:href="@{/css/mobile.css}">
+    <link rel="stylesheet" th:href="@{/css/mobile-board-skin.css}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/skin/board/schedule/wzappend.css}">
+    <link rel="stylesheet" th:href="@{/plugin/jquery-ui/jquery-ui.css}">
+    <link rel="stylesheet" th:href="@{/plugin/jquery-ui/jquery-ui-timepicker-addon.css}">
+    <link rel="stylesheet" th:href="@{/skin/board/schedule/dtp-theme.css}">
+    <link rel="stylesheet" th:href="@{/skin/board/schedule/style.css}">
+    <title th:text="${board.boSubject} + ' - 수정'">일정 수정</title>
+    <style>
+        .frm_input { height:36px; width:150px; }
+        #wr_subject { width:400px; }
+        #open_all_day_picker { display:none; margin-left:8px; }
+        #open_partial_picker { display:none; margin-left:8px; }
+        .all_day_toggle_wrap {
+            display:inline-flex;
+            align-items:center;
+            gap:8px;
+            margin-left:10px;
+        }
+        .all_day_toggle_wrap .switch {
+            position:relative;
+            display:inline-block;
+            width:42px;
+            height:21px;
+        }
+        .all_day_toggle_wrap .switch input {
+            opacity:0;
+            width:0;
+            height:0;
+        }
+        .all_day_toggle_wrap .slider {
+            position:absolute;
+            inset:0;
+            cursor:pointer;
+            background:#4256e9;
+            transition:.2s;
+            border-radius:26px;
+        }
+        .all_day_toggle_wrap .slider:before {
+            content:"";
+            position:absolute;
+            width:15px;
+            height:15px;
+            left:5px;
+            bottom:3px;
+            background:#fff;
+            border-radius:50%;
+            transition:.2s;
+        }
+        .all_day_toggle_wrap .switch input:checked + .slider {
+            background:#ce3945;
+        }
+        .all_day_toggle_wrap .switch input:checked + .slider:before {
+            transform:translateX(16px);
+        }
+        .all_day_toggle_wrap #allDayLabel {
+            font-size:16px;
+            font-weight:600;
+            color:#1f2937;
+            white-space:nowrap;
+        }
+        #partial_range_popup { display:none; position:fixed; inset:0; z-index:10040; }
+        #partial_range_popup.is-open { display:block; }
+        #partial_range_popup .partial_range_backdrop {
+            position:absolute;
+            inset:0;
+            background:rgba(17, 24, 39, 0.42);
+            backdrop-filter:blur(1px);
+        }
+        #partial_range_popup .partial_range_panel {
+            position:relative;
+            width:560px;
+            max-width:calc(100vw - 40px);
+            margin:10vh auto 0;
+            padding:20px 22px;
+            background:#fff;
+            border-radius:14px;
+            box-shadow:0 18px 42px rgba(15, 23, 42, 0.24);
+        }
+        #partial_range_popup .partial_range_head {
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            margin-bottom:14px;
+            padding-bottom:10px;
+            border-bottom:1px solid #e7ebf2;
+        }
+        #partial_range_popup .partial_range_head strong {
+            font-size:24px;
+            font-weight:800;
+            color:#0f2a75;
+        }
+        #partial_range_popup .partial_range_close {
+            border:0;
+            background:transparent;
+            font-size:30px;
+            line-height:1;
+            cursor:pointer;
+            color:#6b7280;
+        }
+        #partial_range_popup .partial_range_grid {
+            display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:14px;
+        }
+        #partial_range_popup .partial_col {
+            border:1px solid #e5edf9;
+            border-radius:12px;
+            padding:12px;
+            background:#f9fbff;
+        }
+        #partial_range_popup .partial_col label {
+            display:block;
+            font-size:13px;
+            font-weight:700;
+            color:#273870;
+            margin-bottom:8px;
+        }
+        #partial_range_popup .partial_col input[type="date"],
+        #partial_range_popup .partial_col input[type="time"] {
+            width:100%;
+            height:38px;
+            border:1px solid #d7e1f2;
+            border-radius:9px;
+            background:#fff;
+            font-size:14px;
+            padding:0 10px;
+            box-sizing:border-box;
+        }
+        #partial_range_popup .partial_col input[type="time"] {
+            margin-top:8px;
+        }
+        #partial_range_popup .partial_range_error {
+            min-height:22px;
+            margin-top:10px;
+            color:#c0392b;
+            font-size:13px;
+            font-weight:600;
+        }
+        #partial_range_popup .partial_range_actions {
+            display:flex;
+            justify-content:center;
+            gap:10px;
+            margin-top:8px;
+            padding-top:14px;
+            border-top:1px solid #eef2f8;
+        }
+        #partial_range_popup .partial_range_actions button {
+            min-width:110px;
+            height:42px;
+            border:0;
+            border-radius:21px;
+            background:#57c4ff;
+            color:#fff;
+            font-size:16px;
+            font-weight:700;
+            cursor:pointer;
+            box-shadow:0 6px 14px rgba(87, 196, 255, 0.35);
+            transition:all .15s ease;
+        }
+        #partial_range_popup .partial_range_actions button:hover {
+            background:#38b6ff;
+            transform:translateY(-1px);
+            box-shadow:0 8px 18px rgba(56, 182, 255, 0.4);
+        }
+        @media (max-width: 820px) {
+            #partial_range_popup .partial_range_panel {
+                width:92vw;
+                padding:16px;
+            }
+            #partial_range_popup .partial_range_grid {
+                grid-template-columns:1fr;
+            }
+        }
+        #all_day_range_popup { display:none; position:fixed; inset:0; z-index:10050; }
+        #all_day_range_popup.is-open { display:block; }
+        #all_day_range_popup .all_day_range_backdrop {
+            position:absolute;
+            inset:0;
+            background:rgba(17, 24, 39, 0.42);
+            backdrop-filter:blur(1px);
+        }
+        #all_day_range_popup .all_day_range_panel {
+            position:relative;
+            width:960px;
+            max-width:calc(100vw - 40px);
+            margin:7vh auto 0;
+            padding:22px 28px;
+            background:#fff;
+            border-radius:16px;
+            box-shadow:0 22px 50px rgba(15, 23, 42, 0.28);
+        }
+        #all_day_range_popup .all_day_range_head {
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            margin-bottom:14px;
+            padding-bottom:12px;
+            border-bottom:1px solid #e7ebf2;
+        }
+        #all_day_range_popup .all_day_range_head strong {
+            font-size:30px;
+            font-weight:800;
+            letter-spacing:-0.2px;
+            color:#0f2a75;
+        }
+        #all_day_range_popup .all_day_close {
+            border:0;
+            background:transparent;
+            font-size:34px;
+            line-height:1;
+            cursor:pointer;
+            color:#6b7280;
+        }
+        #all_day_range_popup .all_day_range_actions {
+            display:flex;
+            justify-content:center;
+            gap:10px;
+            margin-top:16px;
+            padding-top:14px;
+            border-top:1px solid #eef2f8;
+        }
+        #all_day_range_wrap {
+            display:flex;
+            flex-direction:column;
+            align-items:center;
+            margin-top:2px;
+        }
+        #all_day_range_picker {
+            display:block;
+            width:min(900px, 100%);
+            max-width:900px !important;
+            margin:0 auto 14px;
+        }
+        #all_day_range_picker .ui-datepicker {
+            width:100% !important;
+            box-sizing:border-box;
+            overflow:visible;
+            border:0;
+            background:#fff;
+            padding:0 0 12px;
+        }
+        #all_day_range_picker .ui-datepicker.ui-datepicker-multi {
+            width:100% !important;
+            max-width:none !important;
+            overflow:visible;
+            display:flex !important;
+            flex-wrap:nowrap;
+            justify-content:center;
+            gap:24px;
+            align-items:start;
+            margin:0 auto;
+        }
+        #all_day_range_picker .ui-datepicker-multi .ui-datepicker-group,
+        #all_day_range_picker .ui-datepicker-multi .ui-datepicker-group-first,
+        #all_day_range_picker .ui-datepicker-multi .ui-datepicker-group-last {
+            float:none !important;
+            flex:0 0 calc((100% - 24px) / 2) !important;
+            max-width:calc((100% - 24px) / 2) !important;
+            width:calc((100% - 24px) / 2) !important;
+            min-width:0 !important;
+            padding:0 2px 8px !important;
+            border-right:0;
+            margin-right:0 !important;
+        }
+        #all_day_range_picker .ui-datepicker-row-break {
+            display:none !important;
+            clear:both;
+            width:100%;
+            font-size:0;
+        }
+        #all_day_range_picker .ui-datepicker .ui-datepicker-header {
+            background:transparent;
+            border:0;
+            padding:0 0 8px 0;
+        }
+        #all_day_range_picker .ui-datepicker .ui-datepicker-title {
+            margin:0 44px;
+            line-height:1.15;
+            color:#0f2a75;
+            font-size:30px;
+            font-weight:800;
+            white-space:nowrap;
+        }
+        #all_day_range_picker .ui-datepicker .ui-datepicker-prev,
+        #all_day_range_picker .ui-datepicker .ui-datepicker-next {
+            width:34px;
+            height:34px;
+            top:0;
+            border:1px solid #e0e8f6;
+            border-radius:10px;
+            background:#fff;
+        }
+        #all_day_range_picker .ui-datepicker .ui-datepicker-prev { left:0; }
+        #all_day_range_picker .ui-datepicker .ui-datepicker-next { right:0; }
+        #all_day_range_picker .ui-datepicker .ui-datepicker-prev:hover,
+        #all_day_range_picker .ui-datepicker .ui-datepicker-next:hover {
+            border-color:#b9caee;
+            background:#f7faff;
+        }
+        #all_day_range_picker .ui-datepicker .ui-datepicker-prev span,
+        #all_day_range_picker .ui-datepicker .ui-datepicker-next span {
+            background:none !important;
+            text-indent:0 !important;
+            font-size:0;
+            width:100%;
+            height:100%;
+            position:relative;
+            overflow:visible;
+            left:0;
+            top:0;
+            margin:0;
+        }
+        #all_day_range_picker .ui-datepicker .ui-datepicker-prev span::before,
+        #all_day_range_picker .ui-datepicker .ui-datepicker-next span::before {
+            position:absolute;
+            inset:0;
+            text-align:center;
+            line-height:32px;
+            font-size:22px;
+            font-weight:700;
+            color:#0f2a75;
+        }
+        #all_day_range_picker .ui-datepicker .ui-datepicker-prev span::before { content:"\2039"; }
+        #all_day_range_picker .ui-datepicker .ui-datepicker-next span::before { content:"\203A"; }
+        #all_day_range_picker .ui-datepicker table,
+        #all_day_range_picker .ui-datepicker-calendar {
+            width:100% !important;
+            table-layout:fixed !important;
+            margin:0 !important;
+            border-collapse:collapse !important;
+            border-spacing:0 !important;
+        }
+        #all_day_range_picker .ui-datepicker-calendar thead { display:table-header-group !important; }
+        #all_day_range_picker .ui-datepicker-calendar tbody { display:table-row-group !important; }
+        #all_day_range_picker .ui-datepicker-calendar tr { display:table-row !important; }
+        #all_day_range_picker .ui-datepicker-calendar th,
+        #all_day_range_picker .ui-datepicker-calendar td {
+            display:table-cell !important;
+            width:14.285% !important;
+            min-width:0 !important;
+            padding:5px 2px !important;
+            border:0 !important;
+            background:transparent !important;
+            text-align:center !important;
+        }
+        #all_day_range_picker .ui-datepicker-calendar thead th {
+            line-height:1.2 !important;
+            font-weight:700 !important;
+            color:#243b87;
+            font-size:18px;
+            padding-bottom:10px !important;
+        }
+        #all_day_range_picker .ui-datepicker-calendar thead th:first-child {
+            color:#df2a42 !important;
+        }
+        #all_day_range_picker .ui-datepicker-calendar thead th:last-child {
+            color:#1e40af !important;
+        }
+        #all_day_range_picker .ui-datepicker tbody td {
+            height:auto !important;
+        }
+        #all_day_range_picker .ui-datepicker td .ui-state-default {
+            display:block;
+            width:100%;
+            max-width:40px;
+            height:40px;
+            line-height:40px;
+            padding:0 !important;
+            margin:0 auto !important;
+            border:1px solid transparent !important;
+            border-radius:10px;
+            box-sizing:border-box;
+            font-size:16px;
+            font-weight:600;
+            color:#1f2937;
+            background:transparent !important;
+            text-align:center;
+        }
+        #all_day_range_picker .ui-datepicker-calendar tbody td:first-child .ui-state-default,
+        #all_day_range_picker .ui-datepicker-calendar tbody td:nth-child(1) .ui-state-default {
+            color:#df2a42;
+        }
+        #all_day_range_picker .ui-datepicker-calendar tbody td:last-child .ui-state-default,
+        #all_day_range_picker .ui-datepicker-calendar tbody td:nth-child(7) .ui-state-default {
+            color:#1e40af;
+        }
+        #all_day_range_picker .ui-datepicker-calendar tbody td.holiday-day .ui-state-default {
+            color:#df2a42 !important;
+            font-weight:800 !important;
+        }
+        #all_day_range_picker .ui-datepicker .ui-state-default:hover {
+            background:#edf3ff !important;
+            color:#0f2a75 !important;
+            border-color:#d7e4ff !important;
+        }
+        #all_day_range_picker .ui-datepicker .ui-state-disabled .ui-state-default {
+            color:#cbd5e1 !important;
+            opacity:0.8;
+        }
+        #all_day_range_picker .ui-datepicker .ui-datepicker-current-day .ui-state-default {
+            background:transparent !important;
+            color:#0f2a75 !important;
+        }
+        #all_day_range_picker .ui-datepicker td.ui-datepicker-today .ui-state-default,
+        #all_day_range_picker .ui-datepicker td .ui-state-highlight {
+            background:#eef4ff !important;
+            color:#0f2a75 !important;
+            border-color:#bfd0f3 !important;
+            font-weight:700;
+        }
+        #all_day_range_picker .ui-datepicker-calendar tbody td.holiday-day.ui-datepicker-today .ui-state-default,
+        #all_day_range_picker .ui-datepicker-calendar tbody td.holiday-day .ui-state-highlight,
+        #all_day_range_picker .ui-datepicker-calendar tbody td.holiday-day.range-selected .ui-state-default,
+        #all_day_range_picker .ui-datepicker-calendar tbody td.holiday-day.range-start .ui-state-default,
+        #all_day_range_picker .ui-datepicker-calendar tbody td.holiday-day.range-end .ui-state-default {
+            font-weight:800 !important;
+        }
+        #all_day_range_picker .range-selected a {
+            background:#dbeafe !important;
+            color:#1e3a8a !important;
+            border-radius:8px !important;
+            border-color:#dbeafe !important;
+        }
+        #all_day_range_picker .range-start a,
+        #all_day_range_picker .range-end a {
+            background:#0f2a75 !important;
+            color:#fff !important;
+            border-radius:50%;
+        }
+        #all_day_range_picker .ui-datepicker-calendar tbody td.range-selected .ui-state-default {
+            background:#dbeafe !important;
+            color:#1e3a8a !important;
+            border-color:#dbeafe !important;
+            border-radius:8px !important;
+        }
+        #all_day_range_picker .ui-datepicker-calendar tbody td.range-start .ui-state-default,
+        #all_day_range_picker .ui-datepicker-calendar tbody td.range-end .ui-state-default {
+            background:#0f2a75 !important;
+            color:#fff !important;
+            border-color:#0f2a75 !important;
+            border-radius:50% !important;
+        }
+        #all_day_range_text {
+            margin-top:10px;
+            margin-bottom:16px;
+            color:#1f2f62;
+            font-size:18px;
+            font-weight:700;
+            line-height:1.4;
+        }
+        .all_day_range_actions #apply_all_day_picker,
+        .all_day_range_actions #cancel_all_day_picker {
+            min-width:120px !important;
+            height:44px !important;
+            border:0 !important;
+            border-radius:22px !important;
+            background:#57c4ff !important;
+            color:#fff !important;
+            font-weight:700 !important;
+            font-size:17px !important;
+            letter-spacing:-0.2px !important;
+            box-shadow:0 6px 14px rgba(87, 196, 255, 0.35) !important;
+            transition:all .15s ease !important;
+        }
+        .all_day_range_actions #apply_all_day_picker:hover,
+        .all_day_range_actions #cancel_all_day_picker:hover {
+            background:#38b6ff !important;
+            transform:translateY(-1px) !important;
+            box-shadow:0 8px 18px rgba(56, 182, 255, 0.4) !important;
+        }
+        .all_day_range_actions #apply_all_day_picker:active,
+        .all_day_range_actions #cancel_all_day_picker:active {
+            transform:translateY(0) !important;
+            box-shadow:0 4px 10px rgba(56, 182, 255, 0.3) !important;
+        }
+        @media (max-width: 1120px) {
+            #all_day_range_popup .all_day_range_panel {
+                width:620px;
+                padding:18px 20px;
+            }
+            #all_day_range_picker .ui-datepicker-multi .ui-datepicker-group,
+            #all_day_range_picker .ui-datepicker-multi .ui-datepicker-group-last {
+                width:100% !important;
+                border-right:0;
+                padding:0;
+                margin-right:0;
+                float:none !important;
+            }
+            #all_day_range_picker .ui-datepicker.ui-datepicker-multi {
+                display:block !important;
+                gap:0;
+            }
+            #all_day_range_picker .ui-datepicker-multi .ui-datepicker-group,
+            #all_day_range_picker .ui-datepicker-multi .ui-datepicker-group-first,
+            #all_day_range_picker .ui-datepicker-multi .ui-datepicker-group-last {
+                max-width:100% !important;
+                width:100% !important;
+                flex-basis:100% !important;
+            }
+            #all_day_range_picker .ui-datepicker .ui-datepicker-title {
+                font-size:24px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div id="wrapper">
+    <div id="container_wr">
+        <div id="container">
+            <h1 id="container_title" th:text="${pageTitle} ?: (board != null ? board.boSubject : '게시판')">게시판</h1>
+
+            <section id="bo_w">
+                <h2 class="sound_only">일정 수정</h2>
+                <form name="fwrite" id="fwrite" th:action="@{'/bbs/' + ${boTable} + '/edit/' + ${post.wrId}}" method="post" enctype="multipart/form-data" autocomplete="off">
+
+                    <div class="bo_w_select write_div" th:if="${board.boUseCategory == 1}">
+                        <label for="ca_name" class="sound_only">분류<strong>필수</strong></label>
+                        <div class="category-buttons">
+                            <button type="button"
+                                    th:each="cat : ${#strings.arraySplit(board.boCategoryList, '|')}"
+                                    th:text="${cat}"
+                                    th:attr="data-value=${cat}"
+                                    th:classappend="${writeForm.caName == cat} ? ' active' : ''">분류</button>
+                        </div>
+                        <input type="hidden" name="caName" id="ca_name" th:value="${writeForm.caName}">
+                    </div>
+
+                    <div class="bo_w_info write_div">
+                        <label for="wr_name" class="sound_only">이름<strong>필수</strong></label>
+                        <input type="text" name="name" id="wr_name" required class="frm_input half_input required" placeholder="이름" th:value="${writeForm.name}" th:if="${loginUser == null}">
+
+                        <label for="wr_password" class="sound_only">비밀번호<strong>필수</strong></label>
+                        <input type="password" name="password" id="wr_password" class="frm_input half_input" placeholder="비밀번호" th:if="${loginUser == null}">
+
+                    </div>
+
+                    <div class="write_div">
+                        <label for="wr_1" class="sound_only">시작</label>
+                        <input type="text" name="wr1" id="wr_1" class="frm_input" th:value="${writeForm.wr1}" placeholder="시작일">
+                        <label for="wr_2" class="sound_only">종료</label>
+                        <input type="text" name="wr2" id="wr_2" class="frm_input" th:value="${writeForm.wr2}" placeholder="종료일">
+                        <span class="all_day_toggle_wrap">
+                            <label class="switch" for="is_all_day">
+                                <input type="checkbox" id="is_all_day" name="wr5" value="1" th:checked="${writeForm.wr5 == '1'}">
+                                <span class="slider round"></span>
+                            </label>
+                            <span id="allDayLabel" th:text="${writeForm.wr5 == '1'} ? '종일일정' : '부분일정'">부분일정</span>
+                        </span>
+                        <label for="wr_4" class="sound_only">색상</label>
+                        <input type="text" name="wr4" id="wr_4" class="jscolor {hash:true}" th:value="${writeForm.wr4 != null ? writeForm.wr4 : '#3788d8'}" style="margin-left:10px; width:120px;">
+                        <button type="button" id="open_partial_picker" class="btn_b01 btn">시간선택</button>
+                        <div id="partial_range_popup">
+                            <div class="partial_range_backdrop"></div>
+                            <div class="partial_range_panel">
+                                <div class="partial_range_head">
+                                    <strong>시간 선택</strong>
+                                    <button type="button" id="close_partial_picker" class="partial_range_close" aria-label="닫기">×</button>
+                                </div>
+                                <div class="partial_range_grid">
+                                    <div class="partial_col">
+                                        <label for="partial_start_date">시작 일시</label>
+                                        <input type="date" id="partial_start_date">
+                                        <input type="time" id="partial_start_time" step="600">
+                                    </div>
+                                    <div class="partial_col">
+                                        <label for="partial_end_date">종료 일시</label>
+                                        <input type="date" id="partial_end_date">
+                                        <input type="time" id="partial_end_time" step="600">
+                                    </div>
+                                </div>
+                                <div id="partial_range_error" class="partial_range_error"></div>
+                                <div class="partial_range_actions">
+                                    <button type="button" id="apply_partial_picker">적용</button>
+                                    <button type="button" id="cancel_partial_picker">닫기</button>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" id="open_all_day_picker" class="btn_b01 btn">날짜선택</button>
+                        <div id="all_day_range_popup">
+                            <div class="all_day_range_backdrop"></div>
+                            <div class="all_day_range_panel">
+                                <div class="all_day_range_head">
+                                    <strong>날짜 선택</strong>
+                                    <button type="button" id="close_all_day_picker" class="all_day_close" aria-label="닫기">×</button>
+                                </div>
+                                <div id="all_day_range_wrap">
+                                    <div id="all_day_range_picker"></div>
+                                    <div id="all_day_range_text"></div>
+                                </div>
+                                <div class="all_day_range_actions">
+                                    <button type="button" id="apply_all_day_picker" class="btn_b01 btn">적용</button>
+                                    <button type="button" id="cancel_all_day_picker" class="btn_b01 btn">닫기</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bo_w_tit write_div">
+                        <label for="wr_subject" class="sound_only">제목<strong>필수</strong></label>
+                        <div id="autosave_wrapper" class="write_div">
+                            <input type="text" name="subject" id="wr_subject" required class="frm_input full_input required" maxlength="255" placeholder="제목" th:value="${writeForm.subject}">
+                        </div>
+                    </div>
+
+                    <div class="write_div">
+                        <label for="wr_content" class="sound_only">내용<strong>필수</strong></label>
+                        <div class="wr_content">
+                            <textarea id="wr_content" name="content" required class="frm_input" style="height:220px;" th:text="${writeForm.content}"></textarea>
+                        </div>
+                    </div>
+
+                    <div class="bo_w_flie write_div" th:if="${board.boUploadCount > 0}">
+                        <div class="file_wr write_div" th:each="idx : ${#numbers.sequence(1, board.boUploadCount)}">
+                            <label th:for="${'bf_file_' + idx}" class="lb_icon">
+                                <i class="fa fa-folder-open" aria-hidden="true"></i>
+                                <span class="sound_only" th:text="${'파일 첨부 #' + idx}">파일 첨부 #1</span>
+                            </label>
+                            <input type="file"
+                                   name="files"
+                                   th:id="${'bf_file_' + idx}"
+                                   class="frm_file">
+                        </div>
+                    </div>
+
+                    <div class="btn_confirm write_div">
+                        <a th:href="@{'/bbs/' + ${boTable} + '/view/' + ${post.wrId}}" class="btn_cancel btn">취소</a>
+                        <button type="submit" id="btn_submit" class="btn_submit btn">수정완료</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/nav :: nav_end}"></div>
+
+<script th:src="@{/js/jquery-1.12.4.min.js}"></script>
+<script th:src="@{/plugin/jquery-ui/jquery-ui.min.js}"></script>
+<script th:src="@{/plugin/jquery-ui/jquery-ui-timepicker-addon.js}"></script>
+<script th:src="@{/skin/board/schedule/wz.js/jscolor.min.js}"></script>
+<script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'ckeditor4'}" th:src="@{/plugin/editor/ckeditor4/ckeditor.js}"></script>
+<script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'ckeditor4'}" th:src="@{/plugin/editor/ckeditor4/config.js}"></script>
+<script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'smarteditor2'}" th:src="@{/plugin/editor/smarteditor2/js/service/HuskyEZCreator.js}"></script>
+<script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'smarteditor2'}" th:src="@{/plugin/editor/smarteditor2/config.js}"></script>
+<script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'cheditor5'}" th:src="@{/plugin/editor/cheditor5/cheditor.js}"></script>
+<script th:inline="javascript">
+    $(function() {
+        $.datepicker.regional['ko'] = {
+            closeText: "닫기",
+            prevText: "이전달",
+            nextText: "다음달",
+            currentText: "오늘",
+            monthNames: ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"],
+            monthNamesShort: ["1월","2월","3월","4월","5월","6월","7월","8월","9월","10월","11월","12월"],
+            dayNames: ["일요일","월요일","화요일","수요일","목요일","금요일","토요일"],
+            dayNamesShort: ["일","월","화","수","목","금","토"],
+            dayNamesMin: ["일","월","화","수","목","금","토"],
+            weekHeader: "주",
+            dateFormat: "yy-mm-dd",
+            firstDay: 0,
+            isRTL: false,
+            showMonthAfterYear: true,
+            yearSuffix: "년"
+        };
+        $.datepicker.setDefaults($.datepicker.regional["ko"]);
+
+        var $start = $("#wr_1");
+        var $end = $("#wr_2");
+        var $allDay = $("#is_all_day");
+        var $allDayLabel = $("#allDayLabel");
+        var $openPartialPickerBtn = $("#open_partial_picker");
+        var $partialPopup = $("#partial_range_popup");
+        var $partialStartDate = $("#partial_start_date");
+        var $partialStartTime = $("#partial_start_time");
+        var $partialEndDate = $("#partial_end_date");
+        var $partialEndTime = $("#partial_end_time");
+        var $partialError = $("#partial_range_error");
+        var $closePartialPickerBtn = $("#close_partial_picker");
+        var $cancelPartialPickerBtn = $("#cancel_partial_picker");
+        var $applyPartialPickerBtn = $("#apply_partial_picker");
+        var $openPickerBtn = $("#open_all_day_picker");
+        var $rangePopup = $("#all_day_range_popup");
+        var $rangeWrap = $("#all_day_range_wrap");
+        var $rangePicker = $("#all_day_range_picker");
+        var $rangeText = $("#all_day_range_text");
+        var $closePickerBtn = $("#close_all_day_picker");
+        var $cancelPickerBtn = $("#cancel_all_day_picker");
+        var $applyPickerBtn = $("#apply_all_day_picker");
+
+        var allDayStart = null;
+        var allDayEnd = null;
+        var rangeSelecting = false;
+        var popupBackupStart = null;
+        var popupBackupEnd = null;
+        var HOLIDAY_CALENDAR_ID = 'ko.south_korea#holiday@group.v.calendar.google.com';
+        var HOLIDAY_API_KEY = 'AIzaSyBDLbVPdJoidVskOO7iA7oeaQ5mm5QL7Qk';
+        var holidayMap = {};
+        var holidayRangeKey = '';
+        var partialBackupStart = "";
+        var partialBackupEnd = "";
+
+        function datePart(value) {
+            if (!value) return "";
+            var v = String(value).trim().replace("T", " ");
+            return v.length >= 10 ? v.substring(0, 10) : v;
+        }
+
+        function parseDate(value) {
+            if (!value) return null;
+            try {
+                return $.datepicker.parseDate("yy-mm-dd", value);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        function formatDate(date) {
+            return $.datepicker.formatDate("yy-mm-dd", date);
+        }
+
+        function cloneDate(value) {
+            return value ? new Date(value.getTime()) : null;
+        }
+
+        function pad2(value) {
+            return String(value).padStart(2, '0');
+        }
+
+        function formatIsoDate(date) {
+            return date.getFullYear() + '-' + pad2(date.getMonth() + 1) + '-' + pad2(date.getDate());
+        }
+
+        function loadHolidaysForAnchor(anchorDate) {
+            if (!anchorDate) return;
+            var startMonth = new Date(anchorDate.getFullYear(), anchorDate.getMonth(), 1);
+            var endMonth = new Date(anchorDate.getFullYear(), anchorDate.getMonth() + 2, 0);
+            var rangeKey = formatIsoDate(startMonth) + '_' + formatIsoDate(endMonth);
+            if (holidayRangeKey === rangeKey) return;
+            holidayRangeKey = rangeKey;
+
+            var endExclusive = new Date(endMonth.getFullYear(), endMonth.getMonth(), endMonth.getDate() + 1);
+            var timeMin = formatIsoDate(startMonth) + 'T00:00:00+09:00';
+            var timeMax = formatIsoDate(endExclusive) + 'T00:00:00+09:00';
+            var url =
+                'https://www.googleapis.com/calendar/v3/calendars/' +
+                encodeURIComponent(HOLIDAY_CALENDAR_ID) +
+                '/events?singleEvents=true&orderBy=startTime&maxResults=2500' +
+                '&timeMin=' + encodeURIComponent(timeMin) +
+                '&timeMax=' + encodeURIComponent(timeMax) +
+                '&key=' + encodeURIComponent(HOLIDAY_API_KEY);
+
+            $.getJSON(url).done(function(resp){
+                holidayMap = {};
+                (resp.items || []).forEach(function(item){
+                    var dateKey = '';
+                    if (item.start && item.start.date) {
+                        dateKey = item.start.date;
+                    } else if (item.start && item.start.dateTime) {
+                        dateKey = String(item.start.dateTime).substring(0, 10);
+                    }
+                    if (!dateKey) return;
+                    var title = item.summary || '공휴일';
+                    if (!holidayMap[dateKey]) {
+                        holidayMap[dateKey] = title;
+                    } else if (holidayMap[dateKey].indexOf(title) < 0) {
+                        holidayMap[dateKey] += ' / ' + title;
+                    }
+                });
+                if ($rangePicker.data("datepicker")) {
+                    $rangePicker.datepicker("refresh");
+                }
+                            }).fail(function(){
+                    holidayMap = {};
+                    if ($rangePicker.data("datepicker")) {
+                        $rangePicker.datepicker("refresh");
+                    }
+                });
+        }
+
+        function updateRangeText() {
+            if (allDayStart && allDayEnd) {
+                $rangeText.text("선택 범위: " + formatDate(allDayStart) + " ~ " + formatDate(allDayEnd));
+                return;
+            }
+            $rangeText.text("캘린더에서 시작일/종료일을 선택하세요.");
+        }
+
+        function syncRangeInputs() {
+            if (!allDayStart || !allDayEnd) return;
+            $start.val(formatDate(allDayStart));
+            $end.val(formatDate(allDayEnd));
+            updateRangeText();
+        }
+
+        function destroyDatePickers() {
+            try { $start.datetimepicker("destroy"); } catch (e) {}
+            try { $end.datetimepicker("destroy"); } catch (e) {}
+            try { $start.datepicker("destroy"); } catch (e) {}
+            try { $end.datepicker("destroy"); } catch (e) {}
+            try { $rangePicker.datepicker("destroy"); } catch (e) {}
+        }
+
+        function normalizeDateTimeValue(value) {
+            var v = String(value || "").trim();
+            if (!v) return "";
+            v = v.replace("T", " ");
+            if (/^\d{4}-\d{2}-\d{2}$/.test(v)) {
+                return v + " 00:00";
+            }
+            if (/^\d{4}-\d{2}-\d{2}\s+\d{2}:\d{2}$/.test(v)) {
+                return v;
+            }
+            return v;
+        }
+
+        function parseDateTime(value) {
+            var v = normalizeDateTimeValue(value);
+            if (!v) return null;
+            var match = v.match(/^(\d{4}-\d{2}-\d{2})(?:\s+(\d{2}):(\d{2}))?$/);
+            if (!match) return null;
+            var d = parseDate(match[1]);
+            if (!d) return null;
+            d.setHours(parseInt(match[2] || "0", 10), parseInt(match[3] || "0", 10), 0, 0);
+            return d;
+        }
+
+        function formatDateTime(date) {
+            return formatDate(date) + " " + pad2(date.getHours()) + ":" + pad2(date.getMinutes());
+        }
+
+        function setPartialControls(startDate, endDate) {
+            $partialStartDate.val(formatDate(startDate));
+            $partialStartTime.val(pad2(startDate.getHours()) + ":" + pad2(startDate.getMinutes()));
+            $partialEndDate.val(formatDate(endDate));
+            $partialEndTime.val(pad2(endDate.getHours()) + ":" + pad2(endDate.getMinutes()));
+            $partialError.text("");
+        }
+
+        function readPartialControls() {
+            if (!$partialStartDate.val() || !$partialStartTime.val() || !$partialEndDate.val() || !$partialEndTime.val()) {
+                return null;
+            }
+            var start = parseDate($partialStartDate.val());
+            var end = parseDate($partialEndDate.val());
+            if (!start || !end) return null;
+            var sh = $partialStartTime.val().split(":");
+            var eh = $partialEndTime.val().split(":");
+            start.setHours(parseInt(sh[0], 10), parseInt(sh[1], 10), 0, 0);
+            end.setHours(parseInt(eh[0], 10), parseInt(eh[1], 10), 0, 0);
+            return { start: start, end: end };
+        }
+
+        function closePartialRangePopup(restore) {
+            if (restore) {
+                $start.val(partialBackupStart);
+                $end.val(partialBackupEnd);
+            }
+            $partialPopup.removeClass("is-open");
+            $partialError.text("");
+        }
+
+        function openPartialRangePopup() {
+            if ($allDay.is(":checked")) return;
+            var start = parseDateTime($start.val()) || new Date();
+            var end = parseDateTime($end.val()) || new Date(start.getTime() + 60 * 60 * 1000);
+            if (end.getTime() < start.getTime()) {
+                end = new Date(start.getTime() + 60 * 60 * 1000);
+            }
+            partialBackupStart = $start.val();
+            partialBackupEnd = $end.val();
+            setPartialControls(start, end);
+            $partialPopup.addClass("is-open");
+        }
+
+        function renderAllDayLabel() {
+            if (!$allDayLabel.length) return;
+            $allDayLabel.text($allDay.is(":checked") ? "종일일정" : "부분일정");
+        }
+
+        function initDateTime() {
+            destroyDatePickers();
+            $openPartialPickerBtn.show();
+            $openPickerBtn.hide();
+            $rangePopup.removeClass("is-open");
+            $partialPopup.removeClass("is-open");
+            var start = parseDateTime($start.val()) || new Date();
+            var end = parseDateTime($end.val()) || new Date(start.getTime() + 60 * 60 * 1000);
+            if (end.getTime() < start.getTime()) {
+                end = new Date(start.getTime() + 60 * 60 * 1000);
+            }
+            $start.val(formatDateTime(start));
+            $end.val(formatDateTime(end));
+            $start.prop("readonly", true);
+            $end.prop("readonly", true);
+        }
+
+        function initAllDayRange() {
+            destroyDatePickers();
+            $openPartialPickerBtn.hide();
+            $start.prop("readonly", true);
+            $end.prop("readonly", true);
+            $openPickerBtn.show();
+            $rangeWrap.show();
+
+            allDayStart = parseDate(datePart($start.val()));
+            allDayEnd = parseDate(datePart($end.val()));
+            if (allDayStart && !allDayEnd) {
+                allDayEnd = allDayStart;
+            }
+            if (!allDayStart && allDayEnd) {
+                allDayStart = allDayEnd;
+            }
+            if (!allDayStart && !allDayEnd) {
+                var today = new Date();
+                allDayStart = today;
+                allDayEnd = today;
+            }
+            if (allDayStart && allDayEnd && allDayEnd.getTime() < allDayStart.getTime()) {
+                var t = allDayStart;
+                allDayStart = allDayEnd;
+                allDayEnd = t;
+            }
+            rangeSelecting = false;
+            syncRangeInputs();
+
+            $rangePicker.datepicker({
+                dateFormat: "yy-mm-dd",
+                numberOfMonths: [1, 2],
+                changeMonth: false,
+                changeYear: false,
+                showOtherMonths: false,
+                selectOtherMonths: false,
+                beforeShowDay: function(date) {
+                    var classNames = [];
+                    var tooltip = "";
+                    var dateKey = formatIsoDate(date);
+                    if (holidayMap[dateKey]) {
+                        classNames.push("holiday-day");
+                        tooltip = holidayMap[dateKey];
+                    }
+                    if (!allDayStart || !allDayEnd) return [true, classNames.join(" "), tooltip];
+                    var current = date.getTime();
+                    var startTime = allDayStart.getTime();
+                    var endTime = allDayEnd.getTime();
+                    if (current === startTime && current === endTime) classNames.push("range-start");
+                    else if (current === startTime) classNames.push("range-start");
+                    else if (current === endTime) classNames.push("range-end");
+                    else if (current > startTime && current < endTime) classNames.push("range-selected");
+                    return [true, classNames.join(" "), tooltip];
+                },
+                onSelect: function(dateText) {
+                    var selected = parseDate(dateText);
+                    if (!selected) return;
+                    if (!rangeSelecting) {
+                        allDayStart = selected;
+                        allDayEnd = selected;
+                        rangeSelecting = true;
+                    } else {
+                        allDayEnd = selected;
+                        if (allDayEnd.getTime() < allDayStart.getTime()) {
+                            var tmp = allDayStart;
+                            allDayStart = allDayEnd;
+                            allDayEnd = tmp;
+                        }
+                        rangeSelecting = false;
+                    }
+                    syncRangeInputs();
+                    $rangePicker.datepicker("refresh");
+                },
+                onChangeMonthYear: function(year, month) {
+                    loadHolidaysForAnchor(new Date(year, month - 1, 1));
+                }
+            });
+            $rangePicker.datepicker("setDate", allDayStart);
+            loadHolidaysForAnchor(allDayStart || new Date());
+            $rangePicker.datepicker("refresh");
+        }
+
+        function openAllDayRangePopup() {
+            if (!$allDay.is(":checked")) return;
+            popupBackupStart = cloneDate(allDayStart);
+            popupBackupEnd = cloneDate(allDayEnd);
+            $rangePopup.addClass("is-open");
+            loadHolidaysForAnchor(allDayStart || new Date());
+            if ($rangePicker.data("datepicker")) {
+                $rangePicker.datepicker("refresh");
+            }
+        }
+
+        function closeAllDayRangePopup(restore) {
+            if (restore) {
+                allDayStart = cloneDate(popupBackupStart);
+                allDayEnd = cloneDate(popupBackupEnd);
+                syncRangeInputs();
+                if ($rangePicker.data("datepicker")) {
+                    $rangePicker.datepicker("refresh");
+                }
+            }
+            $rangePopup.removeClass("is-open");
+        }
+
+        if ($allDay.is(":checked")) {
+            initAllDayRange();
+        } else {
+            initDateTime();
+        }
+        renderAllDayLabel();
+
+        $allDay.on("change", function(){
+            renderAllDayLabel();
+            if (this.checked) {
+                initAllDayRange();
+            } else {
+                initDateTime();
+            }
+        });
+
+        $openPickerBtn.on("click", openAllDayRangePopup);
+        $openPartialPickerBtn.on("click", openPartialRangePopup);
+        $start.add($end).on("click", function() {
+            if ($allDay.is(":checked")) {
+                openAllDayRangePopup();
+            } else {
+                openPartialRangePopup();
+            }
+        });
+        $closePartialPickerBtn.on("click", function() { closePartialRangePopup(true); });
+        $cancelPartialPickerBtn.on("click", function() { closePartialRangePopup(true); });
+        $applyPartialPickerBtn.on("click", function() {
+            var value = readPartialControls();
+            if (!value) {
+                $partialError.text("시작/종료 날짜와 시간을 모두 선택하세요.");
+                return;
+            }
+            if (value.end.getTime() < value.start.getTime()) {
+                $partialError.text("종료 일시는 시작 일시보다 빠를 수 없습니다.");
+                return;
+            }
+            $start.val(formatDateTime(value.start));
+            $end.val(formatDateTime(value.end));
+            closePartialRangePopup(false);
+        });
+        $partialPopup.find(".partial_range_backdrop").on("click", function() { closePartialRangePopup(true); });
+        $closePickerBtn.on("click", function() { closeAllDayRangePopup(true); });
+        $cancelPickerBtn.on("click", function() { closeAllDayRangePopup(true); });
+        $applyPickerBtn.on("click", function() { closeAllDayRangePopup(false); });
+        $rangePopup.find(".all_day_range_backdrop").on("click", function() { closeAllDayRangePopup(true); });
+        $(document).on("keydown", function(e) {
+            if (e.key === "Escape" && $rangePopup.hasClass("is-open")) {
+                closeAllDayRangePopup(true);
+            }
+            if (e.key === "Escape" && $partialPopup.hasClass("is-open")) {
+                closePartialRangePopup(true);
+            }
+        });
+
+        var $categoryButtons = $(".category-buttons button");
+        var $categoryInput = $("#ca_name");
+        if ($categoryButtons.length && $categoryInput.length) {
+            if (!$categoryInput.val()) {
+                $categoryButtons.first().addClass("active");
+                $categoryInput.val($categoryButtons.first().data("value"));
+            }
+            $categoryButtons.on("click", function(){
+                $categoryButtons.removeClass("active");
+                $(this).addClass("active");
+                $categoryInput.val($(this).data("value"));
+            });
+        }
+    });
+
+    (function() {
+        var useEditor = /*[[${board.boUseDhtmlEditor}]]*/ 0;
+        var editorType = /*[[${board.boSelectEditor}]]*/ '';
+        var basePath = (window.APP_CONTEXT || '/').replace(/\/?$/, '/');
+        if (!useEditor || !editorType) return;
+        var form = document.getElementById('fwrite');
+        var textarea = document.getElementById('wr_content');
+        if (editorType === 'ckeditor4' && window.CKEDITOR) {
+            CKEDITOR.replace('wr_content', { height: 300 });
+            form.addEventListener('submit', function() {
+                CKEDITOR.instances['wr_content'].updateElement();
+            });
+        }
+        if (editorType === 'smarteditor2' && window.nhn && window.nhn.husky) {
+            var oEditors = [];
+            nhn.husky.EZCreator.createInIFrame({
+                oAppRef: oEditors,
+                elPlaceHolder: 'wr_content',
+                sSkinURI: basePath + 'plugin/editor/smarteditor2/SmartEditor2Skin.html',
+                fCreator: 'createSEditor2'
+            });
+            form.addEventListener('submit', function() {
+                if (oEditors.getById) {
+                    oEditors.getById['wr_content'].exec('UPDATE_CONTENTS_FIELD', []);
+                }
+            });
+        }
+        if (editorType === 'cheditor5' && window.cheditor) {
+            var ed_wr_content = new cheditor('ed_wr_content');
+            ed_wr_content.config.editorWidth = '100%';
+            ed_wr_content.config.editorHeight = '300px';
+            ed_wr_content.config.editorPath = basePath + 'plugin/editor/cheditor5';
+            ed_wr_content.inputForm = 'wr_content';
+            ed_wr_content.run();
+            form.addEventListener('submit', function() {
+                document.getElementById('wr_content').value = ed_wr_content.outputBodyHTML();
+            });
+        }
+        if (textarea) {
+            textarea.removeAttribute('required');
+        }
+    })();
+</script>
+</body>
+</html>

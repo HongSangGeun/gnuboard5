@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>메뉴 추가/수정</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <section>
+            <h2 class="h2_frm">메뉴 추가/수정</h2>
+            <form th:action="@{/mgmt/config/menu/save}" method="post">
+                <input type="hidden" name="meId" th:value="${menu.meId}">
+                <div class="tbl_frm01 tbl_wrap">
+                    <table>
+                        <colgroup>
+                            <col class="grid_4">
+                            <col>
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th scope="row"><label for="meCode">메뉴코드</label></th>
+                                <td>
+                                    <input type="text" name="meCode" th:value="${menu.meCode}" id="meCode" required
+                                        class="required frm_input">
+                                    <span class="frm_info">2자리(대분류) 또는 4자리(소분류) 숫자로 입력하세요. 예) 10, 1010</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="meName">메뉴명</label></th>
+                                <td>
+                                    <input type="text" name="meName" th:value="${menu.meName}" id="meName" required
+                                        class="required frm_input">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="meLink">링크</label></th>
+                                <td>
+                                    <input type="text" name="meLink" th:value="${menu.meLink}" id="meLink" required
+                                        class="required frm_input full_input">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">새창여부</th>
+                                <td>
+                                    <select name="meTarget">
+                                        <option value="self" th:selected="${menu.meTarget == 'self'}">사용안함</option>
+                                        <option value="blank" th:selected="${menu.meTarget == 'blank'}">새창</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">사용여부</th>
+                                <td>
+                                    <select name="meUse">
+                                        <option value="1" th:selected="${menu.meUse == 1}">사용함</option>
+                                        <option value="0" th:selected="${menu.meUse == 0}">사용안함</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">모바일사용여부</th>
+                                <td>
+                                    <select name="meMobileUse">
+                                        <option value="1" th:selected="${menu.meMobileUse == 1}">사용함</option>
+                                        <option value="0" th:selected="${menu.meMobileUse == 0}">사용안함</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="meOrder">순서</label></th>
+                                <td>
+                                    <input type="text" name="meOrder" th:value="${menu.meOrder}" id="meOrder"
+                                        class="frm_input" size="5">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="btn_confirm01 btn_confirm" style="display:block; margin-top: 16px; text-align: right;">
+                    <input type="submit" value="확인" class="btn_submit btn">
+                    <a th:href="@{/mgmt/config/menu}" class="btn btn_02">목록</a>
+                </div>
+            </form>
+        </section>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+
+    <link rel="stylesheet" th:href="@{/css/default.css}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+
+    <title th:text="${post.wrSubject} + ' - 보기'"></title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        .meta { color: #666; margin-bottom: 12px; }
+        .content { border: 1px solid #ddd; padding: 12px; margin-bottom: 24px; }
+        .comments { margin-top: 24px; }
+        .comment { border-top: 1px solid #eee; padding: 8px 0; }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div id="wrapper">
+    <div id="container_wr">
+        <div id="container">
+            <h1 id="container_title" th:text="${pageTitle} ?: (board != null ? board.boSubject : '게시판')">게시판</h1>
+<a th:href="@{'/bbs/' + ${boTable} + '/list'}">목록</a>
+<span> | </span>
+<a th:href="@{'/bbs/' + ${boTable} + '/edit/' + ${post.wrId}}">수정</a>
+<span> | </span>
+<form th:action="@{'/bbs/' + ${boTable} + '/delete/' + ${post.wrId}}" method="post" style="display:inline;">
+    <input type="password" name="password" placeholder="비밀번호" required />
+    <button type="submit">삭제</button>
+</form>
+<div th:if="${error}" th:text="${error}" style="color: red; margin: 8px 0;"></div>
+<div th:if="${message}" th:text="${message}" style="color: green; margin: 8px 0;"></div>
+<h1 th:text="${post.wrSubject}">제목</h1>
+<div class="meta">
+    <span th:text="${post.wrName}">작성자</span>
+    <span> | </span>
+    <span th:text="${post.wrDatetime}">작성일</span>
+    <span> | 조회 </span>
+    <span th:text="${post.wrHit}">0</span>
+</div>
+<div class="content" th:utext="${post.wrContent}">
+    내용
+</div>
+
+<div class="files" th:if="${!#lists.isEmpty(files)}">
+    <h3>첨부파일</h3>
+    <ul>
+        <li th:each="file : ${files}">
+            <a th:href="@{'/bbs/' + ${boTable} + '/download/' + ${post.wrId} + '/' + ${file.bfNo}}"
+               th:text="${file.bfSource}">파일</a>
+            <span th:text="|(다운로드 ${file.bfDownload})|"></span>
+        </li>
+    </ul>
+</div>
+
+<div class="comments">
+    <h3>댓글</h3>
+    <div th:if="${(loginUser != null && loginUser.level >= board.boCommentLevel) || (loginUser == null && board.boCommentLevel <= 1)}">
+        <form th:action="@{'/bbs/' + ${boTable} + '/comment/' + ${post.wrId}}" method="post" style="margin-bottom: 16px;">
+            <div>
+                <span th:if="${loginUser != null}">
+                    작성자: <strong th:text="${loginUser.name}">회원</strong>
+                </span>
+                <span th:if="${loginUser == null}">
+                    <input type="text" name="name" placeholder="작성자" required />
+                    <input type="password" name="password" placeholder="비밀번호" required />
+                </span>
+            </div>
+            <div style="margin-top: 8px;">
+                <textarea name="content" placeholder="댓글 내용" required style="width: 100%; height: 120px;"></textarea>
+            </div>
+            <div style="margin-top: 8px;">
+                <button type="submit">댓글 등록</button>
+            </div>
+        </form>
+    </div>
+    <div th:if="${(loginUser == null && board.boCommentLevel > 1) || (loginUser != null && loginUser.level < board.boCommentLevel)}" style="color: #666; margin-bottom: 12px;">
+        댓글 권한이 없습니다.
+    </div>
+    <div th:if="${#lists.isEmpty(comments)}">댓글이 없습니다.</div>
+    <div th:each="comment : ${comments}" class="comment">
+        <div><strong th:text="${comment.wrName}">작성자</strong></div>
+        <div th:utext="${comment.wrContent}">댓글</div>
+        <div class="meta" th:text="${comment.wrDatetime}">작성일</div>
+    </div>
+</div>
+
+        </div>
+    </div>
+</div>
+    <div th:replace="~{fragments/nav :: nav_end}"></div>
+</body>
+</html>

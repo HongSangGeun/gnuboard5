@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>테마설정</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="local_wr">
+            <span class="btn_ov01"><span class="ov_txt">설치된 테마</span><span class="ov_num"
+                    th:text="${themes.size()} + '개'">0개</span></span>
+        </div>
+
+        <ul id="theme_list" th:if="${!themes.empty}">
+            <li th:each="theme : ${themes}">
+                <div class="tmli_if">
+                    <img th:if="${theme.screenshot != null}" th:src="${theme.screenshot}" th:alt="${theme.themeName}">
+                    <img th:unless="${theme.screenshot != null}" th:src="@{/img/theme_img.jpg}" alt="">
+                    <div class="tmli_tit">
+                        <p th:text="${theme.themeName}">Theme Name</p>
+                    </div>
+                </div>
+
+                <div th:if="${theme.active}">
+                    <span class="theme_sl theme_sl_use">사용중</span>
+                    <form th:action="@{/mgmt/config/theme/reset}" method="post" style="display:inline;">
+                        <button type="submit" class="theme_sl theme_deactive">사용안함</button>
+                    </form>
+                </div>
+                <div th:unless="${theme.active}">
+                    <form th:action="@{/mgmt/config/theme/update}" method="post" style="display:inline;">
+                        <input type="hidden" name="theme" th:value="${theme.dir}">
+                        <button type="submit" class="theme_sl theme_active">테마적용</button>
+                    </form>
+                </div>
+
+                <button type="button" class="tmli_dt theme_preview" th:attr="data-theme=${theme.dir}"
+                    onclick="alert('미리보기/상세보기 기능은 준비중입니다.');">상세보기</button>
+            </li>
+        </ul>
+
+        <p class="no_theme" th:if="${themes.empty}">설치된 테마가 없습니다.</p>
+
+        <style>
+            #theme_list {
+                overflow: hidden;
+                margin: 0;
+                padding: 0;
+                list-style: none;
+            }
+
+            #theme_list li {
+                float: left;
+                width: 280px;
+                margin: 0 20px 20px 0;
+                border: 1px solid #ddd;
+                background: #fff;
+                text-align: center;
+                position: relative;
+            }
+
+            .tmli_if {
+                position: relative;
+                border-bottom: 1px solid #ddd;
+            }
+
+            .tmli_if img {
+                width: 100%;
+                display: block;
+            }
+
+            .tmli_tit {
+                padding: 10px;
+                font-weight: bold;
+            }
+
+            .theme_sl {
+                display: inline-block;
+                padding: 5px 10px;
+                border: 1px solid #ccc;
+                background: #f9f9f9;
+                cursor: pointer;
+                margin: 10px 0;
+            }
+
+            .theme_sl_use {
+                border-color: #333;
+                background: #333;
+                color: #fff;
+                cursor: default;
+            }
+
+            .theme_active {
+                border-color: #2c3e50;
+                background: #2c3e50;
+                color: #fff;
+            }
+        </style>
+    </div>
+</body>
+
+</html>

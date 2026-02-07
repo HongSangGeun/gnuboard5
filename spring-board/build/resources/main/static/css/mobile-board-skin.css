@@ -1,0 +1,154 @@
+@charset "utf-8";
+
+/* Mobile skin common layout */
+@media (max-width: 1024px) {
+  html,
+  body {
+    overflow-x: hidden;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  #wrapper,
+  #container_wr,
+  #container {
+    width: 100%;
+    max-width: 100vw;
+    min-width: 0;
+    margin: 0;
+    padding: 0;
+  }
+
+  #container {
+    padding: 12px;
+  }
+
+  #container_title {
+    margin: 0 0 10px;
+    font-size: 1.1rem;
+    line-height: 1.4;
+    height: auto;
+    padding: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  #bo_list,
+  #bo_v,
+  #bo_w,
+  #bo_gall {
+    width: 100% !important;
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  /* iOS focus zoom 방지: 입력 폰트 16px 이상 유지 */
+  #bo_v input[type="text"],
+  #bo_v input[type="password"],
+  #bo_v input[type="email"],
+  #bo_v input[type="url"],
+  #bo_v input[type="search"],
+  #bo_v textarea,
+  #bo_v select,
+  #bo_w input[type="text"],
+  #bo_w input[type="password"],
+  #bo_w input[type="email"],
+  #bo_w input[type="url"],
+  #bo_w input[type="search"],
+  #bo_w textarea,
+  #bo_w select,
+  #bo_gall input[type="text"],
+  #bo_gall input[type="password"],
+  #bo_gall input[type="email"],
+  #bo_gall input[type="url"],
+  #bo_gall input[type="search"],
+  #bo_gall textarea,
+  #bo_gall select,
+  #bo_vc_w input,
+  #bo_vc_w textarea,
+  #bo_vc_w select {
+    font-size: 16px !important;
+  }
+
+  .tbl_wrap {
+    overflow-x: auto;
+  }
+
+  .tbl_wrap table {
+    min-width: 720px;
+  }
+
+  #bo_w .frm_input,
+  #bo_w textarea {
+    width: 100% !important;
+    max-width: 100%;
+  }
+
+  #bo_w .write_div {
+    margin-bottom: 8px;
+  }
+
+  #bo_v .bo_v_cate {
+    margin-bottom: 4px;
+    display: inline-block;
+  }
+
+  #bo_gall #gall_ul {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  #bo_gall #gall_ul .gall_li {
+    width: auto !important;
+    float: none !important;
+  }
+
+  #bo_gall .gall_img img {
+    width: 100%;
+    height: auto;
+  }
+
+  #bo_btn_top {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  #bo_btn_top .btn_bo_user {
+    margin-left: auto;
+  }
+
+  .pagination {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin: 10px 0;
+  }
+
+  .pagination a,
+  .pagination span {
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 640px) {
+  #container {
+    padding: 10px;
+  }
+
+  #bo_gall #gall_ul {
+    grid-template-columns: 1fr;
+  }
+
+  #bo_w .btn_confirm {
+    display: flex;
+    gap: 8px;
+  }
+
+  #bo_w .btn_confirm .btn_submit,
+  #bo_w .btn_confirm .btn_cancel,
+  #bo_w .btn_confirm a {
+    flex: 1;
+    text-align: center;
+  }
+}

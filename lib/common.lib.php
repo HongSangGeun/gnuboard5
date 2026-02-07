@@ -885,10 +885,26 @@ function get_member($mb_id, $fields = '*', $is_cache = false)
         return $cache[$mb_id][$key];
     }
 
+    // Use prepared statements when mysqli is available; fallback to legacy path otherwise
+    if (function_exists('mysqli_prepare') && defined('G5_MYSQLI_USE') && G5_MYSQLI_USE) {
+        $sql = "SELECT {$fields} FROM {$g5['member_table']} WHERE mb_id = ?";
+        $stmt = @mysqli_prepare($g5['connect_db'], $sql);
+        if ($stmt) {
+            @mysqli_stmt_bind_param($stmt, 's', $mb_id);
+            @mysqli_stmt_execute($stmt);
+            $result = @mysqli_stmt_get_result($stmt);
+            $row = $result ? @mysqli_fetch_assoc($result) : null;
+            @mysqli_stmt_close($stmt);
+
+            $cache[$mb_id][$key] = run_replace('get_member', (array)$row, $mb_id, $fields, $is_cache);
+            return $cache[$mb_id][$key];
+        }
+        // if prepare failed for any reason, fall back
+    }
+
+    // Fallback (legacy) — keep existing behavior but only reached if mysqli is unavailable
     $sql = " SELECT {$fields} from {$g5['member_table']} where mb_id = '{$mb_id}' ";
-
     $cache[$mb_id][$key] = run_replace('get_member', sql_fetch($sql), $mb_id, $fields, $is_cache);
-
     return $cache[$mb_id][$key];
 }
 

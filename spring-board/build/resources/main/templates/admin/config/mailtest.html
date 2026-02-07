@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>메일 테스트</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <section>
+            <h2 class="h2_frm">테스트 메일 발송</h2>
+
+            <div th:if="${error}" class="alert alert-danger" style="color:red; margin:10px 0;">
+                <p th:text="${error}"></p>
+            </div>
+            <div th:if="${message}" class="alert alert-success" style="color:blue; margin:10px 0;">
+                <p th:text="${message}"></p>
+            </div>
+
+            <div class="local_desc02 local_desc">
+                <p>
+                    메일서버가 정상적으로 동작 중인지 확인할 수 있습니다.<br>
+                    아래 입력칸에 테스트 메일을 발송하실 메일 주소를 입력하시면, [메일검사] 라는 제목으로 테스트 메일을 발송합니다.
+                </p>
+            </div>
+
+            <form th:action="@{/mgmt/config/mailtest/send}" method="post">
+                <div class="tbl_frm01 tbl_wrap">
+                    <table>
+                        <colgroup>
+                            <col class="grid_4">
+                            <col>
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th scope="row"><label for="email">받는 메일주소</label></th>
+                                <td>
+                                    <input type="email" name="email" id="email" required
+                                        class="required email frm_input" size="50">
+                                    <input type="submit" value="발송" class="btn_submit btn">
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+        </section>
+    </div>
+</body>
+
+</html>

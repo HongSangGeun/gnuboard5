@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+
+<head th:fragment="head">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>관리자 페이지</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+
+    <script th:inline="javascript">
+        // Global variables for Gnuboard JS
+        var g5_url = /*[[@{/}]]*/ "/";
+        var g5_bbs_url = /*[[@{/bbs}]]*/ "/bbs";
+        var g5_is_member = "";
+        var g5_is_admin = "super"; // Assume super admin for now in this view
+        var g5_is_mobile = "";
+        var g5_bo_table = "";
+        var g5_sca = "";
+        var g5_editor = "";
+        var g5_cookie_domain = "";
+        var g5_shop_url = /*[[@{/shop}]]*/ "/shop";
+        var g5_admin_url = /*[[@{/mgmt}]]*/ "/mgmt";
+        var APP_CSRF_TOKEN = /*[[${csrfToken}]]*/ "";
+    </script>
+
+    <script th:src="@{/js/jquery.min.js}"></script>
+    <script th:src="@{/js/jquery-migrate-1.4.1.min.js}"></script>
+    <script th:src="@{/js/csrf.js}"></script>
+    <script th:src="@{/js/jquery.menu.js}"></script>
+    <script th:src="@{/js/common.js}"></script>
+    <script th:src="@{/js/wrest.js}"></script>
+</head>
+
+<body>
+
+    <header id="hd" th:fragment="header" class="admin-header">
+        <h1>Gnuboard Admin</h1>
+        <div id="hd_top">
+            <button type="button" id="btn_gnb" class="btn_gnb_close">메뉴</button>
+            <div id="logo"><a th:href="@{/mgmt}"><img th:src="@{/img/logo.png}" alt="관리자"></a></div>
+
+            <div id="tnb">
+                <ul>
+                    <li class="tnb_li"><a th:href="@{/}" class="tnb_community" target="_blank" title="커뮤니티 바로가기">커뮤니티 바로가기</a>
+                    </li>
+                    <li class="tnb_li"><button type="button" class="tnb_mb_btn">관리자<span
+                                class="btn_gnb">메뉴열기</span></button>
+                        <ul class="tnb_mb_area" style="display:none;">
+                            <!-- Add member info / logout here -->
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <nav id="gnb" class="gnb_large">
+            <h2>관리자 주메뉴</h2>
+            <ul class="gnb_ul">
+                <li class="gnb_li" th:each="entry, stat : ${adminMenus}" th:data-menu="${entry.value[0].code}"
+                    th:classappend="${subMenu != null and #strings.startsWith(subMenu, #strings.substring(entry.value[0].code, 0, 3))} ? 'on' : ''">
+                    <button type="button" class="btn_op" th:classappend="'menu-' + ${entry.key}"
+                        th:text="${entry.value[0].name}">Environment</button>
+                    <div class="gnb_oparea_wr">
+                        <div class="gnb_oparea">
+                            <h3 th:text="${entry.value[0].name}">Environment</h3>
+                            <ul>
+                                <li th:each="menu, subStat : ${entry.value}" th:if="${subStat.index > 0}"
+                                    th:data-menu="${menu.code}">
+                                    <a th:href="@{${menu.url}}" class="gnb_2da"
+                                        th:classappend="${subMenu == menu.code} ? 'on' : ''"
+                                        th:text="${menu.name}">SubMenu</a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+    <script th:fragment="scripts">
+        // Inline script for menu handling from admin.head.php
+        /*
+        jQuery(function($) {
+            $(".gnb_ul li .btn_op").click(function() {
+                var $li = $(this).parent();
+                if ($li.hasClass("on")) {
+                    $li.removeClass("on");
+                } else {
+                    $li.addClass("on").siblings().removeClass("on");
+                }
+            });
+            
+            $("#btn_gnb").click(function() {
+                 $("#container").toggleClass("container-small");
+                 $("#gnb").toggleClass("gnb_small");
+                 $(this).toggleClass("btn_gnb_open");
+            });
+        });
+        */
+        // Note: jquery.menu.js might handle some of this, but admin main menu often needs this specific logic.
+        // admin.head.php logic:
+        jQuery(function ($) {
+            var menu_cookie_key = 'g5_admin_btn_gnb';
+
+            $(".tnb_mb_btn").click(function () {
+                $(".tnb_mb_area").toggle();
+            });
+
+            $("#btn_gnb").click(function () {
+                var $this = $(this);
+                try {
+                    if (!$this.hasClass("btn_gnb_open")) {
+                        set_cookie(menu_cookie_key, 1, 60 * 60 * 24 * 365);
+                    } else {
+                        delete_cookie(menu_cookie_key);
+                    }
+                } catch (err) { }
+
+                $("#container").toggleClass("container-small");
+                $("#gnb").toggleClass("gnb_small");
+                $this.toggleClass("btn_gnb_open");
+            });
+
+            $(".gnb_ul li .btn_op").click(function () {
+                $(this).parent().addClass("on").siblings().removeClass("on");
+            });
+        });
+    </script>
+
+    <div id="wrapper">
+        <div id="container">
+            <h1 id="container_title" th:text="${pageTitle} ?: '관리자'">Admin Title</h1>
+            <div class="container_wr" layout:fragment="content">
+                <!-- Content replaces this -->
+            </div>
+        </div>
+    </div>
+
+    <footer id="ft">
+        <p>Copyright &copy; <b>Gnuboard</b>. All rights reserved.</p>
+    </footer>
+
+</body>
+
+</html>

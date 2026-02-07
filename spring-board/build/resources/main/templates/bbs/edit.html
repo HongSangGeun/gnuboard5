@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+
+    <link rel="stylesheet" th:href="@{/css/default.css}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+
+    <title th:text="${board.boSubject} + ' - 수정'"></title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 24px; }
+        label { display: block; margin-top: 12px; }
+        input, textarea { width: 100%; padding: 8px; box-sizing: border-box; }
+        textarea { height: 220px; }
+        .actions { margin-top: 16px; }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div id="wrapper">
+    <div id="container_wr">
+        <div id="container">
+            <h1 id="container_title" th:text="${pageTitle} ?: (board != null ? board.boSubject : '게시판')">게시판</h1>
+<a th:href="@{'/bbs/' + ${boTable} + '/view/' + ${post.wrId}}">돌아가기</a>
+<h1>글수정</h1>
+
+<div th:if="${error}" th:text="${error}" style="color: red; margin: 8px 0;"></div>
+
+<form th:action="@{'/bbs/' + ${boTable} + '/edit/' + ${post.wrId}}" method="post" enctype="multipart/form-data">
+    <label>제목
+        <input type="text" name="subject" th:value="${writeForm.subject}" required />
+    </label>
+    <label>내용
+        <textarea name="content" required th:text="${writeForm.content}"></textarea>
+    </label>
+    <div th:if="${loginUser != null}" style="margin-top: 12px;">
+        작성자: <strong th:text="${loginUser.name}">회원</strong>
+    </div>
+    <label th:if="${loginUser == null}">작성자
+        <input type="text" name="name" th:value="${writeForm.name}" required />
+    </label>
+    <label th:if="${loginUser == null}">비밀번호
+        <input type="password" name="password" required />
+    </label>
+    <label>이메일
+        <input type="email" name="email" th:value="${writeForm.email}" />
+    </label>
+    <label>홈페이지
+        <input type="text" name="homepage" th:value="${writeForm.homepage}" />
+    </label>
+    <div th:if="${!#lists.isEmpty(files)}" style="margin-top: 12px;">
+        <strong>기존 첨부파일 삭제</strong>
+        <div th:each="file : ${files}">
+            <label>
+                <input type="checkbox" name="deleteFiles" th:value="${file.bfNo}" />
+                <span th:text="${file.bfSource}">파일</span>
+            </label>
+        </div>
+    </div>
+    <div th:if="${board.boUploadCount > 0}">
+        <div th:each="idx : ${#numbers.sequence(1, board.boUploadCount)}">
+            <label th:for="${'bf_file_' + idx}" th:text="${'첨부파일 #' + idx}">첨부파일 #1</label>
+            <input type="file" name="files" th:id="${'bf_file_' + idx}" />
+        </div>
+    </div>
+
+    <div class="actions">
+        <button type="submit">수정</button>
+    </div>
+</form>
+        </div>
+    </div>
+</div>
+    <div th:replace="~{fragments/nav :: nav_end}"></div>
+</body>
+</html>

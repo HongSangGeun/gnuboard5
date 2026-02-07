@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout/layout}">
+<head>
+    <title>내용관리</title>
+</head>
+<body>
+<div layout:fragment="content">
+
+    <div th:if="${error}" th:text="${error}" class="local_desc01 local_desc" style="color: red;"></div>
+
+    <div class="local_ov01 local_ov">
+        <span class="btn_ov01"><span class="ov_txt">전체 내용</span><span class="ov_num" th:text="${totalCount} + '건'">0건</span></span>
+    </div>
+
+    <div class="btn_fixed_top">
+        <a href="#" class="btn btn_01">내용 추가</a>
+    </div>
+
+    <div class="tbl_head01 tbl_wrap">
+        <table>
+            <caption>내용관리 목록</caption>
+            <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">제목</th>
+                <th scope="col">관리</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="content, iterStat : ${contents}" th:class="${iterStat.index % 2 == 0} ? 'bg0' : 'bg1'">
+                <td class="td_id" th:text="${content.coId}">id</td>
+                <td class="td_left" th:text="${content.coSubject}">제목</td>
+                <td class="td_mng td_mng_l">
+                    <a href="#" class="btn btn_03">수정</a>
+                    <a href="#" class="btn btn_02">보기</a>
+                    <a href="#" class="btn btn_02">삭제</a>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(contents)}">
+                <td colspan="3" class="empty_table">자료가 한건도 없습니다.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pg_wrap">
+        <span class="pg">
+            <th:block th:if="${totalPage > 0}" th:each="i : ${#numbers.sequence(1, totalPage)}">
+                <a th:href="@{/mgmt/content(page=${i})}" th:text="${i}"
+                   th:class="${page == i} ? 'pg_current' : 'pg_page'">1</a>
+            </th:block>
+        </span>
+    </div>
+
+</div>
+</body>
+</html>

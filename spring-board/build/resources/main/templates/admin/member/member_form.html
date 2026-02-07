@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout/layout}">
+<head>
+    <title>회원관리</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <section>
+        <h2 class="h2_frm" th:text="${pageTitle}">회원관리</h2>
+
+        <div th:if="${message}" class="local_desc01 local_desc">
+            <p th:text="${message}">완료되었습니다.</p>
+        </div>
+        <div th:if="${error}" class="local_desc01 local_desc">
+            <p th:text="${error}">오류가 발생했습니다.</p>
+        </div>
+
+        <form th:action="@{/mgmt/member/save}" method="post" class="local_tbl">
+            <input type="hidden" name="w" th:value="${member.mbId != null and member.mbId != '' ? 'u' : ''}">
+            <input type="hidden" name="mbNickDate" th:value="${member.mbNickDate}">
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>회원관리 입/수정</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                    <tr>
+                        <th scope="row"><label for="mbId">아이디</label></th>
+                        <td>
+                            <input type="text" name="mbId" th:value="${member.mbId}" id="mbId"
+                                   th:readonly="${member.mbId != null and member.mbId != ''}"
+                                   th:required="${member.mbId == null or member.mbId == ''}"
+                                   class="frm_input">
+                            <a th:if="${member.mbId != null and member.mbId != ''}"
+                               th:href="@{/mgmt/boardgroupmember/form(mbId=${member.mbId})}"
+                               class="btn_frmline">접근가능그룹보기</a>
+                        </td>
+                        <th scope="row"><label for="mbPassword">비밀번호</label></th>
+                        <td>
+                            <input type="password" name="mbPassword" id="mbPassword" class="frm_input">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="mbName">이름(실명)</label></th>
+                        <td><input type="text" name="mbName" th:value="${member.mbName}" id="mbName"
+                                   class="frm_input" required></td>
+                        <th scope="row"><label for="mbNick">닉네임</label></th>
+                        <td><input type="text" name="mbNick" th:value="${member.mbNick}" id="mbNick"
+                                   class="frm_input" required></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="mbLevel">회원 권한</label></th>
+                        <td>
+                            <select name="mbLevel" id="mbLevel">
+                                <option th:each="i : ${#numbers.sequence(1, 10)}" th:value="${i}" th:text="${i}"
+                                        th:selected="${member.mbLevel == i}"></option>
+                            </select>
+                        </td>
+                        <th scope="row">포인트</th>
+                        <td><input type="number" name="mbPoint" th:value="${member.mbPoint}" class="frm_input"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="mbEmail">E-mail</label></th>
+                        <td><input type="email" name="mbEmail" th:value="${member.mbEmail}" id="mbEmail"
+                                   class="frm_input email" required></td>
+                        <th scope="row"><label for="mbHomepage">홈페이지</label></th>
+                        <td><input type="text" name="mbHomepage" th:value="${member.mbHomepage}" id="mbHomepage"
+                                   class="frm_input"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="mbHp">휴대폰번호</label></th>
+                        <td><input type="text" name="mbHp" th:value="${member.mbHp}" id="mbHp" class="frm_input"></td>
+                        <th scope="row"><label for="mbTel">전화번호</label></th>
+                        <td><input type="text" name="mbTel" th:value="${member.mbTel}" id="mbTel" class="frm_input"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="mbSex">성별</label></th>
+                        <td>
+                            <select name="mbSex" id="mbSex">
+                                <option value="" th:selected="${member.mbSex == null or member.mbSex == ''}">선택안함</option>
+                                <option value="M" th:selected="${member.mbSex == 'M'}">남</option>
+                                <option value="F" th:selected="${member.mbSex == 'F'}">여</option>
+                            </select>
+                        </td>
+                        <th scope="row"><label for="mbBirth">생년월일</label></th>
+                        <td><input type="text" name="mbBirth" th:value="${member.mbBirth}" id="mbBirth" class="frm_input" placeholder="YYYY-MM-DD"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="mbRecommend">추천인</label></th>
+                        <td><input type="text" name="mbRecommend" th:value="${member.mbRecommend}" id="mbRecommend" class="frm_input"></td>
+                        <th scope="row"><label for="mbDupinfo">중복가입정보</label></th>
+                        <td><input type="text" name="mbDupinfo" th:value="${member.mbDupinfo}" id="mbDupinfo" class="frm_input"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row">본인확인방법</th>
+                        <td colspan="3">
+                            <input type="radio" name="mbCertify" value="simple" id="mbCertifySimple"
+                                   th:checked="${member.mbCertify == 'simple'}">
+                            <label for="mbCertifySimple">간편인증</label>
+                            <input type="radio" name="mbCertify" value="hp" id="mbCertifyHp"
+                                   th:checked="${member.mbCertify == 'hp'}">
+                            <label for="mbCertifyHp">휴대폰</label>
+                            <input type="radio" name="mbCertify" value="ipin" id="mbCertifyIpin"
+                                   th:checked="${member.mbCertify == 'ipin'}">
+                            <label for="mbCertifyIpin">아이핀</label>
+                            <input type="radio" name="mbCertify" value="admin" id="mbCertifyAdmin"
+                                   th:checked="${member.mbCertify == 'admin' or member.mbCertify == null or member.mbCertify == ''}">
+                            <label for="mbCertifyAdmin">관리자 수정</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">성인인증</th>
+                        <td>
+                            <input type="radio" name="mbAdult" value="1" id="mbAdultYes" th:checked="${member.mbAdult == 1}">
+                            <label for="mbAdultYes">예</label>
+                            <input type="radio" name="mbAdult" value="0" id="mbAdultNo" th:checked="${member.mbAdult != 1}">
+                            <label for="mbAdultNo">아니오</label>
+                        </td>
+                        <th scope="row">메일 수신</th>
+                        <td>
+                            <input type="radio" name="mbMailling" value="1" id="mbMaillingYes" th:checked="${member.mbMailling == 1}">
+                            <label for="mbMaillingYes">예</label>
+                            <input type="radio" name="mbMailling" value="0" id="mbMaillingNo" th:checked="${member.mbMailling != 1}">
+                            <label for="mbMaillingNo">아니오</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">SMS 수신</th>
+                        <td>
+                            <input type="radio" name="mbSms" value="1" id="mbSmsYes" th:checked="${member.mbSms == 1}">
+                            <label for="mbSmsYes">예</label>
+                            <input type="radio" name="mbSms" value="0" id="mbSmsNo" th:checked="${member.mbSms != 1}">
+                            <label for="mbSmsNo">아니오</label>
+                        </td>
+                        <th scope="row">정보 공개</th>
+                        <td>
+                            <input type="radio" name="mbOpen" value="1" id="mbOpenYes" th:checked="${member.mbOpen == 1}">
+                            <label for="mbOpenYes">예</label>
+                            <input type="radio" name="mbOpen" value="0" id="mbOpenNo" th:checked="${member.mbOpen != 1}">
+                            <label for="mbOpenNo">아니오</label>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row">주소</th>
+                        <td colspan="3" class="td_addr_line">
+                            <input type="text" name="mbZip1" th:value="${member.mbZip1}" id="mbZip1" class="frm_input" size="6">
+                            <label for="mbZip1">우편번호 앞자리</label>
+                            <input type="text" name="mbZip2" th:value="${member.mbZip2}" id="mbZip2" class="frm_input" size="6">
+                            <label for="mbZip2">우편번호 뒷자리</label><br>
+                            <input type="text" name="mbAddr1" th:value="${member.mbAddr1}" id="mbAddr1" class="frm_input" size="60">
+                            <label for="mbAddr1">기본주소</label><br>
+                            <input type="text" name="mbAddr2" th:value="${member.mbAddr2}" id="mbAddr2" class="frm_input" size="60">
+                            <label for="mbAddr2">상세주소</label><br>
+                            <input type="text" name="mbAddr3" th:value="${member.mbAddr3}" id="mbAddr3" class="frm_input" size="60">
+                            <label for="mbAddr3">참고항목</label>
+                            <input type="hidden" name="mbAddrJibeon" th:value="${member.mbAddrJibeon}">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="mbSignature">서명</label></th>
+                        <td colspan="3"><textarea name="mbSignature" id="mbSignature" th:text="${member.mbSignature}"></textarea></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="mbProfile">자기 소개</label></th>
+                        <td colspan="3"><textarea name="mbProfile" id="mbProfile" th:text="${member.mbProfile}"></textarea></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="mbMemo">메모</label></th>
+                        <td colspan="3"><textarea name="mbMemo" id="mbMemo" th:text="${member.mbMemo}"></textarea></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="mbLeaveDate">탈퇴일자</label></th>
+                        <td><input type="text" name="mbLeaveDate" th:value="${member.mbLeaveDate}" id="mbLeaveDate" class="frm_input"></td>
+                        <th scope="row"><label for="mbInterceptDate">접근차단일자</label></th>
+                        <td><input type="text" name="mbInterceptDate" th:value="${member.mbInterceptDate}" id="mbInterceptDate" class="frm_input"></td>
+                    </tr>
+                    <tr th:if="${member.mbId != null and member.mbId != ''}">
+                        <th scope="row">회원가입일</th>
+                        <td th:text="${member.mbDatetime}">-</td>
+                        <th scope="row">최근접속일</th>
+                        <td th:text="${member.mbTodayLogin}">-</td>
+                    </tr>
+                    <tr th:if="${member.mbId != null and member.mbId != ''}">
+                        <th scope="row">IP</th>
+                        <td colspan="3" th:text="${member.mbIp}">-</td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="mb1">여분 필드 1</label></th>
+                        <td colspan="3"><input type="text" name="mb1" th:value="${member.mb1}" id="mb1" class="frm_input"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="mb2">여분 필드 2</label></th>
+                        <td colspan="3"><input type="text" name="mb2" th:value="${member.mb2}" id="mb2" class="frm_input"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="mb3">여분 필드 3</label></th>
+                        <td colspan="3"><input type="text" name="mb3" th:value="${member.mb3}" id="mb3" class="frm_input"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="mb4">여분 필드 4</label></th>
+                        <td colspan="3"><input type="text" name="mb4" th:value="${member.mb4}" id="mb4" class="frm_input"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="mb5">여분 필드 5</label></th>
+                        <td colspan="3"><input type="text" name="mb5" th:value="${member.mb5}" id="mb5" class="frm_input"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="mb6">여분 필드 6</label></th>
+                        <td colspan="3"><input type="text" name="mb6" th:value="${member.mb6}" id="mb6" class="frm_input"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="mb7">여분 필드 7</label></th>
+                        <td colspan="3"><input type="text" name="mb7" th:value="${member.mb7}" id="mb7" class="frm_input"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="mb8">여분 필드 8</label></th>
+                        <td colspan="3"><input type="text" name="mb8" th:value="${member.mb8}" id="mb8" class="frm_input"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="mb9">여분 필드 9</label></th>
+                        <td colspan="3"><input type="text" name="mb9" th:value="${member.mb9}" id="mb9" class="frm_input"></td>
+                    </tr>
+                    <tr>
+                        <th scope="row"><label for="mb10">여분 필드 10</label></th>
+                        <td colspan="3"><input type="text" name="mb10" th:value="${member.mb10}" id="mb10" class="frm_input"></td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="btn_fixed_top">
+                <a th:href="@{/mgmt/member}" class="btn btn_02">목록</a>
+                <input type="submit" value="확인" class="btn_submit btn">
+            </div>
+        </form>
+    </section>
+</div>
+</body>
+</html>

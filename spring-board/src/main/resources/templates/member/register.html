@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+
+    <title>회원가입</title>
+    <link rel="stylesheet" th:href="@{/css/default.css}">
+    <link rel="stylesheet" th:href="@{/skin/member/basic/style.css}">
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div id="wrapper">
+    <div id="container_wr">
+        <div id="container">
+            <h1 id="container_title" th:text="${pageTitle} ?: (board != null ? board.boSubject : '게시판')">게시판</h1>
+
+<div class="register">
+    <form id="fregisterform" th:action="@{/register}" method="post" th:object="${form}">
+        <div th:if="${error}" th:text="${error}" class="error" style="color:red; margin: 10px 0;"></div>
+        <div th:if="${message}" th:text="${message}" class="message" style="color:green; margin: 10px 0;"></div>
+
+        <div id="register_form" class="form_01">
+            <div class="register_form_inner">
+                <h2>사이트 이용정보 입력</h2>
+                <ul>
+                    <li>
+                        <label for="reg_mb_id">아이디 (필수)</label>
+                        <input type="text" id="reg_mb_id" th:field="*{mbId}" required class="frm_input full_input" placeholder="아이디">
+                    </li>
+                    <li class="half_input left_input margin_input">
+                        <label for="reg_mb_password">비밀번호 (필수)</label>
+                        <input type="password" id="reg_mb_password" th:field="*{password}" required class="frm_input full_input" placeholder="비밀번호">
+                    </li>
+                    <li class="half_input left_input">
+                        <label for="reg_mb_password_re">비밀번호 확인 (필수)</label>
+                        <input type="password" id="reg_mb_password_re" th:field="*{passwordConfirm}" required class="frm_input full_input" placeholder="비밀번호 확인">
+                    </li>
+                </ul>
+            </div>
+
+            <div class="tbl_frm01 tbl_wrap register_form_inner">
+                <h2>개인정보 입력</h2>
+                <ul>
+                    <li>
+                        <label for="reg_mb_name">이름 (필수)</label>
+                        <input type="text" id="reg_mb_name" th:field="*{name}" required class="frm_input full_input" placeholder="이름">
+                    </li>
+                    <li>
+                        <label for="reg_mb_nick">닉네임 (필수)</label>
+                        <input type="text" id="reg_mb_nick" th:field="*{nick}" required class="frm_input full_input" placeholder="닉네임">
+                    </li>
+                    <li>
+                        <label for="reg_mb_email">E-mail (필수)</label>
+                        <input type="email" id="reg_mb_email" th:field="*{email}" required class="frm_input full_input" placeholder="이메일">
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="btn_confirm single" style="text-align:center; margin-top: 12px;">
+            <button type="submit" class="btn_submit">회원가입</button>
+        </div>
+    </form>
+</div>
+        </div>
+    </div>
+</div>
+    <div th:replace="~{fragments/nav :: nav_end}"></div>
+</body>
+</html>

@@ -1,5 +1,69 @@
 <?php
+// Helper to safely escape output to prevent XSS when inserting untrusted data into HTML
+if (!function_exists('safe_output')) {
+    function safe_output($s) {
+        if ($s === null) return '';
+        return htmlspecialchars((string)$s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    }
+}
+
+// --- Basic request guards to mitigate obvious SQLi payloads and boolean-based tampering ---
+if (!function_exists('g5_reject_if_suspect')) {
+    function g5_reject_if_suspect($val) {
+        if (!is_string($val)) return false;
+        // Common boolean/union/comment patterns used in SQLi attempts
+        $patterns = [
+            '/\bUNION\b/i',
+            '/\bSELECT\b/i',
+            '/\bUPDATE\b/i',
+            '/\bDELETE\b/i',
+            '/\bINSERT\b/i',
+            '/\bDROP\b/i',
+            '/--/',               // SQL line comment
+            '/\/\*/',            // SQL block comment start
+            '/\bor\b\s*\d+\s*=\s*\d+/i',
+            '/\band\b\s*\d+\s*=\s*\d+/i',
+        ];
+        foreach ($patterns as $re) {
+            if (preg_match($re, $val)) return true;
+        }
+        return false;
+    }
+}
+
+if (!function_exists('g5_guard_params_or_die')) {
+    function g5_guard_params_or_die(array $keys) {
+        foreach ($keys as $k) {
+            if (isset($_GET[$k]) && g5_reject_if_suspect($_GET[$k])) {
+                alert('잘못된 파라미터가 감지되었습니다.', G5_URL);
+            }
+            if (isset($_POST[$k]) && g5_reject_if_suspect($_POST[$k])) {
+                alert('잘못된 파라미터가 감지되었습니다.', G5_URL);
+            }
+        }
+    }
+}
 include_once('./_common.php');
+
+// Normalize & guard typical board parameters to reduce SQLi risk
+// Reject obvious boolean/union/comment based tampering early
+if (function_exists('g5_guard_params_or_die')) {
+    g5_guard_params_or_die(['bo_table','wr_id','wr_seo_title','page','sfl','stx','sca','sop','sst','sod']);
+}
+
+// Strong type casting for numeric params
+if (isset($wr_id))  { $wr_id  = (int)$wr_id; }
+if (isset($page))   { $page   = (int)$page; }
+
+// Allow-list bo_table (table key)
+if (isset($bo_table) && !preg_match('/^[A-Za-z0-9_]+$/', $bo_table)) {
+    alert('유효하지 않은 게시판 파라미터입니다.', G5_URL);
+}
+
+// Basic length limit for search text if present
+if (isset($_GET['stx'])) {
+    $_GET['stx'] = mb_substr((string)$_GET['stx'], 0, 200, 'UTF-8');
+}
 
 if (!$board['bo_table']) {
    alert('존재하지 않는 게시판입니다.', G5_URL);
@@ -16,7 +80,7 @@ if (!$bo_table) {
     alert($msg);
 }
 
-$g5['board_title'] = ((G5_IS_MOBILE && $board['bo_mobile_subject']) ? $board['bo_mobile_subject'] : $board['bo_subject']);
+$g5['board_title'] = ((G5_IS_MOBILE && $board['bo_mobile_subject']) ? safe_output($board['bo_mobile_subject']) : safe_output($board['bo_subject']));
 
 // wr_id 값이 있으면 글읽기
 if ((isset($wr_id) && $wr_id) || (isset($wr_seo_title) && $wr_seo_title)) {
@@ -128,13 +192,13 @@ if ((isset($wr_id) && $wr_id) || (isset($wr_seo_title) && $wr_seo_title)) {
             if ($config['cf_use_point'] && $board['bo_read_point'] && $member['mb_point'] + $board['bo_read_point'] < 0)
                 alert('보유하신 포인트('.number_format($member['mb_point']).')가 없거나 모자라서 글읽기('.number_format($board['bo_read_point']).')가 불가합니다.\\n\\n포인트를 모으신 후 다시 글읽기 해 주십시오.');
 
-            insert_point($member['mb_id'], $board['bo_read_point'], ((G5_IS_MOBILE && $board['bo_mobile_subject']) ? $board['bo_mobile_subject'] : $board['bo_subject']).' '.$wr_id.' 글읽기', $bo_table, $wr_id, '읽기');
+            insert_point($member['mb_id'], $board['bo_read_point'], ((G5_IS_MOBILE && $board['bo_mobile_subject']) ? safe_output($board['bo_mobile_subject']) : safe_output($board['bo_subject'])).' '.safe_output($wr_id).' 글읽기', safe_output($bo_table), safe_output($wr_id), '읽기');
         }
 
         set_session($ss_name, TRUE);
     }
 
-    $g5['title'] = strip_tags(conv_subject($write['wr_subject'], 255))." > ".$g5['board_title'];
+    $g5['title'] = safe_output(strip_tags(conv_subject($write['wr_subject'], 255))) . " > " . safe_output($g5['board_title']);
 } else {
     if ($member['mb_level'] < $board['bo_list_level']) {
         if ($member['mb_id'])
@@ -165,14 +229,14 @@ if ((isset($wr_id) && $wr_id) || (isset($wr_seo_title) && $wr_seo_title)) {
 
     if (!isset($page) || (isset($page) && $page == 0)) $page = 1;
 
-    $g5['title'] = $g5['board_title'].' '.$page.' 페이지';
+    $g5['title'] = safe_output($g5['board_title']) . ' ' . safe_output($page) . ' 페이지';
 }
 
 $is_auth = $is_admin ? true : false;
 
 include_once(G5_PATH.'/head.sub.php');
 
-$width = $board['bo_table_width'];
+$width = safe_output($board['bo_table_width']);
 if ($width <= 100)
     $width .= '%';
 else
@@ -184,12 +248,12 @@ $is_ip_view = $board['bo_use_ip_view'];
 if ($is_admin) {
     $is_ip_view = true;
     if ($write && array_key_exists('wr_ip', $write)) {
-        $ip = $write['wr_ip'];
+        $ip = safe_output($write['wr_ip']);
     }
 } else {
     // 관리자가 아니라면 IP 주소를 감춘후 보여줍니다.
     if (isset($write['wr_ip'])) {
-        $ip = preg_replace("/([0-9]+).([0-9]+).([0-9]+).([0-9]+)/", G5_IP_DISPLAY, $write['wr_ip']);
+        $ip = safe_output(preg_replace("/([0-9]+).([0-9]+).([0-9]+).([0-9]+)/", G5_IP_DISPLAY, $write['wr_ip']));
     }
 }
 
@@ -199,7 +263,7 @@ $category_name = '';
 if ($board['bo_use_category']) {
     $is_category = true;
     if (array_key_exists('ca_name', $write)) {
-        $category_name = $write['ca_name']; // 분류명
+        $category_name = safe_output($write['ca_name']); // 분류명
     }
 }
 
@@ -216,7 +280,7 @@ if ($board['bo_use_nogood'])
 $admin_href = "";
 // 최고관리자 또는 그룹관리자라면
 if ($member['mb_id'] && ($is_admin === 'super' || $group['gr_admin'] === $member['mb_id']))
-    $admin_href = G5_ADMIN_URL.'/board_form.php?w=u&amp;bo_table='.$bo_table;
+    $admin_href = G5_ADMIN_URL.'/board_form.php?w=u&amp;bo_table='.safe_output($bo_table);
 
 include_once(G5_BBS_PATH.'/board_head.php');
 
@@ -232,6 +296,6 @@ if ($member['mb_level'] >= $board['bo_list_level'] && $board['bo_use_list_view']
 
 include_once(G5_BBS_PATH.'/board_tail.php');
 
-echo "\n<!-- 사용스킨 : ".(G5_IS_MOBILE ? $board['bo_mobile_skin'] : $board['bo_skin'])." -->\n";
+echo "\n<!-- 사용스킨 : ".safe_output(G5_IS_MOBILE ? $board['bo_mobile_skin'] : $board['bo_skin'])." -->\n";
 
 include_once(G5_PATH.'/tail.sub.php');

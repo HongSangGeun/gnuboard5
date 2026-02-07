@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html th:fragment="layout (content)" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <title>관리자</title>
+    <link rel="stylesheet" th:href="@{/adm/css/mgmt.css}">
+    <script th:src="@{/js/jquery-1.12.4.min.js}"></script>
+    <script th:src="@{/js/jquery-migrate-1.4.1.min.js}"></script>
+    <script th:inline="javascript">
+        window.APP_CSRF_TOKEN = /*[[${csrfToken}]]*/ "";
+    </script>
+    <script th:src="@{/js/csrf.js}"></script>
+    <script th:src="@{/js/common.js}"></script>
+    <script th:src="@{/js/wrest.js}"></script>
+    <script th:src="@{/adm/js/mgmt.js}"></script>
+    <script>
+        var g5_is_admin = "super"; // Hardcoded for now
+    </script>
+</head>
+
+<body>
+    <header id="hd">
+        <h1>환경설정</h1>
+        <div id="hd_top">
+            <button type="button" id="btn_gnb" class="btn_gnb_close">메뉴</button>
+            <div id="logo"><a th:href="@{/mgmt/config}"><img th:src="@{/adm/img/logo.png}" alt="관리자"></a></div>
+            <div id="tnb">
+                <ul>
+                    <li class="tnb_li"><a th:href="@{/}" class="tnb_community" target="_blank" title="커뮤니티 바로가기">커뮤니티 바로가기</a>
+                    </li>
+                    <li class="tnb_li"><a th:href="@{/logout}" class="tnb_service">로그아웃</a></li>
+                </ul>
+            </div>
+        </div>
+        <nav id="gnb" class="gnb_large">
+            <h2>관리자 주메뉴</h2>
+            <ul class="gnb_ul">
+                <!-- Iterate over menu groups -->
+                <li class="gnb_li" th:each="entry, stat : ${adminMenus}"
+                    th:classappend="${subMenu != null && entry.value[0].code.startsWith(#strings.substring(subMenu, 0, 3)) ? 'on' : ''}">
+
+                    <!-- Group Header Button (Item 0) -->
+                    <button type="button" class="btn_op"
+                        th:classappend="'menu-' + ${entry.key.replace('menu', '')} + ' menu-order-' + ${stat.count}"
+                        th:text="${entry.value[0].name}" th:title="${entry.value[0].name}">
+                        환경설정
+                    </button>
+
+                    <div class="gnb_oparea_wr">
+                        <div class="gnb_oparea">
+                            <h3 th:text="${entry.value[0].name}">환경설정</h3>
+                            <ul>
+                                <!-- Sub Menus (Iterate from Item 1) -->
+                                <li th:each="menuItem, itemStat : ${entry.value}" th:if="${itemStat.index > 0}"
+                                    th:data-menu="${menuItem.code}">
+
+                                    <a th:href="@{${menuItem.url}}" class="gnb_2da gnb_grp_style gnb_grp_div"
+                                        th:classappend="${menuItem.code == subMenu ? 'on' : ''}"
+                                        th:text="${menuItem.name}">
+                                        기본환경설정
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </nav>
+    </header>
+
+    <div id="wrapper">
+        <div id="container">
+            <div class="container_wr" th:replace="${content}">
+            </div>
+        </div>
+    </div>
+
+    <script>
+        jQuery(function ($) {
+            $(".gnb_ul li .btn_op").click(function () {
+                $(this).parent().addClass("on").siblings().removeClass("on");
+            });
+        });
+    </script>
+
+</body>
+
+</html>

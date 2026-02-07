@@ -2,7 +2,16 @@
 include_once('./_common.php');
 
 $g5['title'] = '새글';
+
 include_once('./_head.php');
+
+// Helper to safely escape output inserted into templates to prevent template injection / XSS
+if (!function_exists('safe_output')) {
+    function safe_output($s) {
+        if ($s === null) return '';
+        return htmlspecialchars((string)$s, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    }
+}
 
 $sql_common = " from {$g5['board_new_table']} a, {$g5['board_table']} b, {$g5['group_table']} c where a.bo_table = b.bo_table and b.gr_id = c.gr_id and b.bo_use_search = 1 ";
 
@@ -104,8 +113,25 @@ for ($i=0; $row=sql_fetch_array($result); $i++) {
     $list[$i]['datetime2'] = $datetime2;
 
     $list[$i]['gr_subject'] = $row['gr_subject'];
+
     $list[$i]['bo_subject'] = ((G5_IS_MOBILE && $row['bo_mobile_subject']) ? $row['bo_mobile_subject'] : $row['bo_subject']);
     $list[$i]['wr_subject'] = $row2['wr_subject'];
+}
+
+// Sanitize user-provided fields before passing into templates to avoid template engine evaluation of untrusted input
+if (!empty($list) && is_array($list)) {
+    foreach ($list as $idx => $item) {
+        // Only sanitize scalar fields; leave generated HTML (like sideview links) as-is
+        if (isset($item['wr_subject'])) $list[$idx]['wr_subject'] = safe_output($item['wr_subject']);
+        if (isset($item['wr_name']))    $list[$idx]['wr_name']    = safe_output($item['wr_name']);
+        if (isset($item['wr_email']))   $list[$idx]['wr_email']   = safe_output($item['wr_email']);
+        if (isset($item['wr_homepage']))$list[$idx]['wr_homepage']= safe_output($item['wr_homepage']);
+        if (isset($item['gr_subject'])) $list[$idx]['gr_subject'] = safe_output($item['gr_subject']);
+        if (isset($item['bo_subject'])) $list[$idx]['bo_subject'] = safe_output($item['bo_subject']);
+        if (isset($item['comment']))    $list[$idx]['comment']    = safe_output($item['comment']);
+        // href is a generated URL; escape it for safe output in attributes
+        if (isset($item['href']))      $list[$idx]['href']       = htmlspecialchars($item['href'], ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8');
+    }
 }
 
 $write_pages = get_paging(G5_IS_MOBILE ? $config['cf_mobile_pages'] : $config['cf_write_pages'], $page, $total_page, "?gr_id=$gr_id&amp;view=$view&amp;mb_id=$mb_id&amp;page=");

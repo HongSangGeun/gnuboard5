@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>게시판 이동</title>
+</head>
+
+<body>
+
+    <div layout:fragment="content">
+
+        <div th:if="${error}" th:text="${error}" class="local_desc01 local_desc" style="color: red;"></div>
+
+        <form th:action="@{'/mgmt/board/' + ${boTable} + '/move'}" method="post" class="tbl_frm01 tbl_wrap">
+            <table>
+                <caption>게시판 이동</caption>
+                <tbody>
+                <tr>
+                    <th scope="row">현재 테이블</th>
+                    <td><input type="text" name="sourceBoTable" th:value="${boTable}" readonly class="frm_input"></td>
+                </tr>
+                <tr>
+                    <th scope="row">새 테이블</th>
+                    <td><input type="text" name="targetBoTable" required class="frm_input"></td>
+                </tr>
+                </tbody>
+            </table>
+            <div class="btn_fixed_top">
+                <button type="submit" class="btn btn_01">이동</button>
+                <a th:href="@{/mgmt/board}" class="btn btn_02">목록</a>
+            </div>
+        </form>
+
+    </div>
+</body>
+</html>

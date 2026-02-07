@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/css/default.css}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+
+    <title th:text="${board.boSubject} + ' - 목록'"></title>
+    <link rel="stylesheet" th:href="@{/skin/board/schedule/wzappend.css}">
+    <link rel="stylesheet" th:href="@{/skin/board/schedule/style.css}">
+    <link rel="stylesheet" th:href="@{/skin/board/schedule/wz.js/fullcalendar.css}">
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div id="wrapper">
+    <div id="container_wr">
+        <div id="container">
+            <h1 id="container_title" th:text="${pageTitle} ?: (board != null ? board.boSubject : '게시판')">게시판</h1>
+
+<div id="calendar" style="margin: 16px 0;"></div>
+
+<div class="calendar-legend" th:if="${board.boUseCategory == 1}">
+    <div class="legend-left">
+        <span class="legend-item" data-category="" style="background:#999;"></span> 전체
+        <span th:each="cat : ${#strings.arraySplit(board.boCategoryList, '|')}"
+              class="legend-item"
+              th:attr="data-category=${cat}"
+              th:text="${cat}">분류</span>
+    </div>
+    <div class="legend-right">
+        <a th:if="${(loginUser != null && loginUser.level >= board.boWriteLevel) || (loginUser == null && board.boWriteLevel <= 1)}"
+           th:href="@{'/bbs/' + ${boTable} + '/write'}" class="btn-add-event">+ 일정 등록하기</a>
+    </div>
+</div>
+
+<script th:src="@{/skin/board/schedule/wz.js/jquery.min.js}"></script>
+<script th:src="@{/skin/board/schedule/wz.js/fullcalendar.js}"></script>
+<script th:src="@{/skin/board/schedule/wz.js/ko.js}"></script>
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        if (!window.jQuery || !jQuery.fn.fullCalendar) {
+            return;
+        }
+        var boTable = /*[[${boTable}]]*/ '';
+        var appBase = /*[[@{/}]]*/ '/';
+        appBase = appBase.replace(/\/?$/, '/');
+        var categories = /*[[${board.boUseCategory == 1 ? #strings.arraySplit(board.boCategoryList, '|') : null}]]*/ null;
+        var palette = ['#FF6B6B', '#4ECDC4', '#4A90E2', '#A29BFE', '#FEFB9B', '#7C7C7C', '#1d69b5'];
+        var categoryColors = {};
+        if (categories) {
+            categories.forEach(function (cat, idx) {
+                categoryColors[cat] = palette[idx % palette.length];
+            });
+        }
+        var currentCategory = null;
+
+        function colorFor(cat) {
+            return (cat && categoryColors[cat]) ? categoryColors[cat] : '#3788d8';
+        }
+
+        var $calendar = jQuery('#calendar');
+        $calendar.fullCalendar({
+            locale: 'ko',
+            height: 600,
+            header: { left: 'prev,next today', center: 'title', right: 'month,agendaWeek,agendaDay' },
+            events: appBase + 'bbs/' + boTable + '/events',
+            dayClick: function (date) {
+                var ymd = date.format('YYYY-MM-DD');
+                window.location.href = appBase + 'bbs/' + boTable + '/write?wr_1=' + ymd + '&wr_2=' + ymd + '&allday=1';
+            },
+            eventClick: function (event) {
+                if (event.url) {
+                    window.location.href = event.url;
+                    return false;
+                }
+                return true;
+            },
+            eventRender: function (event, element) {
+                if (currentCategory && event.category !== currentCategory) {
+                    return false;
+                }
+                var color = event.color || colorFor(event.category);
+                element.css('background-color', color);
+                element.css('border-color', color);
+                if (event.commentCount && event.commentCount > 0) {
+                    element.find('.fc-title').append(' <span class="cnt_cmt">' + event.commentCount + '</span>');
+                }
+                return true;
+            }
+        });
+
+        var legendItems = document.querySelectorAll('.calendar-legend .legend-item');
+        if (legendItems.length) {
+            legendItems.forEach(function (el) {
+                var cat = el.getAttribute('data-category');
+                if (cat) {
+                    el.style.background = colorFor(cat);
+                    if (colorFor(cat) === '#FEFB9B') {
+                        el.style.color = '#000';
+                    }
+                }
+                el.addEventListener('click', function () {
+                    currentCategory = cat || null;
+                    $calendar.fullCalendar('refetchEvents');
+                });
+            });
+        }
+    });
+</script>
+
+<div id="bo_list">
+    <div id="bo_btn_top">
+        <div id="bo_list_total">
+            <span th:text="|Total ${result.totalCount}건|">Total 0건</span>
+            <span th:text="${result.page} + ' 페이지'">1 페이지</span>
+        </div>
+        <ul class="btn_bo_user">
+            <li th:if="${(loginUser != null && loginUser.level >= board.boWriteLevel) || (loginUser == null && board.boWriteLevel <= 1)}">
+                <a th:href="@{'/bbs/' + ${boTable} + '/write'}" class="btn_b01 btn" title="글쓰기">글쓰기</a>
+            </li>
+        </ul>
+    </div>
+
+    <form method="get" th:action="@{'/bbs/' + ${boTable} + '/list'}" style="margin: 12px 0;">
+        <input type="hidden" name="page" value="1" />
+        <input type="hidden" name="size" th:value="${result.size}" />
+        <span th:if="${board.boUseCategory == 1}">
+            <select name="sca">
+                <option value="">전체 분류</option>
+                <option th:each="cat : ${#strings.arraySplit(board.boCategoryList, '|')}"
+                        th:value="${cat}"
+                        th:selected="${sca == cat}"
+                        th:text="${cat}">분류</option>
+            </select>
+        </span>
+        <select name="sfl">
+            <option value="wr_subject" th:selected="${sfl == 'wr_subject'}">제목</option>
+            <option value="wr_content" th:selected="${sfl == 'wr_content'}">내용</option>
+            <option value="wr_subject||wr_content" th:selected="${sfl == 'wr_subject||wr_content'}">제목+내용</option>
+            <option th:if="${loginUser != null && loginUser.level >= 10}" value="mb_id,1" th:selected="${sfl == 'mb_id,1'}">회원아이디</option>
+            <option th:if="${loginUser != null && loginUser.level >= 10}" value="mb_id,0" th:selected="${sfl == 'mb_id,0'}">회원아이디(코)</option>
+            <option value="wr_name,1" th:selected="${sfl == 'wr_name,1'}">글쓴이</option>
+            <option value="wr_name,0" th:selected="${sfl == 'wr_name,0'}">글쓴이(코)</option>
+        </select>
+        <input type="text" name="stx" th:value="${stx}" placeholder="검색어" />
+        <input type="date" name="sdate" th:value="${sdate}" />
+        <input type="date" name="edate" th:value="${edate}" />
+        <input type="hidden" name="sop" th:value="${sop}" />
+        <button type="submit">검색</button>
+    </form>
+
+    <div th:if="${error}" th:text="${error}" style="color: red; margin: 8px 0;"></div>
+    <div th:if="${message}" th:text="${message}" style="color: green; margin: 8px 0;"></div>
+
+    <div class="tbl_head01 tbl_wrap">
+        <table>
+            <caption th:text="${board.boSubject} + ' 목록'">목록</caption>
+            <thead>
+            <tr>
+                <th scope="col">번호</th>
+                <th scope="col">제목</th>
+                <th scope="col">글쓴이</th>
+                <th scope="col">
+                    <a th:href="@{'/bbs/' + ${boTable} + '/list'(page=1, size=${result.size}, sca=${sca}, sfl=${sfl}, stx=${stx}, sop=${sop}, sdate=${sdate}, edate=${edate}, sst='wr_hit', sod=${sod == 'asc' ? 'desc' : 'asc'})}">조회</a>
+                </th>
+                <th scope="col">
+                    <a th:href="@{'/bbs/' + ${boTable} + '/list'(page=1, size=${result.size}, sca=${sca}, sfl=${sfl}, stx=${stx}, sop=${sop}, sdate=${sdate}, edate=${edate}, sst='wr_datetime', sod=${sod == 'asc' ? 'desc' : 'asc'})}">날짜</a>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="post : ${result.items}">
+                <td class="td_num2" th:text="${post.wrId}">1</td>
+                <td class="td_subject">
+                    <div class="bo_tit">
+                        <a th:href="@{'/bbs/' + ${boTable} + '/view/' + ${post.wrId}}"
+                           th:text="${post.wrSubject}">제목</a>
+                        <span th:if="${post.wrComment > 0}" class="cnt_cmt" th:text="${post.wrComment}">0</span>
+                    </div>
+                </td>
+                <td class="td_name" th:text="${post.wrName}">작성자</td>
+                <td class="td_num" th:text="${post.wrHit}">0</td>
+                <td class="td_datetime" th:text="${post.wrDatetime}">작성일</td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(result.items)}">
+                <td colspan="5" class="empty_table">게시물이 없습니다.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div class="pagination" style="margin-top: 12px;">
+        <a th:if="${result.page > 1}"
+           th:href="@{'/bbs/' + ${boTable} + '/list'(page=${result.page - 1}, size=${result.size}, sca=${sca}, sfl=${sfl}, stx=${stx}, sop=${sop}, sdate=${sdate}, edate=${edate}, sst=${sst}, sod=${sod})}">이전</a>
+        <span th:text="|${result.page} / ${result.totalPages}|">1 / 1</span>
+        <a th:if="${result.page < result.totalPages}"
+           th:href="@{'/bbs/' + ${boTable} + '/list'(page=${result.page + 1}, size=${result.size}, sca=${sca}, sfl=${sfl}, stx=${stx}, sop=${sop}, sdate=${sdate}, edate=${edate}, sst=${sst}, sod=${sod})}">다음</a>
+    </div>
+</div>
+        </div>
+    </div>
+</div>
+    <div th:replace="~{fragments/nav :: nav_end}"></div>
+</body>
+</html>

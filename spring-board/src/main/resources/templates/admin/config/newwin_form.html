@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>팝업레이어 관리</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <section>
+            <h2 class="h2_frm">팝업레이어 관리</h2>
+            <form th:action="@{/mgmt/config/newwin/save}" method="post" class="local_tbl">
+                <input type="hidden" name="nwId" th:value="${newWin.nwId}">
+
+                <div class="tbl_frm01 tbl_wrap">
+                    <table>
+                        <caption>팝업레이어 관리</caption>
+                        <colgroup>
+                            <col class="grid_4">
+                            <col>
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th scope="row"><label for="nwDivision">출력방법</label></th>
+                                <td>
+                                    <select name="nwDivision" id="nwDivision">
+                                        <option value="both" th:selected="${newWin.nwDivision == 'both'}">아이디/비아이디 모두
+                                        </option>
+                                        <option value="member" th:selected="${newWin.nwDivision == 'member'}">아이디만
+                                        </option>
+                                        <option value="nonmember" th:selected="${newWin.nwDivision == 'nonmember'}">
+                                            비아이디만</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="nwDevice">접속기기</label></th>
+                                <td>
+                                    <select name="nwDevice" id="nwDevice">
+                                        <option value="both" th:selected="${newWin.nwDevice == 'both'}">PC와 모바일</option>
+                                        <option value="pc" th:selected="${newWin.nwDevice == 'pc'}">PC</option>
+                                        <option value="mobile" th:selected="${newWin.nwDevice == 'mobile'}">모바일</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="nwBeginTime">시작일시</label></th>
+                                <td>
+                                    <input type="datetime-local" name="nwBeginTime" th:value="${newWin.nwBeginTime}"
+                                        id="nwBeginTime" class="frm_input">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="nwEndTime">종료일시</label></th>
+                                <td>
+                                    <input type="datetime-local" name="nwEndTime" th:value="${newWin.nwEndTime}"
+                                        id="nwEndTime" class="frm_input">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="nwDisableHours">팝업해제 시간</label></th>
+                                <td>
+                                    <input type="text" name="nwDisableHours" th:value="${newWin.nwDisableHours}"
+                                        id="nwDisableHours" class="frm_input" size="5"> 시간 (기본 24시간)
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="nwLeft">팝업 위치/크기</label></th>
+                                <td>
+                                    Left : <input type="text" name="nwLeft" th:value="${newWin.nwLeft}" size="5"
+                                        class="frm_input"> px,
+                                    Top : <input type="text" name="nwTop" th:value="${newWin.nwTop}" size="5"
+                                        class="frm_input"> px,
+                                    Width : <input type="text" name="nwWidth" th:value="${newWin.nwWidth}" size="5"
+                                        class="frm_input"> px,
+                                    Height : <input type="text" name="nwHeight" th:value="${newWin.nwHeight}" size="5"
+                                        class="frm_input"> px
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="nwSubject">제목</label></th>
+                                <td>
+                                    <input type="text" name="nwSubject" th:value="${newWin.nwSubject}" id="nwSubject"
+                                        required class="required frm_input" size="80">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="nwContent">내용</label></th>
+                                <td>
+                                    <textarea name="nwContent" id="nwContent" rows="10" class="frm_input"
+                                        style="width:100%;" th:text="${newWin.nwContent}"></textarea>
+                                    <input type="checkbox" name="nwContentHtml" value="1"
+                                        th:checked="${newWin.nwContentHtml == 1}"> HTML 사용
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="btn_confirm01 btn_confirm">
+                    <input type="submit" value="확인" class="btn_submit btn">
+                    <a th:href="@{/mgmt/config/newwin}" class="btn btn_02">목록</a>
+                </div>
+            </form>
+        </section>
+    </div>
+</body>
+
+</html>

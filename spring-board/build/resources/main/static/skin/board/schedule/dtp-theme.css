@@ -1,0 +1,238 @@
+/* ===== Datetimepicker Modern Theme (scoped) ===== */
+.dtp-theme {
+  --dtp-accent: #4ECDC4;       /* 포커스/선택 색상 */
+  --dtp-accent-contrast: #072b2b;
+  --dtp-bg: #ffffff;
+  --dtp-surface: #f7f9fb;
+  --dtp-text: #1f2937;
+  --dtp-muted: #9aa5b1;
+  --dtp-border: #e4e7eb;
+  --dtp-shadow: 0 10px 30px rgba(0,0,0,.12);
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Apple SD Gothic Neo","Noto Sans KR", Arial, sans-serif;
+}
+
+.ui-datepicker,
+.ui-timepicker-div {
+  font-family: "Noto Sans KR", Arial, sans-serif;
+  font-size: 14px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 8px;
+  z-index: 9999 !important;
+}
+
+.ui-datepicker .ui-datepicker-header {
+  background: #4a90e2;
+  color: #fff;
+  border: none;
+  border-radius: 6px 6px 0 0;
+  padding: 6px 0;
+}
+
+.ui-datepicker td a {
+  border-radius: 4px;
+  padding: 6px;
+}
+
+.ui-datepicker td a:hover {
+  background: #e6f2ff;
+  color: #007bff;
+}
+
+/* input 스타일 (달력 아이콘 포함) */
+.dtp-theme input[type="text"].frm_input {
+  width: 100%;
+  max-width: 280px;
+  padding: 10px 12px 10px 40px;
+  border: 1px solid var(--dtp-border);
+  border-radius: 10px;
+  background: var(--dtp-bg)
+    url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Crect x='3' y='5' width='18' height='16' rx='3' stroke='%239AA5B1' stroke-width='1.5'/%3E%3Cpath d='M8 3v4M16 3v4M3 11h18' stroke='%239AA5B1' stroke-width='1.5'/%3E%3C/svg%3E")
+    no-repeat 12px center/18px;
+  color: var(--dtp-text);
+  transition: border .2s ease, box-shadow .2s ease;
+}
+.dtp-theme input[type="text"].frm_input:focus {
+  outline: none;
+  border-color: var(--dtp-accent);
+  box-shadow: 0 0 0 4px color-mix(in srgb, var(--dtp-accent) 20%, transparent);
+}
+
+/* jQuery UI 위젯 공통 */
+.dtp-theme .ui-widget {
+  font-family: inherit;
+  color: var(--dtp-text);
+}
+.dtp-theme .ui-widget.ui-widget-content {
+  border: 0;
+  background: var(--dtp-bg);
+  border-radius: 14px;
+  box-shadow: var(--dtp-shadow);
+  overflow: hidden;
+}
+
+/* 헤더(월/네비) */
+.dtp-theme .ui-datepicker .ui-datepicker-header {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--dtp-accent) 86%, #fff 0%), var(--dtp-accent));
+  color: white;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, #000 10%, transparent);
+  padding: 10px 12px;
+}
+.dtp-theme .ui-datepicker .ui-datepicker-title {
+  font-weight: 700;
+  letter-spacing: .3px;
+}
+.dtp-theme .ui-datepicker .ui-datepicker-prev,
+.dtp-theme .ui-datepicker .ui-datepicker-next {
+  top: 50%;
+  transform: translateY(-50%);
+  border: 0;
+  background: transparent;
+}
+.dtp-theme .ui-datepicker .ui-datepicker-prev:hover,
+.dtp-theme .ui-datepicker .ui-datepicker-next:hover {
+  filter: brightness(0.92);
+}
+
+/* 달력 본문 */
+.dtp-theme .ui-datepicker table {
+  margin: 0;
+  width: 100%;
+  background: var(--dtp-bg);
+}
+.dtp-theme .ui-datepicker thead th {
+  padding: 8px 0;
+  color: var(--dtp-muted);
+  font-weight: 600;
+}
+.dtp-theme .ui-datepicker tbody td {
+  border: 0;
+}
+.dtp-theme .ui-datepicker .ui-state-default {
+  border: 0;
+  background: transparent;
+  color: var(--dtp-text);
+  border-radius: 10px;
+  padding: 8px 0;
+  text-align: center;
+  transition: background .15s ease, color .15s ease, transform .05s ease;
+}
+.dtp-theme .ui-datepicker .ui-state-default:hover {
+  background: var(--dtp-surface);
+}
+.dtp-theme .ui-datepicker .ui-state-active,
+.dtp-theme .ui-datepicker .ui-state-active:hover {
+  background: var(--dtp-accent);
+  color: var(--dtp-accent-contrast);
+  transform: scale(1.03);
+}
+.dtp-theme .ui-datepicker .ui-state-highlight { /* 오늘 */
+  box-shadow: inset 0 0 0 2px var(--dtp-accent);
+  border-radius: 10px;
+}
+
+/* 비활성/다른달 */
+.dtp-theme .ui-datepicker-unselectable .ui-state-default,
+.dtp-theme .ui-datepicker-other-month .ui-state-default {
+  color: var(--dtp-muted);
+  opacity: .6;
+}
+
+/* 버튼 패널 */
+.dtp-theme .ui-datepicker .ui-datepicker-buttonpane {
+  background: var(--dtp-surface);
+  border-top: 1px solid var(--dtp-border);
+  padding: 10px;
+}
+.dtp-theme .ui-datepicker .ui-datepicker-buttonpane button {
+  border: 0;
+  background: var(--dtp-accent);
+  color: var(--dtp-accent-contrast);
+  border-radius: 9px;
+  padding: 8px 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.dtp-theme .ui-datepicker .ui-datepicker-buttonpane button.ui-datepicker-current {
+  background: #e7edf3;
+  color: var(--dtp-text);
+}
+
+/* Timepicker 영역 */
+.dtp-theme .ui-timepicker-div {
+  padding: 12px 14px;
+  background: var(--dtp-bg);
+}
+.dtp-theme .ui-timepicker-div .ui-widget-header {
+  background: transparent;
+  border: 0;
+  color: var(--dtp-muted);
+  font-weight: 700;
+  padding: 0 0 6px;
+}
+.dtp-theme .ui-timepicker-div dl {
+  display: grid;
+  grid-template-columns: 90px 1fr;
+  row-gap: 8px;
+  column-gap: 14px;
+  align-items: center;
+}
+.dtp-theme .ui-timepicker-div dt {
+  color: var(--dtp-muted);
+  font-weight: 600;
+}
+.dtp-theme .ui-timepicker-div dd {
+  margin: 0;
+}
+.dtp-theme .ui-timepicker-div select {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid var(--dtp-border);
+  padding: 8px 10px;
+  background: var(--dtp-surface);
+}
+.dtp-theme .ui_tpicker_time_input {
+  border: 1px solid var(--dtp-border) !important;
+  border-radius: 10px;
+  padding: 8px 10px !important;
+  background: var(--dtp-surface) !important;
+}
+
+/* disabled 처리 느낌 */
+.dtp-theme .disabled,
+.dtp-theme input[disabled],
+.dtp-theme select[disabled] {
+  opacity: .55;
+  cursor: not-allowed;
+}
+
+/* 컴팩트 높이 개선 (모바일) */
+@media (max-width: 480px) {
+  .dtp-theme .ui-widget.ui-widget-content { border-radius: 12px; }
+  .dtp-theme .ui-timepicker-div dl {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* 다크 모드 */
+@media (prefers-color-scheme: dark) {
+  .dtp-theme {
+    --dtp-bg: #0f141a;
+    --dtp-surface: #151c23;
+    --dtp-text: #e5e7eb;
+    --dtp-muted: #9aa5b1;
+    --dtp-border: #28303a;
+    --dtp-shadow: 0 10px 30px rgba(0,0,0,.5);
+    --dtp-accent-contrast: #061514;
+  }
+  .dtp-theme input[type="text"].frm_input {
+    background-color: var(--dtp-surface);
+    border-color: var(--dtp-border);
+  }
+  .dtp-theme .ui-datepicker .ui-state-default:hover {
+    background: color-mix(in srgb, var(--dtp-accent) 12%, transparent);
+  }
+}

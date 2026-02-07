@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>게시판그룹 설정</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <section>
+            <h2 class="h2_frm" th:text="${pageTitle}">게시판그룹 설정</h2>
+            <div th:if="${error}" class="local_desc01 local_desc" style="color: #d33;" th:text="${error}">오류</div>
+            <div th:if="${message}" class="local_desc01 local_desc" style="color: #2a6f2a;" th:text="${message}">완료</div>
+
+            <form th:action="@{/mgmt/boardgroup/save}" method="post" class="local_tbl">
+                <input type="hidden" name="w" th:value="${group.grId != null ? 'u' : ''}">
+
+                <div class="tbl_frm01 tbl_wrap">
+                    <table>
+                        <caption>게시판그룹 입력</caption>
+                        <colgroup>
+                            <col class="grid_4">
+                            <col>
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th scope="row"><label for="grId">그룹 ID</label></th>
+                                <td>
+                                    <input type="text" name="grId" th:value="${group.grId}" id="grId"
+                                        th:readonly="${group.grId != null}" class="frm_input"
+                                        th:classappend="${group.grId == null} ? 'required' : ''" required
+                                        maxlength="10">
+                                    <span th:if="${group.grId == null}">영문자, 숫자, _ 만 가능 (공백없이)</span>
+                                    <a th:if="${group.grId != null}" th:href="@{/group(grId=${group.grId})}" class="btn_frmline" target="_blank">게시판그룹 바로가기</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="grSubject">그룹 제목</label></th>
+                                <td>
+                                    <input type="text" name="grSubject" th:value="${group.grSubject}" id="grSubject"
+                                        class="frm_input required" required size="80">
+                                    <a th:if="${group.grId != null}" th:href="@{/mgmt/board/new(grId=${group.grId})}" class="btn_frmline">게시판생성</a>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="grDevice">접속기기</label></th>
+                                <td>
+                                    <select id="grDevice" name="grDevice">
+                                        <option value="both" th:selected="${group.grDevice == 'both'}">PC와 모바일에서 모두 사용
+                                        </option>
+                                        <option value="pc" th:selected="${group.grDevice == 'pc'}">PC 전용</option>
+                                        <option value="mobile" th:selected="${group.grDevice == 'mobile'}">모바일 전용
+                                        </option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="grAdmin">그룹 관리자</label></th>
+                                <td>
+                                    <select name="grAdmin" id="grAdmin" class="frm_input">
+                                        <option value="">선택안함</option>
+                                        <option th:each="member : ${adminMemberOptions}"
+                                                th:value="${member.mbId}"
+                                                th:selected="${group.grAdmin == member.mbId}"
+                                                th:text="${member.mbId + ' (' + (#strings.isEmpty(member.mbNick) ? member.mbName : member.mbNick) + ')'}">
+                                            admin (관리자)
+                                        </option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="grUseAccess">접근회원사용</label></th>
+                                <td>
+                                    <input type="checkbox" name="grUseAccess" value="1" id="grUseAccess"
+                                        th:checked="${group.grUseAccess == 1}">
+                                    <label for="grUseAccess">사용</label>
+                                    <span class="frm_info">사용에 체크하시면 이 그룹에 속한 게시판은 접근가능한 회원만 접근이 가능합니다.</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">접근회원수</th>
+                                <td>
+                                    <span th:text="${groupMemberCount}">0</span>
+                                    <span class="frm_info" th:if="${group.grId == null}">그룹 생성 후 집계됩니다.</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">게시판수</th>
+                                <td>
+                                    <span th:text="${boardCount}">0</span>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="grOrder">출력순서</label></th>
+                                <td>
+                                    <input type="text" name="grOrder" th:value="${group.grOrder}" id="grOrder"
+                                        class="frm_input" size="5">
+                                </td>
+                            </tr>
+                            <!-- Extra fields loop or manual -->
+                            <th:block th:each="i : ${#numbers.sequence(1, 10)}">
+                                <tr>
+                                    <th scope="row">여분필드 [[${i}]]</th>
+                                    <td class="td_extra">
+                                        <label th:for="${'gr' + i + 'Subj'}">제목</label>
+                                        <input type="text" th:name="${'gr' + i + 'Subj'}"
+                                            th:value="${group['gr' + i + 'Subj']}" th:id="${'gr' + i + 'Subj'}"
+                                            class="frm_input">
+                                        <label th:for="${'gr' + i}">내용</label>
+                                        <input type="text" th:name="${'gr' + i}" th:value="${group['gr' + i]}"
+                                            th:id="${'gr' + i}" class="frm_input">
+                                    </td>
+                                </tr>
+                            </th:block>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="btn_confirm01 btn_confirm">
+                    <input type="submit" value="확인" class="btn_submit btn">
+                    <a th:href="@{/mgmt/boardgroup}" class="btn btn_02">목록</a>
+                </div>
+            </form>
+            <div class="local_desc01 local_desc">
+                <p>
+                    게시판을 생성하시려면 1개 이상의 게시판그룹이 필요합니다.<br>
+                    게시판그룹을 이용하시면 더 효과적으로 게시판을 관리할 수 있습니다.
+                </p>
+            </div>
+        </section>
+    </div>
+</body>
+
+</html>

@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>캡챠파일 일괄삭제</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <section>
+            <h2 class="h2_frm">캡챠파일 일괄삭제</h2>
+
+            <div th:if="${message}" class="alert alert-success">
+                <p th:text="${message}"></p>
+            </div>
+
+            <div class="local_desc01 local_desc">
+                <p>
+                    data/session 디렉토리의 캡챠 생성 파일들을 삭제합니다.<br>
+                </p>
+            </div>
+
+            <form th:action="@{/mgmt/config/captcha/delete}" method="post" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                <div class="btn_confirm01 btn_confirm">
+                    <input type="submit" value="확인" class="btn_submit btn">
+                </div>
+            </form>
+        </section>
+    </div>
+</body>
+
+</html>

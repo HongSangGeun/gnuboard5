@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>게시판그룹설정</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <div class="local_ov01 local_ov">
+            <span class="btn_ov01"><span class="ov_txt">전체그룹</span><span class="ov_num"
+                    th:text="${totalCount} + '개'">0개</span></span>
+        </div>
+
+        <form id="fsearch" name="fsearch" class="local_sch01 local_sch" method="get">
+            <label for="sfl" class="sound_only">검색대상</label>
+            <select name="sfl" id="sfl">
+                <option value="gr_subject" th:selected="${crit.sfl == 'gr_subject'}">제목</option>
+                <option value="gr_id" th:selected="${crit.sfl == 'gr_id'}">ID</option>
+                <option value="gr_admin" th:selected="${crit.sfl == 'gr_admin'}">그룹관리자</option>
+            </select>
+            <label for="stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
+            <input type="text" name="stx" th:value="${crit.stx}" id="stx" required class="required frm_input">
+            <input type="submit" class="btn_submit" value="검색">
+        </form>
+
+        <div class="btn_fixed_top">
+            <a th:href="@{/mgmt/boardgroup/form}" class="btn btn_01">게시판그룹 추가</a>
+        </div>
+
+        <div class="tbl_head01 tbl_wrap">
+            <table>
+                <caption>게시판그룹 목록</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">그룹아이디</th>
+                        <th scope="col">제목</th>
+                        <th scope="col">그룹관리자</th>
+                        <th scope="col">접근사용</th>
+                        <th scope="col">출력순서</th>
+                        <th scope="col">접속기기</th>
+                        <th scope="col">관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <th:block th:each="group, iterStat : ${groups}">
+                        <tr th:class="${iterStat.odd}? 'bg0' : 'bg1'">
+                            <td class="td_left">
+                                <a th:href="@{/group(grId=${group.grId})}" target="_blank"
+                                    th:text="${group.grId}">ID</a>
+                            </td>
+                            <td class="td_input" th:text="${group.grSubject}">Subject</td>
+                            <td class="td_mng" th:text="${group.grAdmin}">Admin</td>
+                            <td class="td_numsmall" th:text="${group.grUseAccess == 1 ? 'Yes' : 'No'}">Access</td>
+                            <td class="td_numsmall" th:text="${group.grOrder}">Order</td>
+                            <td class="td_mng" th:text="${group.grDevice}">Device</td>
+                            <td class="td_mng td_mng_s">
+                                <a th:href="@{/mgmt/boardgroup/form(grId=${group.grId}, w='u')}"
+                                    class="btn btn_03">수정</a>
+                                <a th:href="@{/mgmt/boardgroup/delete(grId=${group.grId})}"
+                                    onclick="return confirm('삭제하시겠습니까?');" class="btn btn_02">삭제</a>
+                            </td>
+                        </tr>
+                    </th:block>
+                    <tr th:if="${#lists.isEmpty(groups)}">
+                        <td colspan="7" class="empty_table">자료가 없습니다.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="pg_wrap">
+            <span class="pg">
+                <th:block th:if="${totalPage > 0}" th:each="i : ${#numbers.sequence(1, totalPage)}">
+                    <a th:href="@{/mgmt/boardgroup(page=${i}, sfl=${crit.sfl}, stx=${crit.stx})}" th:text="${i}"
+                        th:class="${crit.page == i} ? 'pg_current' : 'pg_page'">1</a>
+                </th:block>
+            </span>
+        </div>
+
+    </div>
+</body>
+
+</html>

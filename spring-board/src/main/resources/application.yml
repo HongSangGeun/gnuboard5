@@ -1,0 +1,28 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:mysql://127.0.0.1:3306/myboard?serverTimezone=UTC&characterEncoding=UTF-8&zeroDateTimeBehavior=CONVERT_TO_NULL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  thymeleaf:
+    cache: false
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 300MB
+
+server:
+  tomcat:
+    max-swallow-size: -1
+  servlet:
+    context-path: /datahub/board
+
+mybatis:
+  type-aliases-package: com.gnuboard.springboard.admin
+  configuration:
+    map-underscore-to-camel-case: true
+
+app:
+  g5:
+    write-prefix: g5_write_
+    data-path: ../data

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout/layout}">
+<head>
+    <title>접근가능그룹</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div th:if="${message}" class="local_desc01 local_desc">
+        <p th:text="${message}">완료되었습니다.</p>
+    </div>
+    <div th:if="${error}" class="local_desc01 local_desc">
+        <p th:text="${error}">오류가 발생했습니다.</p>
+    </div>
+
+    <div class="local_ov01 local_ov">
+        <span class="btn_ov01"><span class="ov_txt">아이디 </span><span class="ov_num" th:text="${member.mbId}">id</span></span>
+        <span class="btn_ov01"><span class="ov_txt">이름 </span><span class="ov_num" th:text="${member.mbName}">name</span></span>
+        <span class="btn_ov01"><span class="ov_txt">닉네임 </span><span class="ov_num" th:text="${member.mbNick}">nick</span></span>
+    </div>
+
+    <form id="fboardgroupmember_form" class="local_cmd01 local_cmd" method="post" th:action="@{/mgmt/boardgroupmember/add}">
+        <input type="hidden" name="mbId" th:value="${member.mbId}">
+        <label for="grId">그룹지정</label>
+        <select name="grId" id="grId">
+            <option value="">접근가능 그룹을 선택하세요.</option>
+            <option th:each="group : ${accessEnabledGroups}"
+                    th:value="${group.grId}"
+                    th:text="${group.grSubject + ' (' + group.grId + ')'}">그룹</option>
+        </select>
+        <input type="submit" value="선택" class="btn_submit btn">
+    </form>
+
+    <form id="fboardgroupmember" method="post" th:action="@{/mgmt/boardgroupmember/delete}"
+          onsubmit="return fboardgroupmember_submit(this);">
+        <input type="hidden" name="mbId" th:value="${member.mbId}">
+
+        <div class="tbl_head01 tbl_wrap">
+            <table>
+                <caption>접근가능그룹 목록</caption>
+                <thead>
+                <tr>
+                    <th scope="col">
+                        <label for="chkall" class="sound_only">접근가능그룹 전체</label>
+                        <input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
+                    </th>
+                    <th scope="col">그룹아이디</th>
+                    <th scope="col">그룹</th>
+                    <th scope="col">처리일시</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="gm, iterStat : ${assignedGroups}" th:class="${iterStat.odd} ? 'bg1' : 'bg0'">
+                    <td class="td_chk">
+                        <label th:for="|chk_${iterStat.index}|" class="sound_only" th:text="${gm.grId}">선택</label>
+                        <input type="checkbox" name="chk[]" th:value="${gm.gmId}" th:id="|chk_${iterStat.index}|">
+                    </td>
+                    <td th:text="${gm.grId}">group</td>
+                    <td th:text="${gm.grSubject}">subject</td>
+                    <td class="td_datetime" th:text="${gm.gmDatetime}">datetime</td>
+                </tr>
+                <tr th:if="${#lists.isEmpty(assignedGroups)}">
+                    <td colspan="4" class="empty_table">접근가능한 그룹이 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="btn_fixed_top">
+            <input type="submit" value="선택삭제" class="btn btn_02">
+            <a th:href="@{/mgmt/member}" class="btn btn_01">회원목록</a>
+        </div>
+    </form>
+
+    <script th:inline="javascript">
+        function check_all(f) {
+            var chk = f.querySelectorAll("input[name='chk[]']");
+            for (var i = 0; i < chk.length; i++) {
+                chk[i].checked = f.chkall.checked;
+            }
+        }
+
+        function fboardgroupmember_submit(f) {
+            var checked = f.querySelectorAll("input[name='chk[]']:checked");
+            if (checked.length < 1) {
+                alert("삭제할 그룹을 하나 이상 선택하세요.");
+                return false;
+            }
+            return confirm("선택한 접근가능그룹을 삭제하시겠습니까?");
+        }
+    </script>
+</div>
+</body>
+</html>
+

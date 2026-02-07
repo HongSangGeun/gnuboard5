@@ -1,0 +1,28 @@
+html, body {
+}
+
+p {
+    margin: 0;
+}
+
+/*-------------------------------------------------------------------------------*/
+.ch_bogus_spacer {}
+.cheditor-zero-width { font-family: monospace; }
+.cheditor-insertpara-pointer {
+    height: 1px;
+    display: none;
+    overflow: hidden;
+    background-color: red;
+    position: absolute;
+}
+.cheditor-add-paragraph {
+    border: #999 dotted 1px;
+    margin: 1px 0px;
+}
+
+.bbs-content table,
+.bbs-content th,
+.bbs-content td {
+    border: 1px solid #000;
+    border-collapse: collapse;
+}

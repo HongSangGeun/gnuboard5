@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>관리권한설정</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+        <div class="local_ov01 local_ov">
+            <span class="btn_ov01"><span class="ov_txt">설정된 관리권한</span><span class="ov_num"
+                    th:text="${authList.size()} + '건'">0건</span></span>
+        </div>
+
+        <div class="tbl_head01 tbl_wrap">
+            <table>
+                <caption>관리권한설정 목록</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">회원아이디</th>
+                        <th scope="col">닉네임</th>
+                        <th scope="col">메뉴</th>
+                        <th scope="col">권한</th>
+                        <th scope="col">관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="auth : ${authList}">
+                        <td th:text="${auth.mbId}">mb_id</td>
+                        <td th:text="${auth.mbNick}">mb_nick</td>
+                        <td th:text="${auth.auMenu}">menu</td>
+                        <td th:text="${auth.auAuth}">r,w,d</td>
+                        <td>
+                            <form th:action="@{/mgmt/config/auth/delete}" method="post"
+                                onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                                <input type="hidden" name="mbId" th:value="${auth.mbId}">
+                                <input type="hidden" name="auMenu" th:value="${auth.auMenu}">
+                                <button type="submit" class="btn btn_02">삭제</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${#lists.isEmpty(authList)}">
+                        <td colspan="5" class="empty_table">자료가 없습니다.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <section id="add_admin">
+            <h2 class="h2_frm">관리권한 추가</h2>
+            <form th:action="@{/mgmt/config/auth/update}" method="post" class="local_sch01 local_sch">
+                <div class="tbl_frm01 tbl_wrap">
+                    <table>
+                        <colgroup>
+                            <col class="grid_4">
+                            <col>
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th scope="row"><label for="mbId">회원아이디<strong class="sound_only">필수</strong></label>
+                                </th>
+                                <td>
+                                    <input type="text" name="mbId" id="mbId" required class="required frm_input">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="auMenu">접근가능메뉴<strong class="sound_only">필수</strong></label>
+                                </th>
+                                <td>
+                                    <select id="auMenu" name="auMenu" required class="required">
+                                        <option value="">선택하세요</option>
+                                        <th:block th:each="menuGroup : ${menuList}">
+                                            <th:block th:each="menu : ${menuGroup.value}">
+                                                <option th:value="${menu.code}" th:text="|${menu.code} ${menu.name}|">
+                                                    Menu</option>
+                                            </th:block>
+                                        </th:block>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">권한지정</th>
+                                <td>
+                                    <input type="checkbox" name="auths" value="r" id="r" checked>
+                                    <label for="r">r (읽기)</label>
+                                    <input type="checkbox" name="auths" value="w" id="w">
+                                    <label for="w">w (쓰기)</label>
+                                    <input type="checkbox" name="auths" value="d" id="d">
+                                    <label for="d">d (삭제)</label>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="btn_confirm01 btn_confirm">
+                    <input type="submit" value="추가" class="btn_submit btn">
+                </div>
+            </form>
+        </section>
+    </div>
+</body>
+
+</html>

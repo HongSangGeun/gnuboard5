@@ -1,0 +1,148 @@
+@charset "utf-8";
+
+.m_index {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 10px 12px 24px;
+}
+
+.m_section {
+    background: #fff;
+    border: 1px solid #e4e9f2;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    overflow: hidden;
+}
+
+.m_section_head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px;
+    border-bottom: 1px solid #eef2f7;
+}
+
+.m_section_head h2 {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: #1f2a44;
+}
+
+.m_more {
+    color: #2f6df6;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.m_post_list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.m_post_list li {
+    border-bottom: 1px solid #f0f3f8;
+}
+
+.m_post_list li:last-child {
+    border-bottom: 0;
+}
+
+.m_post_link {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 12px;
+}
+
+.m_board_tag {
+    flex: 0 0 auto;
+    display: inline-block;
+    background: #edf3ff;
+    color: #2858d7;
+    font-size: 11px;
+    line-height: 1;
+    border-radius: 20px;
+    padding: 4px 8px;
+}
+
+.m_title {
+    flex: 1 1 auto;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #2e3340;
+    font-size: 13px;
+}
+
+.m_comment_icon {
+    color: #4f81ff;
+    font-size: 12px;
+}
+
+.m_cmt {
+    flex: 0 0 auto;
+    background: #e9f0ff;
+    color: #2f63e0;
+    font-size: 11px;
+    border-radius: 10px;
+    padding: 1px 6px;
+    line-height: 16px;
+}
+
+.m_new_icon {
+    flex: 0 0 auto;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: url("../img/icon_board_new.png") no-repeat center / contain;
+}
+
+.m_date {
+    flex: 0 0 auto;
+    color: #798196;
+    font-size: 11px;
+}
+
+.m_empty {
+    padding: 14px 12px;
+    color: #7d869a;
+    font-size: 12px;
+}
+
+.m_quick {
+    padding: 12px;
+}
+
+.m_quick_wrap {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
+.m_quick_btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 40px;
+    border-radius: 8px;
+    border: 1px solid #d8e3ff;
+    background: #f5f8ff;
+    color: #2a5edf;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+@media (max-width: 360px) {
+    .m_post_link {
+        padding: 9px 10px;
+        gap: 4px;
+    }
+
+    .m_title {
+        font-size: 12px;
+    }
+}

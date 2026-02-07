@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>회원가입</title>
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/css/mobile-register.css}">
+</head>
+<body class="mobile-register-body">
+<div class="mobile-register-shell">
+    <section class="mobile-register-card" aria-labelledby="mobile-register-title">
+        <header class="mobile-register-head">
+            <img class="mobile-register-logo" th:src="@{/img/logo_gn.svg}" alt="경남 스마트시티 관리포털">
+            <h1 id="mobile-register-title" class="mobile-register-title">회원가입</h1>
+            <p class="mobile-register-subtitle">필수 정보를 입력해 가입을 진행해 주세요.</p>
+        </header>
+
+        <p th:if="${error}" class="mobile-register-message error" th:text="${error}">오류가 발생했습니다.</p>
+        <p th:if="${message}" class="mobile-register-message success" th:text="${message}">처리가 완료되었습니다.</p>
+
+        <form class="mobile-register-form" id="fregisterform" th:action="@{/register}" method="post" th:object="${form}">
+            <input type="hidden" name="_csrf" th:value="${csrfToken}">
+
+            <div class="mobile-register-field">
+                <label class="mobile-register-label" for="reg_mb_id">아이디</label>
+                <div class="mobile-register-input-wrap">
+                    <i class="mobile-register-icon fa fa-user-o" aria-hidden="true"></i>
+                    <input class="mobile-register-input" type="text" id="reg_mb_id" th:field="*{mbId}"
+                           placeholder="아이디" maxlength="20" autocomplete="username" required>
+                </div>
+            </div>
+
+            <div class="mobile-register-field">
+                <label class="mobile-register-label" for="reg_mb_password">비밀번호</label>
+                <div class="mobile-register-input-wrap">
+                    <i class="mobile-register-icon fa fa-lock" aria-hidden="true"></i>
+                    <input class="mobile-register-input" type="password" id="reg_mb_password" th:field="*{password}"
+                           placeholder="비밀번호" maxlength="50" autocomplete="new-password" required>
+                </div>
+            </div>
+
+            <div class="mobile-register-field">
+                <label class="mobile-register-label" for="reg_mb_password_re">비밀번호 확인</label>
+                <div class="mobile-register-input-wrap">
+                    <i class="mobile-register-icon fa fa-check-square-o" aria-hidden="true"></i>
+                    <input class="mobile-register-input" type="password" id="reg_mb_password_re" th:field="*{passwordConfirm}"
+                           placeholder="비밀번호 확인" maxlength="50" autocomplete="new-password" required>
+                </div>
+            </div>
+
+            <div class="mobile-register-field">
+                <label class="mobile-register-label" for="reg_mb_name">이름</label>
+                <div class="mobile-register-input-wrap">
+                    <i class="mobile-register-icon fa fa-id-badge" aria-hidden="true"></i>
+                    <input class="mobile-register-input" type="text" id="reg_mb_name" th:field="*{name}"
+                           placeholder="이름" maxlength="30" required>
+                </div>
+            </div>
+
+            <div class="mobile-register-field">
+                <label class="mobile-register-label" for="reg_mb_nick">닉네임</label>
+                <div class="mobile-register-input-wrap">
+                    <i class="mobile-register-icon fa fa-tag" aria-hidden="true"></i>
+                    <input class="mobile-register-input" type="text" id="reg_mb_nick" th:field="*{nick}"
+                           placeholder="닉네임" maxlength="30" required>
+                </div>
+            </div>
+
+            <div class="mobile-register-field">
+                <label class="mobile-register-label" for="reg_mb_email">이메일</label>
+                <div class="mobile-register-input-wrap">
+                    <i class="mobile-register-icon fa fa-envelope-o" aria-hidden="true"></i>
+                    <input class="mobile-register-input" type="email" id="reg_mb_email" th:field="*{email}"
+                           placeholder="이메일" maxlength="80" autocomplete="email" required>
+                </div>
+            </div>
+
+            <button class="mobile-register-submit" type="submit">회원가입</button>
+
+            <div class="mobile-register-links">
+                이미 계정이 있으신가요?
+                <a th:href="@{/login}">로그인</a>
+            </div>
+        </form>
+    </section>
+</div>
+</body>
+</html>

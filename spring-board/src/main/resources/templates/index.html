@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/css/default.css}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/skin/latest/basic/style.css}">
+    <title>대시보드</title>
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div id="wrapper">
+    <div id="container_wr">
+        <div id="container">
+            <h1 id="container_title" th:text="${pageTitle} ?: '대시보드'">대시보드</h1>
+
+            <div id="dashboard" class="latest-grid">
+                <div class="latest-card mypost-card" data-id="my-posts">
+                    <div class="card">
+                        <div class="card-header"></div>
+                        <div class="card-body">
+                            <div class="lat">
+                                <h3 class="lat_title">
+                                    <a th:href="@{/bbs/search(sfl='mb_id', stx=${loginUser != null ? loginUser.id : ''}, sop='and')}">내가 작성한 글</a>
+                                </h3>
+                                <ul>
+                                    <li class="basic_li" th:each="item : ${myPosts}">
+                                        <div class="lt_title">
+                                            <div class="lt_row">
+                                                <div class="lt_left">
+                                                    <span class="my_board_tag" th:text="${item.board.boSubject}">게시판</span>
+                                                    <i class="fa fa-commenting-o my_comment_icon" aria-hidden="true" th:if="${item.comment}"></i>
+                                                    <a th:href="@{'/bbs/' + ${item.board.boTable} + '/view/' + ${item.viewTargetId}}"
+                                                       th:text="${item.displayTitle}">제목</a>
+                                                    <span th:if="${item.post.newPost}" class="new_icon"><span class="sound_only">새글</span></span>
+                                                    <span th:if="${item.post.hotPost}" class="hot_icon">H<span class="sound_only">인기글</span></span>
+                                                    <span class="lt_cmt" th:if="${item.post.wrComment > 0}" th:text="${item.post.wrComment}">0</span>
+                                                </div>
+                                                <div class="lt_info">
+                                                    <span class="lt_date" th:text="${item.post.wrDatetime != null ? #strings.substring(item.post.wrDatetime,5,10) : ''}">날짜</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="empty_li" th:if="${#lists.isEmpty(myPosts)}">작성한 게시글이 없습니다.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="latest-card" th:each="card : ${cards}" th:attr="data-id=${card.board.boTable}">
+                    <div class="card">
+                        <div class="card-header"></div>
+                        <div class="card-body">
+                            <div class="lat">
+                                <h3 class="lat_title">
+                                    <a th:href="@{'/bbs/' + ${card.board.boTable} + '/list'}"
+                                       th:text="${card.board.boSubject}">게시판</a>
+                                </h3>
+                                <ul>
+                                    <li class="basic_li" th:each="post : ${card.posts}">
+                                        <div class="lt_title">
+                                            <div class="lt_row">
+                                                <div class="lt_left">
+                                                    <i class="fa fa-lock" aria-hidden="true"
+                                                       th:if="${post.wrOption != null and #strings.contains(post.wrOption, 'secret')}"></i>
+                                                    <a th:href="@{'/bbs/' + ${card.board.boTable} + '/view/' + ${post.wrId}}"
+                                                       th:text="${post.wrSubject}">제목</a>
+                                                    <span th:if="${post.newPost}" class="new_icon"><span class="sound_only">새글</span></span>
+                                                    <span th:if="${post.hotPost}" class="hot_icon">H<span class="sound_only">인기글</span></span>
+                                                    <i th:if="${card.board.boUseListFile == 1 && post.fileAttached}" class="fa fa-download" aria-hidden="true"></i><span th:if="${card.board.boUseListFile == 1 && post.fileAttached}" class="sound_only">첨부파일</span>
+                                                    <i th:if="${post.linkAttached}" class="fa fa-link" aria-hidden="true"></i><span th:if="${post.linkAttached}" class="sound_only">관련링크</span>
+                                                    <span class="lt_cmt" th:if="${post.wrComment > 0}" th:text="${post.wrComment}">0</span>
+                                                </div>
+                                                <div class="lt_info">
+                                                    <span class="lt_name" th:text="${post.wrName}">이름</span>
+                                                    <span class="lt_date" th:text="${post.wrDatetime != null ? #strings.substring(post.wrDatetime,5,10) : ''}">날짜</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                    <li class="empty_li" th:if="${#lists.isEmpty(card.posts)}">게시물이 없습니다.</li>
+                                </ul>
+                                <a th:href="@{'/bbs/' + ${card.board.boTable} + '/list'}" class="lt_more">더보기→</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="latest-card calendar-card" data-id="calendar" th:if="${scheduleBoard != null}">
+                    <div class="card">
+                        <div class="card-header"> </div>
+                        <button class="collapse-btn"></button>
+                        <div class="card-body">
+                            <div id="calendar"></div>
+                        </div>
+                    </div>
+
+                    <div class="calendar-legend">
+                        <div class="legend-left">
+                            <span class="legend-item" data-category="" style="background:#999;"></span> 전체
+                            <span class="legend-item" th:each="cat : ${scheduleCategories}"
+                                  th:attr="data-category=${cat}"
+                                  th:text="${cat}">분류</span>
+                        </div>
+                        <div class="legend-right">
+                            <a th:href="@{'/bbs/' + ${scheduleBoard.boTable} + '/write'}" class="btn-add-event">+ 일정 등록하기</a>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="latest-card restore-card" data-id="restore">
+                    <div class="card">
+                        <div class="card-body restore-flex">
+                            <div class="restore-left">
+                                <button id="showRestoreList" class="restore-btn">숨겨진 카드 복원</button>
+                                <span style="display:inline-block; width:16px;"></span>
+                                <span>카드를 더블클릭하면 해당카드는 숨겨집니다.</span>
+                                <ul id="restoreList" class="restore-list"></ul>
+                            </div>
+                            <div class="restore-right">
+                                <div id="perfInfo" class="perf-info">
+                                    <p>서버 성능 정보를 불러오는 중...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/nav :: nav_end}"></div>
+
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@fullcalendar/google-calendar@6.1.15/index.global.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script th:src="@{/js/index_card.js}"></script>
+
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+        if (!calendarEl || typeof FullCalendar === 'undefined') return;
+        var scheduleEventsUrl = /*[[@{/bbs/schedule/events}]]*/ '/bbs/schedule/events';
+        var scheduleWriteUrl = /*[[@{/bbs/schedule/write}]]*/ '/bbs/schedule/write';
+
+        var currentCategory = null;
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'ko',
+            slotMinTime: '07:00:00',
+            slotMaxTime: '20:30:00',
+            expandRows: false,
+            contentHeight: 'auto',
+            googleCalendarApiKey: 'AIzaSyBDLbVPdJoidVskOO7iA7oeaQ5mm5QL7Qk',
+            height: 600,
+            headerToolbar: {
+                left: 'prev,today,next',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            navLinks: false,
+            eventSources: [
+                {
+                    url: scheduleEventsUrl,
+                    color: '#3788d8',
+                    textColor: '#fff'
+                },
+                {
+                    googleCalendarId: 'ko.south_korea#holiday@group.v.calendar.google.com',
+                    color: '#FF5C5C',
+                    textColor: '#fff',
+                    className: 'holiday-event',
+                    display: 'list-item',
+                    eventDataTransform: function (ev) {
+                        delete ev.url;
+                        return ev;
+                    }
+                }
+            ],
+            dateClick: function (info) {
+                var yyyymmdd = info.dateStr.replace(/-/g, '');
+                window.location.href = scheduleWriteUrl + '?wr_1=' + yyyymmdd + '&wr_2=' + yyyymmdd;
+            },
+            eventClick: function (info) {
+                if (info.event.url) {
+                    window.location.href = info.event.url;
+                    info.jsEvent.preventDefault();
+                }
+            },
+            eventDidMount: function (info) {
+                var cat = info.event.extendedProps.category || '';
+                info.el.setAttribute('data-category', cat);
+                info.el.setAttribute('title', info.event.title || '');
+                if (info.event.extendedProps.commentCount > 0) {
+                    var icon = document.createElement('span');
+                    icon.innerHTML = '<i class="fa fa-comment"></i> ' + info.event.extendedProps.commentCount;
+                    icon.style.marginLeft = '4px';
+                    var titleEl = info.el.querySelector('.fc-event-title');
+                    if (titleEl) {
+                        titleEl.appendChild(icon);
+                    }
+                }
+                if (currentCategory && cat !== currentCategory) {
+                    info.el.style.display = 'none';
+                }
+            }
+        });
+
+        calendar.render();
+
+        document.querySelectorAll('.calendar-legend .legend-item').forEach(function (el) {
+            el.addEventListener('click', function () {
+                currentCategory = el.dataset.category || null;
+                calendar.refetchEvents();
+            });
+        });
+    });
+</script>
+</body>
+</html>

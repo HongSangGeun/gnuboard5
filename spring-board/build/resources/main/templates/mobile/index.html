@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>모바일 대시보드</title>
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/css/default.css}">
+    <link rel="stylesheet" th:href="@{/css/mobile.css}">
+    <link rel="stylesheet" th:href="@{/css/mobile-index.css}">
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+
+<div id="wrapper">
+    <div id="container_wr">
+        <div id="container" class="m_index">
+            <section class="m_section">
+                <div class="m_section_head">
+                    <h2>내가 작성한 글</h2>
+                    <a th:href="@{/bbs/search(sfl='mb_id', stx=${loginUser != null ? loginUser.id : ''}, sop='and')}" class="m_more">더보기</a>
+                </div>
+                <ul class="m_post_list">
+                    <li th:if="${#lists.isEmpty(myPosts)}" class="m_empty">작성한 게시글이 없습니다.</li>
+                    <li th:each="item : ${myPosts}">
+                        <a class="m_post_link"
+                           th:href="@{'/bbs/' + ${item.board.boTable} + '/view/' + ${item.viewTargetId}}">
+                            <span class="m_board_tag" th:text="${item.board.boSubject}">게시판</span>
+                            <i class="fa fa-commenting-o m_comment_icon" th:if="${item.comment}" aria-hidden="true"></i>
+                            <span class="m_title" th:text="${item.displayTitle}">제목</span>
+                            <span class="m_new_icon" th:if="${item.post.newPost}" aria-label="새글"></span>
+                            <span class="m_date"
+                                  th:text="${item.post.wrDatetime != null ? #strings.substring(item.post.wrDatetime, 5, 10) : ''}">00-00</span>
+                        </a>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="m_section" th:each="card : ${cards}">
+                <div class="m_section_head">
+                    <h2 th:text="${card.board.boSubject}">게시판</h2>
+                    <a class="m_more" th:href="@{'/bbs/' + ${card.board.boTable} + '/list'}">더보기</a>
+                </div>
+                <ul class="m_post_list">
+                    <li th:if="${#lists.isEmpty(card.posts)}" class="m_empty">게시물이 없습니다.</li>
+                    <li th:each="post : ${card.posts}">
+                        <a class="m_post_link" th:href="@{'/bbs/' + ${card.board.boTable} + '/view/' + ${post.wrId}}">
+                            <span class="m_title" th:text="${post.wrSubject}">제목</span>
+                            <span class="m_new_icon" th:if="${post.newPost}" aria-label="새글"></span>
+                            <span class="m_cmt" th:if="${post.wrComment > 0}" th:text="${post.wrComment}">0</span>
+                            <span class="m_date"
+                                  th:text="${post.wrDatetime != null ? #strings.substring(post.wrDatetime, 5, 10) : ''}">00-00</span>
+                        </a>
+                    </li>
+                </ul>
+            </section>
+
+            <section class="m_section m_quick" th:if="${scheduleBoard != null}">
+                <div class="m_quick_wrap">
+                    <a class="m_quick_btn" th:href="@{'/bbs/' + ${scheduleBoard.boTable} + '/list'}">
+                        <i class="fa fa-calendar" aria-hidden="true"></i> 일정 목록
+                    </a>
+                    <a class="m_quick_btn" th:href="@{'/bbs/' + ${scheduleBoard.boTable} + '/write'}">
+                        <i class="fa fa-plus-circle" aria-hidden="true"></i> 일정 등록
+                    </a>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{fragments/nav :: nav_end}"></div>
+</body>
+</html>

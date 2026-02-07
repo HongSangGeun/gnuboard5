@@ -1,0 +1,171 @@
+@charset "utf-8";
+
+:root {
+    --mr-bg: #f3f6ff;
+    --mr-card-bg: #ffffff;
+    --mr-text: #0f172a;
+    --mr-subtext: #64748b;
+    --mr-line: #dbe4f3;
+    --mr-primary: #2f6df6;
+    --mr-primary-dark: #1f57d5;
+    --mr-error: #d14343;
+    --mr-success: #147a49;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+body.mobile-register-body {
+    background:
+        radial-gradient(110% 65% at 100% 0%, #dce7ff 0%, rgba(220, 231, 255, 0) 70%),
+        radial-gradient(75% 55% at 0% 100%, #e9f2ff 0%, rgba(233, 242, 255, 0) 70%),
+        var(--mr-bg);
+    color: var(--mr-text);
+    min-height: 100vh;
+}
+
+.mobile-register-shell {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 16px;
+    box-sizing: border-box;
+}
+
+.mobile-register-card {
+    width: min(100%, 420px);
+    border: 1px solid #e5ecf8;
+    border-radius: 22px;
+    background: var(--mr-card-bg);
+    box-shadow: 0 18px 44px rgba(37, 74, 142, 0.15);
+    overflow: hidden;
+}
+
+.mobile-register-head {
+    padding: 28px 24px 16px;
+    text-align: center;
+}
+
+.mobile-register-logo {
+    width: min(240px, 100%);
+    height: auto;
+    margin: 0 auto 18px;
+    display: block;
+}
+
+.mobile-register-title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.mobile-register-subtitle {
+    margin: 8px 0 0;
+    color: var(--mr-subtext);
+    font-size: 14px;
+}
+
+.mobile-register-message {
+    margin: 0 24px 10px;
+    padding: 11px 12px;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.mobile-register-message.error {
+    border: 1px solid #f0b0b0;
+    background: #fff5f5;
+    color: var(--mr-error);
+}
+
+.mobile-register-message.success {
+    border: 1px solid #b7e9cf;
+    background: #eefcf4;
+    color: var(--mr-success);
+}
+
+.mobile-register-form {
+    padding: 8px 24px 24px;
+}
+
+.mobile-register-field {
+    margin-bottom: 14px;
+}
+
+.mobile-register-label {
+    display: block;
+    margin: 0 0 7px;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.mobile-register-input-wrap {
+    position: relative;
+}
+
+.mobile-register-input {
+    width: 100%;
+    height: 52px;
+    box-sizing: border-box;
+    border: 1px solid var(--mr-line);
+    border-radius: 14px;
+    padding: 0 14px 0 46px;
+    background: #fff;
+    color: #0f172a;
+    font-size: 16px;
+    line-height: 1.2;
+    outline: none;
+    transition: border-color .16s ease, box-shadow .16s ease;
+}
+
+.mobile-register-input:focus {
+    border-color: #7ea6ff;
+    box-shadow: 0 0 0 3px rgba(47, 109, 246, 0.14);
+}
+
+.mobile-register-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #7a8aa7;
+    font-size: 16px;
+    pointer-events: none;
+}
+
+.mobile-register-submit {
+    margin-top: 6px;
+    width: 100%;
+    height: 52px;
+    border: 0;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #3a7bff 0%, var(--mr-primary) 100%);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+}
+
+.mobile-register-submit:active {
+    background: var(--mr-primary-dark);
+}
+
+.mobile-register-links {
+    margin-top: 14px;
+    text-align: center;
+    color: var(--mr-subtext);
+    font-size: 13px;
+}
+
+.mobile-register-links a {
+    color: var(--mr-primary-dark);
+    text-decoration: none;
+    font-weight: 700;
+}
