@@ -120,6 +120,8 @@
                                 <option value="wr_subject" th:selected="${sfl == 'wr_subject'}">제목</option>
                                 <option value="wr_content" th:selected="${sfl == 'wr_content'}">내용</option>
                                 <option value="wr_subject||wr_content" th:selected="${sfl == 'wr_subject||wr_content'}">제목+내용</option>
+                                <option value="wr_subject||wr_content||bf_ocr_text" th:selected="${sfl == 'wr_subject||wr_content||bf_ocr_text'}">제목+내용+이미지</option>
+                                <option value="bf_ocr_text" th:selected="${sfl == 'bf_ocr_text'}">이미지</option>
                                 <option th:if="${loginUser != null && loginUser.level >= 10}" value="mb_id,1" th:selected="${sfl == 'mb_id,1'}">회원아이디</option>
                                 <option th:if="${loginUser != null && loginUser.level >= 10}" value="mb_id,0" th:selected="${sfl == 'mb_id,0'}">회원아이디(코)</option>
                                 <option value="wr_name,1" th:selected="${sfl == 'wr_name,1'}">글쓴이</option>
@@ -140,7 +142,7 @@
     </div>
 </div>
 <div th:replace="~{fragments/nav :: nav_end}"></div>
-<script>
+<script th:attr="nonce=${cspNonce}">
     (function() {
         var btn = document.querySelector('.btn_bo_sch');
         var wrap = document.querySelector('.bo_sch_wrap');

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>접속자로그삭제</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <div class="local_desc">
+            <p>오래된 접속자 로그를 삭제합니다.</p>
+            <p class="text-danger">삭제된 데이터는 복구할 수 없으니 신중하게 선택하세요.</p>
+        </div>
+
+        <div th:if="${message}" class="local_desc01 local_desc">
+            <p th:text="${message}" class="text-success">완료되었습니다.</p>
+        </div>
+        <div th:if="${error}" class="local_desc01 local_desc">
+            <p th:text="${error}" class="text-danger">오류가 발생했습니다.</p>
+        </div>
+
+        <form method="post" th:action="@{/mgmt/visit/delete}" data-confirm="정말 삭제하시겠습니까?">
+            <input type="hidden" name="_csrf" th:value="${csrfToken}">
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>접속자 로그 삭제</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row">삭제 유형</th>
+                            <td>
+                                <label>
+                                    <input type="radio" name="deleteType" value="days" checked>
+                                    N일 이전 로그 삭제:
+                                    <input type="number" name="days" value="90" min="1" style="width: 100px;"> 일 이전
+                                </label>
+                                <br><br>
+                                <label>
+                                    <input type="radio" name="deleteType" value="date">
+                                    특정 날짜 이전 로그 삭제:
+                                    <input type="date" name="beforeDate">
+                                </label>
+                                <br><br>
+                                <label>
+                                    <input type="radio" name="deleteType" value="all">
+                                    <strong class="text-danger">전체 로그 삭제 (주의!)</strong>
+                                </label>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="btn_fixed_top">
+                <button type="submit" class="btn btn_submit">삭제 실행</button>
+            </div>
+        </form>
+
+    </div>
+</body>
+
+</html>

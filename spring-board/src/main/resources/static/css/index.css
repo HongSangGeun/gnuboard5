@@ -228,6 +228,8 @@
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   grid-gap: 20px;
+  grid-auto-rows: auto;
+  align-items: start;
 }
 
 /* 캘린더는 2칼럼 차지 */
@@ -294,27 +296,141 @@
   min-height: 80px; /* 카드 높이에 맞게 조정 */
 }
 
+/* 카드에 relative positioning 추가 */
+.latest-card .card {
+  position: relative;
+  padding-top: 8px;
+}
+
+/* 버튼 컨테이너 */
+.card-actions {
+  position: absolute;
+  top: -26px;
+  right: -10px;
+  display: flex;
+  gap: 6px;
+  z-index: 1000;
+}
+
 /* 접기 버튼 */
 .collapse-btn {
-    top: -20px;
-    right: -30;
-    position: relative;
   border: none;
-  background: url('../img/close_card.svg') no-repeat center center; /* 배경에 SVG */
-  background-size: 16px 16px; /* 아이콘 크기 조정 */
+  background: transparent;
   cursor: pointer;
-  width: 24px;   /* 버튼 영역 크기 */
-  height: 24px;  /* 버튼 영역 크기 */
-  float: right;
-  z-index: 99;
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+  color: #94a3b8;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  opacity: 0.4;
 }
+
 .collapse-btn:hover {
-  color: #000;
+  background: rgba(148, 163, 184, 0.1);
+  color: #64748b;
+  opacity: 1;
 }
+
+.collapse-btn::before {
+  font-family: FontAwesome;
+  content: "\f068";  /* fa-minus (접기) */
+  display: block;
+}
+
+.latest-card.collapsed .collapse-btn::before {
+  content: "\f067";  /* fa-plus (펼치기) */
+}
+
+/* 숨기기 버튼 */
+.hide-btn {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+  color: #f87171;
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+  opacity: 0.4;
+}
+
+.hide-btn:hover {
+  background: rgba(248, 113, 113, 0.1);
+  color: #ef4444;
+  opacity: 1;
+}
+
+.hide-btn::before {
+  font-family: FontAwesome;
+  content: "\f00d";  /* fa-times (X) */
+  display: block;
+}
+
+/* 접힌 카드 제목 */
+.collapsed-title {
+  display: none;
+  padding: 10px 20px;
+  font-size: 26px;
+  font-weight: 700;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  border-left: 4px solid #cbd5e1;
+  background: linear-gradient(90deg, #f8fafc 0%, transparent 100%);
+  margin-top: -35px;
+  position: relative;
+}
+
+.latest-card.collapsed .collapsed-title {
+  display: block;
+}
+
+/* 버튼이 카드 밖에 위치하므로 제목과 겹치지 않음 */
 
 /* 접힌 상태 */
 .latest-card.collapsed .card-body {
   display: none;
+}
+
+.latest-card.collapsed {
+  height: 60px;
+  min-height: 60px;
+  overflow: hidden;
+}
+
+.latest-card.collapsed .card {
+  min-height: auto !important;
+  height: 60px;
+  padding-bottom: 10px;
+}
+
+.latest-card .card-body {
+  transition: opacity 0.2s ease-in-out;
+}
+
+.latest-card.collapsed .card-header {
+  margin-bottom: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* 접힌 상태에서도 버튼 표시 */
+.latest-card.collapsed .collapse-btn {
+  display: flex !important;
+}
+
+/* 카드 높이 전환 애니메이션 */
+.latest-card {
+  transition: height 0.3s ease, min-height 0.3s ease;
 }
 
 /* Perf Info */

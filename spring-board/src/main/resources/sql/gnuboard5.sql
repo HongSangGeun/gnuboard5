@@ -142,8 +142,9 @@ CREATE TABLE IF NOT EXISTS `g5_board_file` (
   `bf_height` smallint(6) NOT NULL default '0',
   `bf_type` tinyint(4) NOT NULL default '0',
   `bf_datetime` datetime NOT NULL default '0000-00-00 00:00:00',
+  `bf_ocr_text` LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT 'OCR 추출 텍스트 (이미지/PDF)',
   PRIMARY KEY  (`bo_table`,`wr_id`,`bf_no`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+) ENGINE=MyISAM DEFAULT CHARSET=utf8mb4;
 
 -- --------------------------------------------------------
 

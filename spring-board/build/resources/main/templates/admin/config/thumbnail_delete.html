@@ -22,7 +22,7 @@
             </div>
 
             <form th:action="@{/mgmt/config/thumbnail/delete}" method="post"
-                onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                data-confirm="정말 삭제하시겠습니까?">
                 <div class="btn_confirm01 btn_confirm">
                     <input type="submit" value="확인" class="btn_submit btn">
                 </div>

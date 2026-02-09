@@ -8,8 +8,10 @@ html.is-mobile-view #m_hd {
     position: sticky;
     top: 0;
     z-index: 1200;
-    background: #fff;
-    border-bottom: 1px solid #eceff3;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(236, 239, 243, 0.6);
 }
 
 html.is-mobile-view .m_topbar {
@@ -39,7 +41,7 @@ html.is-mobile-view .m_top_icon {
     border: 0;
     border-radius: 10px;
     background: #f3f6fb;
-    color: #1f3a8a;
+    color: #7a8aa7;
     font-size: 18px;
     display: inline-flex;
     align-items: center;
@@ -66,10 +68,12 @@ html.is-mobile-view .m_search_wrap input[type="text"] {
     border: 1px solid #dbe3f0;
     border-radius: 20px;
     background: #fff;
-    padding: 0 42px 0 14px;
+    padding: 0 42px 0 16px;
     /* iOS focus zoom prevention: keep at least 16px */
     font-size: 16px;
-    line-height: 1.2;
+    line-height: 38px;
+    /* Match height minus borders roughly */
+    box-sizing: border-box;
 }
 
 html.is-mobile-view .m_search_wrap .m_search_submit {
@@ -81,7 +85,7 @@ html.is-mobile-view .m_search_wrap .m_search_submit {
     background: transparent;
     width: 32px;
     height: 32px;
-    color: #2d4db0;
+    color: #7a8aa7;
     font-size: 16px;
 }
 
@@ -148,7 +152,7 @@ html.is-mobile-view .m_nav_auth {
     border-bottom: 1px solid #eef2f7;
 }
 
-html.is-mobile-view .m_nav_auth li + li {
+html.is-mobile-view .m_nav_auth li+li {
     margin-top: 6px;
 }
 
@@ -166,7 +170,7 @@ html.is-mobile-view .m_nav_auth a {
 }
 
 html.is-mobile-view .m_nav_auth i {
-    color: #365ec4;
+    color: #7a8aa7;
 }
 
 html.is-mobile-view .m_nav_list {
@@ -182,7 +186,7 @@ html.is-mobile-view .m_nav_item_head {
     align-items: center;
 }
 
-html.is-mobile-view .m_nav_item_head > a {
+html.is-mobile-view .m_nav_item_head>a {
     flex: 1;
     height: 44px;
     display: flex;

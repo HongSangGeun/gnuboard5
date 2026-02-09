@@ -92,7 +92,7 @@
                             <tr>
                                 <th scope="col">
                                     <label for="chkall" class="sound_only">회원 전체선택</label>
-                                    <input type="checkbox" name="chkall" id="chkall" onclick="checkAll(this.form)">
+                                    <input type="checkbox" name="chkall" id="chkall" data-check-all="chk[]">
                                 </th>
                                 <th scope="col">회원아이디</th>
                                 <th scope="col">이름</th>
@@ -150,7 +150,7 @@
                 </div>
 
                 <div class="btn_fixed_top">
-                    <button type="submit" class="btn btn_submit" onclick="return validateForm()">선택한 회원에게 메일 발송</button>
+                    <button type="submit" class="btn btn_submit">선택한 회원에게 메일 발송</button>
                     <a th:href="@{/mgmt/member}" class="btn btn_02">목록</a>
                 </div>
             </form>
@@ -195,6 +195,9 @@
 
                 return true;
             }
+            document.getElementById('fmembermail').addEventListener('submit', function(e) {
+                if (!validateForm()) e.preventDefault();
+            });
         </script>
 
     </div>

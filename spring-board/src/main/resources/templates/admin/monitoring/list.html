@@ -69,7 +69,7 @@
                     <a th:href="@{'/mgmt/monitoring/edit/' + ${service.msId}}" class="btn btn_03">수정</a>
                     <a th:href="@{'/mgmt/monitoring/history/' + ${service.msId}}" class="btn btn_03">이력</a>
                     <form th:action="@{'/mgmt/monitoring/delete/' + ${service.msId}}" method="post"
-                          style="display:inline;" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                          style="display:inline;" data-confirm="정말 삭제하시겠습니까?">
                         <button type="submit" class="btn btn_02">삭제</button>
                     </form>
                 </td>

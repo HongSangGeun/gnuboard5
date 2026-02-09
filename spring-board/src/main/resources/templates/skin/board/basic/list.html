@@ -123,8 +123,7 @@
                                     <i class="fa fa-edit" aria-hidden="true"></i>
                                 </a>
                                 <button type="button" class="btn_delete" title="삭제"
-                                        th:data-delete-url="@{'/bbs/' + ${boTable} + '/delete/' + ${post.wrId}}"
-                                        onclick="deletePost(this)">
+                                        th:data-delete-url="@{'/bbs/' + ${boTable} + '/delete/' + ${post.wrId}}">
                                     <i class="fa fa-trash" aria-hidden="true"></i>
                                 </button>
                             </div>
@@ -237,6 +236,11 @@
             }
         });
     })();
+
+    // 게시글 삭제 버튼 바인딩
+    document.querySelectorAll('.btn_delete[data-delete-url]').forEach(function(btn) {
+        btn.addEventListener('click', function() { deletePost(this); });
+    });
 
     // 게시글 삭제
     function deletePost(button) {

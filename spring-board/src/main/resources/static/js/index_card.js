@@ -147,6 +147,19 @@ function openRestoreList() {
         container.insertBefore(el, restoreCard); // restore-card 위로 올림
         saveHidden();
         saveOrder();
+
+        // 캘린더 카드 복원 시 캘린더 다시 렌더링
+        if (hc.id === 'calendar' && typeof calendar !== 'undefined') {
+          setTimeout(function() {
+            try {
+              calendar.updateSize();
+              calendar.render();
+              console.log('Calendar re-rendered after restore');
+            } catch (e) {
+              console.error('Failed to re-render calendar:', e);
+            }
+          }, 100);
+        }
       }
       li.remove();
       if (!restoreList.querySelector('li')) {
@@ -212,11 +225,22 @@ async function updatePerfInfo() {
     const base = (window.APP_CONTEXT || "/").replace(/\/?$/, "/");
     const res = await fetch(base + "api/system_status");
     const data = await res.json();
-    document.getElementById("perfInfo").innerHTML = `
-      <p><b>CPU:</b> ${data.cpu}
-      <b> ,  메모리:</b> ${data.memory}
-      <b> ,  디스크:</b> ${data.disk}</p>
-    `;
+    var perfEl = document.getElementById("perfInfo");
+    perfEl.textContent = '';
+    var p = document.createElement('p');
+    var cpuLabel = document.createElement('b');
+    cpuLabel.textContent = 'CPU:';
+    p.appendChild(cpuLabel);
+    p.appendChild(document.createTextNode(' ' + data.cpu + ' '));
+    var memLabel = document.createElement('b');
+    memLabel.textContent = ', 메모리:';
+    p.appendChild(memLabel);
+    p.appendChild(document.createTextNode(' ' + data.memory + ' '));
+    var diskLabel = document.createElement('b');
+    diskLabel.textContent = ', 디스크:';
+    p.appendChild(diskLabel);
+    p.appendChild(document.createTextNode(' ' + data.disk));
+    perfEl.appendChild(p);
   } catch (e) {
     console.error("퍼포먼스 정보 불러오기 실패", e);
   }

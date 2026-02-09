@@ -12,7 +12,9 @@
         if (!form || !token) {
             return;
         }
-        if (form.querySelector("input[name='_csrf']")) {
+        var existing = form.querySelector("input[name='_csrf']");
+        if (existing) {
+            existing.value = token;
             return;
         }
         var input = document.createElement("input");
@@ -42,6 +44,14 @@
                 ensureHiddenToken(forms[i], token);
             }
         }
+
+        document.addEventListener("submit", function (event) {
+            var form = event.target;
+            if (!form || !isPostForm(form)) {
+                return;
+            }
+            ensureHiddenToken(form, token);
+        });
 
         if (window.jQuery && window.jQuery.ajaxSetup) {
             window.jQuery.ajaxSetup({

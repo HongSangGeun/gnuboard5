@@ -1,0 +1,367 @@
+@charset "utf-8";
+
+/* Admin Mobile Responsive Styles */
+@media screen and (max-width: 1024px) {
+
+    /* Reset Global Widths */
+    body {
+        min-width: 0 !important;
+        width: 100%;
+        overflow-x: hidden;
+    }
+
+    #container,
+    body.admin-modern #container {
+        min-width: 0 !important;
+        width: 100% !important;
+        padding-left: 0 !important;
+        /* Remove sidebar padding */
+        margin-top: 50px !important;
+    }
+
+    #wrapper {
+        min-width: 0 !important;
+    }
+
+    /* Header Adjustments */
+    #hd {
+        position: fixed;
+        width: 100%;
+        z-index: 1000;
+    }
+
+    #hd h1 {
+        display: none;
+        /* Hide H1 text if text-indent is used, ensure it doesn't take space */
+    }
+
+    #hd_top {
+        width: 100%;
+        position: relative;
+        /* Let it flow or stick */
+    }
+
+    #logo {
+        width: auto;
+        padding-left: 50px;
+        /* Space for menu button */
+    }
+
+    /* Sidebar (GNB) - Off-canvas or Toggle */
+    #gnb {
+        left: -280px;
+        /* Hide by default, match width */
+        /* Hide by default */
+        transition: left 0.3s ease;
+        background: #fff;
+        height: 100vh;
+        width: 280px !important;
+        /* Standard width to fit menu + submenu */
+        box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+        overflow-y: auto;
+        padding-top: 50px !important;
+        /* Match mobile header height */
+    }
+
+    #gnb.mobile-open {
+        left: 0 !important;
+    }
+
+    /* Force Sub-menu visibility logic */
+    /* 1. Hide by default to prevent overlap */
+    body.admin-modern #gnb .gnb_oparea {
+        display: none !important;
+        width: 216px !important;
+        left: 64px !important;
+        position: absolute !important;
+        top: 0 !important;
+        height: 100% !important;
+        border-right: none !important;
+        z-index: 1500;
+    }
+
+    /* 2. Show only active sub-menu */
+    body.admin-modern #gnb .gnb_li.on .gnb_oparea {
+        display: block !important;
+    }
+
+    /* Ensure icons are visible */
+
+    /* Ensure icons are visible */
+    body.admin-modern #gnb .gnb_ul {
+        width: 64px !important;
+    }
+
+    /* Menu Button */
+    #btn_gnb {
+        display: block !important;
+        z-index: 1100;
+        /* Above sidebar */
+        background-color: transparent;
+        /* match header */
+    }
+
+    /* Container Title */
+    #container_title,
+    body.admin-modern #container_title {
+        padding-left: 20px !important;
+        top: 50px !important;
+        /* Adjust if needed */
+        height: auto !important;
+        line-height: normal !important;
+        padding-top: 10px !important;
+        padding-bottom: 10px !important;
+
+        /* Reset padding from sidebar */
+        position: static !important;
+        /* Unstick or adjust */
+        width: 100% !important;
+        margin-top: 0 !important;
+        border-bottom: 1px solid #ddd;
+    }
+
+    /* Footer */
+    #ft,
+    body.admin-modern #ft {
+        margin-left: 0 !important;
+        padding: 0 10px !important;
+    }
+
+    /* Table Scrolling - Override admin-modern overflow:hidden */
+    .tbl_wrap,
+    .tbl_head01,
+    .tbl_head02,
+    .tbl_frm01,
+    body.admin-modern .tbl_head01,
+    body.admin-modern .tbl_frm01 {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch;
+        display: block !important;
+        border-radius: 0 !important;
+        /* Optional: remove radius to save space */
+    }
+
+    table {
+        min-width: 800px !important;
+        /* Force table to keep shape to trigger scroll */
+    }
+
+    /* Fix Table Cell Wrapping - Prefer scrolling */
+    /* Fix Table Cell Wrapping - Prefer scrolling */
+    .tbl_head01 th,
+    .tbl_head01 td,
+    .tbl_head02 th,
+    .tbl_head02 td,
+    .tbl_wrap th,
+    .tbl_wrap td,
+    body.admin-modern .tbl_head01 th,
+    body.admin-modern .tbl_head01 td {
+        white-space: nowrap !important;
+        /* Prevent text wrapping */
+        word-break: keep-all !important;
+    }
+
+    /* Reduce padding for mobile to fit data */
+    body.admin-modern .tbl_head01 td,
+    body.admin-modern .tbl_head01 th {
+        padding: 8px 6px !important;
+        font-size: 13px !important;
+    }
+
+    /* Fix Search/Input Button Visibility */
+    input[type="submit"],
+    button[type="submit"],
+    .btn_submit,
+    .btn_01,
+    .btn_02,
+    .btn_03 {
+        width: auto !important;
+        /* Allow button to expand to text width */
+        min-width: 50px !important;
+        /* Minimum width for visibility */
+        padding: 0 10px !important;
+        /* Padding for text */
+        height: 30px !important;
+        line-height: 30px !important;
+        box-sizing: border-box !important;
+        font-size: 13px !important;
+        text-indent: 0 !important;
+        /* Reset text-indent from admin.css */
+    }
+
+    /* Search Box Input Width Adjustment */
+    .local_sch01 input[type="text"],
+    .local_sch01 select,
+    .frm_input {
+        max-width: 100%;
+        box-sizing: border-box;
+    }
+
+    /* Header overlap fix */
+    #hd,
+    body.admin-modern #hd {
+        height: auto !important;
+        position: relative !important;
+        /* sticky vs relative */
+    }
+
+    #hd_top,
+    body.admin-modern #hd_top {
+        height: 50px !important;
+        /* Force smaller height */
+        position: fixed !important;
+        top: 0;
+        left: 0;
+        width: 100%;
+    }
+
+    /* Logo adjustment */
+    #logo,
+    body.admin-modern #logo {
+        padding-left: 60px !important;
+        width: auto !important;
+    }
+
+    /* Global Container fix */
+    .container_wr,
+    body.admin-modern .container_wr {
+        width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Dashboard Widgets - Stack vertically */
+    .compare_wrap .compare_left,
+    .compare_wrap .compare_right {
+        float: none;
+        width: 100%;
+        margin-bottom: 20px;
+    }
+
+    /* Reset other fixed widths */
+    .local_desc01,
+    .local_desc02,
+    .local_ov,
+    .local_cmd,
+    .local_qv {
+        min-width: 0 !important;
+        width: 100% !important;
+    }
+
+    #sort_mb,
+    #sort_sodr {
+        width: 100% !important;
+    }
+
+    /* Search boxes */
+    .local_sch03 strong {
+        display: block;
+        width: auto;
+        margin-bottom: 5px;
+    }
+
+    /* Adjust padding */
+    .container_wr {
+        padding: 10px;
+    }
+
+    /* Hide non-essential columns in tables if needed - optional future enhancement */
+    /* 
+    .td_mbid, .td_mbname, .td_nick, .td_date {
+         display: none; 
+    } 
+    */
+}
+
+@media screen and (max-width: 768px) {
+
+    /* Smaller screens specific adjustments */
+    .btn_list03 a {
+        padding: 0 10px;
+    }
+
+    /* Adjust input widths */
+    .frm_input {
+        max-width: 100%;
+    }
+}
+
+/* 
+   ------------------------------------------
+   FontAwesome Icon Replacements for Admin Menu (Global)
+   ------------------------------------------
+*/
+
+/* Reset button style to remove image and prepare for font icon */
+body.admin-modern #gnb .gnb_li .btn_op {
+    background-image: none !important;
+    position: relative;
+    text-indent: 0 !important;
+    font-size: 0 !important;
+    /* Hide label text */
+}
+
+/* Common Icon Style */
+body.admin-modern #gnb .gnb_li .btn_op::before {
+    font-family: 'FontAwesome';
+    font-size: 22px;
+    color: #64748b;
+    /* Slate-500 */
+
+    /* Center the icon */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    /* Ensure visibility despite text-indent */
+    text-indent: 0;
+    line-height: normal;
+}
+
+/* Active State Color */
+body.admin-modern #gnb .on .btn_op::before,
+body.admin-modern #gnb .gnb_li .btn_op:hover::before {
+    color: #2f6df6;
+    /* Primary Blue */
+}
+
+/* Specific Icons for Menu Codes (using generated classes menu-menuXXX) */
+body.admin-modern #gnb .gnb_li .btn_op.menu-menu100::before {
+    content: "\f013";
+}
+
+/* Cog */
+
+/* User (Single) */
+body.admin-modern #gnb .gnb_li .btn_op.menu-menu200::before {
+    content: "\f007";
+}
+
+/* Users */
+body.admin-modern #gnb .gnb_li .btn_op.menu-menu300::before {
+    content: "\f044";
+}
+
+/* Edit */
+body.admin-modern #gnb .gnb_li .btn_op.menu-menu400::before {
+    content: "\f07a";
+}
+
+/* Cart */
+body.admin-modern #gnb .gnb_li .btn_op.menu-menu500::before {
+    content: "\f10b";
+    font-size: 28px;
+}
+
+/* Mobile */
+body.admin-modern #gnb .gnb_li .btn_op.menu-menu900::before {
+    content: "\f0e0";
+}
+
+/* Envelope */
+
+/* Default Fallback */
+body.admin-modern #gnb .gnb_li .btn_op:not([class*="menu-menu"])::before {
+    content: "\f07b";
+}

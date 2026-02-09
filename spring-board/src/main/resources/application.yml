@@ -10,19 +10,72 @@ spring:
     multipart:
       max-file-size: 100MB
       max-request-size: 300MB
+  mail:
+    host: ${MAIL_HOST:smtp.gmail.com}
+    port: ${MAIL_PORT:587}
+    username: ${MAIL_USERNAME:}
+    password: ${MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
 
 server:
   tomcat:
     max-swallow-size: -1
   servlet:
     context-path: /datahub/board
+    session:
+      timeout: 12h  # 세션 유지 시간: 12시간
 
 mybatis:
-  type-aliases-package: com.gnuboard.springboard.admin
+  type-aliases-package: com.deepcode.springboard.admin
   configuration:
     map-underscore-to-camel-case: true
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+
+logging:
+  level:
+    root: INFO
+    com.deepcode.springboard: INFO
+    # 디버그 모드에서만 보고 싶은 로그들
+    com.deepcode.springboard.bbs.mapper.WriteTableSqlProvider: INFO
+    com.deepcode.springboard.bbs.mapper.WriteMapper: INFO
+    # MyBatis SQL 로그 (디버그 모드에서만)
+    org.apache.ibatis: WARN
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
 
 app:
   g5:
     write-prefix: g5_write_
-    data-path: ../data
+    data-path: ${DATA_PATH:data}
+  mail:
+    from-name: 시스템관리자
+  sms:
+    enabled: ${SMS_ENABLED:false}
+    api-key: ${SMS_API_KEY:}
+    api-secret: ${SMS_API_SECRET:}
+    from-number: ${SMS_FROM_NUMBER:}
+  ocr:
+    enabled: ${OCR_ENABLED:true}
+    tesseract-lib-path: ${TESSERACT_LIB_PATH:/opt/homebrew/opt/tesseract/lib}
+    tessdata-path: ${TESSDATA_PATH:/opt/homebrew/share/tessdata}
+    language: ${OCR_LANGUAGE:kor+eng}
+    engine-mode: ${OCR_ENGINE_MODE:1}
+    page-seg-mode: ${OCR_PAGE_SEG_MODE:3}

@@ -21,7 +21,7 @@ table tbody {
 #bo_list .txt_active {color:#5d910b}
 #bo_list .txt_expired {color:#ccc}
 #bo_list tbody tr {border-left:2px solid transparent}
-#bo_list tbody tr:hover {border-left:2px solid #253dbe}
+#bo_list tbody tr:hover {border-left:2px solid #1f57d5}
 #bo_list tbody .even td {background:#fbfbfb}
 
 #bo_cate {margin:25px 0}
@@ -29,9 +29,9 @@ table tbody {
 #bo_cate ul {zoom:1}
 #bo_cate ul:after {display:block;visibility:hidden;clear:both;content:""}
 #bo_cate li {display:inline-block;padding:2px}
-#bo_cate a {display:block;line-height:28px;padding:5px 15px;border-radius:30px;border:1px solid #d6e9ff;color:#6794d3}
-#bo_cate a:focus, #bo_cate a:hover, #bo_cate a:active {text-decoration:none;background:#3a8afd;color:#fff}
-#bo_cate #bo_cate_on {z-index:2;background:#3a8afd;color:#fff;font-weight:bold;border:1px solid #3a8afd;
+#bo_cate a {display:block;line-height:28px;padding:5px 15px;border-radius:30px;border:1px solid #d6e9ff;color:#7ea6ff}
+#bo_cate a:focus, #bo_cate a:hover, #bo_cate a:active {text-decoration:none;background:#2f6df6;color:#fff}
+#bo_cate #bo_cate_on {z-index:2;background:#2f6df6;color:#fff;font-weight:bold;border:1px solid #2f6df6;
 -webkit-box-shadow:inset 0 2px 5px rgb(33, 135, 202);
 -moz-box-shadow:inset 0 2px 5px rgb(33, 135, 202);
 box-shadow:inset 0 2px 5px rgb(33, 135, 202)}
@@ -41,12 +41,12 @@ box-shadow:inset 0 2px 5px rgb(33, 135, 202)}
 .selec_chk {position:absolute;top:0;left:0;width:0;height:0;opacity:0;outline:0;z-index:-1;overflow:hidden}
 .chk_box {position:relative}
 .chk_box input[type="checkbox"] + label {position:relative;color:#676e70}
-.chk_box input[type="checkbox"] + label:hover {color:#2172f8}
+.chk_box input[type="checkbox"] + label:hover {color:#2f6df6}
 .chk_box input[type="checkbox"] + label span {float:left;width:15px;height:15px;display:block;background:#fff;border:1px solid #d0d4df;border-radius:3px}
 .write_div .chk_box input[type="checkbox"] + label, .bo_vc_w .chk_box input[type="checkbox"] + label {padding-left:20px}
 .write_div .chk_box input[type="checkbox"] + label span, .bo_vc_w .chk_box input[type="checkbox"] + label span {position:absolute;top:2px;left:0;width:15px;height:15px;display:block;margin:0;background:#fff;border:1px solid #d0d4df;border-radius:3px}
 .chk_box input[type="checkbox"]:checked + label {color:#000}
-.chk_box input[type="checkbox"]:checked + label span {background:url(./img/chk.png) no-repeat 50% 50% #3a8afd;border-color:#1471f6;border-radius:3px}
+.chk_box input[type="checkbox"]:checked + label span {background:url(./img/chk.png) no-repeat 50% 50% #2f6df6;border-color:#1471f6;border-radius:3px}
 
 
 #bo_btn_top {margin:10px 0}
@@ -77,12 +77,12 @@ box-shadow:inset 0 2px 5px rgb(33, 135, 202)}
 .more_opt li i {float:right;line-height:20px}
 
 .td_num strong {color:#000}
-.bo_cate_link {float:left;display:inline-block;margin-right:10px;background:#e2eaf6;color:#3a8afd;font-weight:normal !important;height:20px;line-height:10px;padding:5px 8px;border-radius:5px;font-size:0.95em} /* 글제목줄 분류스타일 */
+.bo_cate_link {float:left;display:inline-block;margin-right:10px;background:#e2eaf6;color:#2f6df6;font-weight:normal !important;height:20px;line-height:10px;padding:5px 8px;border-radius:5px;font-size:0.95em} /* 글제목줄 분류스타일 */
 .bo_cate_link:hover {text-decoration:none}
 .bo_tit {display:block;color:#000;font-weight:bold}
 .bo_current {color:#e8180c}
 #bo_list .profile_img img {border-radius:50%}
-#bo_list .cnt_cmt {background:#e9eff5;color:#3a8afd;font-size:11px;height:16px;line-height:16px;padding:0 5px;border-radius:3px;vertical-align:middle}
+#bo_list .cnt_cmt {background:#e9eff5;color:#2f6df6;font-size:11px;height:16px;line-height:16px;padding:0 5px;border-radius:3px;vertical-align:middle}
 
 #bo_list .bo_tit .title_icon {margin-right:2px}
 #bo_list .bo_tit .fa-heart {color:#ff0000}
@@ -199,11 +199,11 @@ html.no-overflowscrolling #autosave_pop {height:auto;max-height:10000px !importa
 box-shadow:1px 1px 5px 0px hsl(232, 36%, 96%)}
 #bo_v_file li i {float:left;color:#b2b2b2;font-size:2.35em;margin-right:20px}
 #bo_v_file a {float:left;display:block;text-decoration:none;word-wrap:break-word;color:#000}
-#bo_v_file a:focus, #bo_v_file li:hover a, #bo_v_file a:active {text-decoration:underline;color:#3a8afd}
+#bo_v_file a:focus, #bo_v_file li:hover a, #bo_v_file a:active {text-decoration:underline;color:#2f6df6}
 #bo_v_file img {float:left;margin:0 10px 0 0}
 #bo_v_file .bo_v_file_cnt {color:#b2b2b2;font-size:0.92em}
 #bo_v_file li:hover {border-color:#bed4f4;color:#bed4f4}
-#bo_v_file li:hover i {color:#3a8afd}
+#bo_v_file li:hover i {color:#2f6df6}
 #bo_v_file li:hover .bo_v_file_cnt {color:#99c2fc}
 
 
@@ -215,10 +215,10 @@ box-shadow:1px 1px 5px 0px hsl(232, 36%, 96%)}
 box-shadow:1px 1px 5px 0px hsl(232, 36%, 96%)}
 #bo_v_link li i {float:left;color:#b2b2b2;font-size:2.35em;margin-right:20px}
 #bo_v_link a {float:left;display:block;text-decoration:none;word-wrap:break-word;color:#000}
-#bo_v_link a:focus, #bo_v_link li:hover a, #bo_v_link a:active {text-decoration:underline;color:#3a8afd}
+#bo_v_link a:focus, #bo_v_link li:hover a, #bo_v_link a:active {text-decoration:underline;color:#2f6df6}
 #bo_v_link .bo_v_link_cnt {color:#b2b2b2;font-size:0.92em}
 #bo_v_link li:hover {border-color:#bed4f4;color:#bed4f4}
-#bo_v_link li:hover i {color:#3a8afd}
+#bo_v_link li:hover i {color:#2f6df6}
 #bo_v_link li:hover .bo_v_link_cnt {color:#99c2fc}
 
 #bo_v_top {zoom:1}
@@ -317,7 +317,7 @@ box-shadow:1px 1px 5px 0px hsl(232, 36%, 96%)}
 #bo_v_con img {max-width:100%;height:auto}
 
 /* 첨부파일 미리보기 */
-.view_file_open {margin-left:8px;font-size:0.92em;color:#3a8afd}
+.view_file_open {margin-left:8px;font-size:0.92em;color:#2f6df6}
 .view_file_preview {margin:10px 0 20px}
 .view_file_preview img {max-width:100%;height:auto;display:block;border:1px solid #e5e7eb;border-radius:4px;background:#fff}
 .view_file_preview iframe {width:100%;min-height:420px;border:1px solid #e5e7eb;border-radius:4px;background:#fff}
@@ -349,11 +349,11 @@ box-shadow:1px 1px 5px 0px hsl(232, 36%, 96%)}
 
 /* 게시판 댓글 */
 .cmt_btn {width:100%;text-align:left;border:0;border-bottom:1px solid #f0f0f0;background:#fff;font-weight:bold;margin:30px 0 0px;padding:0 0 15px}
-.cmt_btn span.total {position:relative;display:inline-block;margin-right:5px;font-size:1em;color:#3a8afd}
+.cmt_btn span.total {position:relative;display:inline-block;margin-right:5px;font-size:1em;color:#2f6df6}
 .cmt_btn span.cmt_more {float:right;display:inline-block;width:15px;height:10px;background:url(./img/btn_cmt.png) no-repeat right 2px;margin-top:5px}
 .cmt_btn_op span.cmt_more {background-position:right -8px}
 .cmt_btn b {font-size:1.2em;color:#000}
-.cmt_btn span.total:after {position:absolute;bottom:-17px;left:0;display:inline-block;background:#3a8afd;content:"";width:100%;height:2px}
+.cmt_btn span.total:after {position:absolute;bottom:-17px;left:0;display:inline-block;background:#2f6df6;content:"";width:100%;height:2px}
 #bo_vc {}
 #bo_vc h2 {position:absolute;font-size:0;line-height:0;overflow:hidden}
 #bo_vc article {margin:20px 0;position:relative;border-bottom:1px solid #f0f0f0}
@@ -382,7 +382,7 @@ box-shadow:1px 1px 5px 0px hsl(232, 36%, 96%)}
 .bo_vc_act li {border-bottom:1px solid #f0f0f0}
 .bo_vc_act li:last-child {border-bottom:0}
 .bo_vc_act li a {display:inline-block;padding:10px 15px}
-.bo_vc_act li a:hover {color:#3a8afd}
+.bo_vc_act li a:hover {color:#2f6df6}
 
 .bo_vc_w {position:relative;margin:10px 0;display:block}
 .bo_vc_w:after {display:block;visibility:hidden;clear:both;content:""}

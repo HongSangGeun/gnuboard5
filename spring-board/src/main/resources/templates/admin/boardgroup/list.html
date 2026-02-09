@@ -60,7 +60,7 @@
                                 <a th:href="@{/mgmt/boardgroup/form(grId=${group.grId}, w='u')}"
                                     class="btn btn_03">수정</a>
                                 <a th:href="@{/mgmt/boardgroup/delete(grId=${group.grId})}"
-                                    onclick="return confirm('삭제하시겠습니까?');" class="btn btn_02">삭제</a>
+                                    data-confirm="삭제하시겠습니까?" class="btn btn_02">삭제</a>
                             </td>
                         </tr>
                     </th:block>

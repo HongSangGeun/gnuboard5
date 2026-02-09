@@ -4,7 +4,7 @@
 
 <head>
     <title>관리자 메인</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <script th:src="'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js'"></script>
 </head>
 
 <body>
@@ -22,7 +22,7 @@
             <div id="monitoringError" style="display:none;text-align:center;padding:20px;">
                 <p style="color:#ef4444;margin-bottom:10px;">모니터링 데이터를 불러올 수 없습니다.</p>
                 <p style="color:#64748b;font-size:13px;">브라우저 콘솔(F12)에서 오류를 확인하세요.</p>
-                <button onclick="loadMonitoringData()" style="margin-top:10px;padding:8px 16px;background:#3b82f6;color:#fff;border:none;border-radius:4px;cursor:pointer;">
+                <button id="btnRetryMonitoring" type="button" style="margin-top:10px;padding:8px 16px;background:#3b82f6;color:#fff;border:none;border-radius:4px;cursor:pointer;">
                     다시 시도
                 </button>
             </div>
@@ -128,7 +128,11 @@
                         console.log('No monitoring data or not successful:', data);
                         const container = document.getElementById('monitoringCards');
                         if (container) {
-                            container.innerHTML = '<p style="text-align:center;padding:20px;color:#94a3b8;">모니터링 데이터가 없습니다.</p>';
+                            container.textContent = '';
+                            var noDataMsg = document.createElement('p');
+                            noDataMsg.style.cssText = 'text-align:center;padding:20px;color:#94a3b8;';
+                            noDataMsg.textContent = '모니터링 데이터가 없습니다.';
+                            container.appendChild(noDataMsg);
                         }
                     }
                 })
@@ -144,10 +148,22 @@
                         errorDiv.style.display = 'block';
                         const errorMsg = errorDiv.querySelector('p');
                         if (errorMsg) {
-                            errorMsg.innerHTML = '모니터링 데이터를 불러올 수 없습니다.<br><small style="color:#94a3b8;">오류: ' + error.message + '</small>';
+                            errorMsg.textContent = '';
+                            errorMsg.appendChild(document.createTextNode('모니터링 데이터를 불러올 수 없습니다.'));
+                            errorMsg.appendChild(document.createElement('br'));
+                            var small = document.createElement('small');
+                            small.style.color = '#94a3b8';
+                            small.textContent = '오류: ' + error.message;
+                            errorMsg.appendChild(small);
                         }
                     }
                 });
+        }
+
+        function escapeHtml(str) {
+            var div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
         }
 
         function renderMonitoringCards(services) {
@@ -157,33 +173,41 @@
             services.forEach((service, index) => {
                 const card = document.createElement('div');
                 card.className = 'monitoring-card';
-                card.innerHTML = `
-                    <div class="card-header">
-                        <div class="service-info">
-                            <h3>${service.name}</h3>
-                            <p class="service-url">${service.url}</p>
-                        </div>
-                        <div class="service-stats">
-                            <div class="stat-item">
-                                <span class="stat-label">가동률</span>
-                                <span class="stat-value" style="color: ${service.upRate >= 95 ? '#22c55e' : service.upRate >= 80 ? '#f59e0b' : '#ef4444'}">
-                                    ${service.upRate}%
-                                </span>
-                            </div>
-                            <div class="stat-item">
-                                <span class="stat-label">평균 응답시간</span>
-                                <span class="stat-value">${service.avgResponseTime}ms</span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="card-body">
-                        <canvas id="chart-${index}" style="max-height:200px;"></canvas>
-                    </div>
-                    <div class="card-footer">
-                        <span class="check-count">최근 ${service.totalChecks}회 체크</span>
-                        <a href="/datahub/board/mgmt/monitoring/history/${service.id}" class="view-detail">상세보기 →</a>
-                    </div>
-                `;
+
+                var upRateColor = service.upRate >= 95 ? '#22c55e' : service.upRate >= 80 ? '#f59e0b' : '#ef4444';
+                var detailHref = window.g5_admin_url + '/monitoring/history/' + encodeURIComponent(service.id);
+
+                card.innerHTML =
+                    '<div class="card-header">' +
+                        '<div class="service-info">' +
+                            '<h3>' + escapeHtml(service.name) + '</h3>' +
+                            '<p class="service-url">' + escapeHtml(service.url) + '</p>' +
+                        '</div>' +
+                        '<div class="service-stats">' +
+                            '<div class="stat-item">' +
+                                '<span class="stat-label">가동률</span>' +
+                                '<span class="stat-value" style="color:' + escapeHtml(upRateColor) + '">' +
+                                    escapeHtml(String(service.upRate)) + '%' +
+                                '</span>' +
+                            '</div>' +
+                            '<div class="stat-item">' +
+                                '<span class="stat-label">평균 응답시간</span>' +
+                                '<span class="stat-value">' + escapeHtml(String(service.avgResponseTime)) + 'ms</span>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="card-body">' +
+                        '<canvas id="chart-' + index + '" style="max-height:200px;"></canvas>' +
+                    '</div>' +
+                    '<div class="card-footer">' +
+                        '<span class="check-count">최근 ' + escapeHtml(String(service.totalChecks)) + '회 체크</span>' +
+                        '<a class="view-detail">상세보기 →</a>' +
+                    '</div>';
+
+                // href를 안전하게 설정
+                var detailLink = card.querySelector('.view-detail');
+                if (detailLink) detailLink.href = detailHref;
+
                 container.appendChild(card);
 
                 // 차트 생성
@@ -301,6 +325,10 @@
 
         // 페이지 로드 시 실행
         document.addEventListener('DOMContentLoaded', function() {
+            var retryBtn = document.getElementById('btnRetryMonitoring');
+            if (retryBtn) {
+                retryBtn.addEventListener('click', function() { loadMonitoringData(); });
+            }
             console.log('DOMContentLoaded');
             const container = document.getElementById('monitoringCards');
             console.log('Monitoring cards container:', container);
@@ -318,7 +346,11 @@
                     };
                     script.onerror = function() {
                         console.error('Failed to load Chart.js');
-                        container.innerHTML = '<p style="text-align:center;padding:20px;color:#ef4444;">Chart.js 로드 실패</p>';
+                        container.textContent = '';
+                        var failMsg = document.createElement('p');
+                        failMsg.style.cssText = 'text-align:center;padding:20px;color:#ef4444;';
+                        failMsg.textContent = 'Chart.js 로드 실패';
+                        container.appendChild(failMsg);
                     };
                     document.head.appendChild(script);
                 } else {

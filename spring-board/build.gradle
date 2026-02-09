@@ -23,8 +23,18 @@ dependencies {
     implementation 'nz.net.ultraq.thymeleaf:thymeleaf-layout-dialect:3.3.0'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-jdbc'
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
     implementation 'org.jsoup:jsoup:1.17.2'
+
+    // OCR 라이브러리
+    implementation 'net.sourceforge.tess4j:tess4j:5.9.0'
+
+    // PDF 처리 라이브러리
+    implementation 'org.apache.pdfbox:pdfbox:3.0.1'
+    implementation 'org.apache.pdfbox:pdfbox-tools:3.0.1'
+
     runtimeOnly 'com.mysql:mysql-connector-j'
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

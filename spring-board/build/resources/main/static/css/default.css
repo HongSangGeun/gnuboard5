@@ -85,16 +85,16 @@ border:1px solid #558ab7 !important;
 #tnb:after {display:block;visibility:hidden;clear:both;content:""}
 #tnb .inner {margin:0 auto;background:#ededed}
 
-#hd_wrapper {position:relative;margin:0 auto;height:140px;zoom:1}
+#hd_wrapper {position:relative;margin:0 auto;height:100px;zoom:1}
 #hd_wrapper:after {display:block;visibility:hidden;clear:both;content:""}
 
-#logo {float:left;padding:30px 0 0}
+#logo {float:left;padding:20px 0 0}
 
-.hd_sch_wr {float:left;padding:30px 0;width:445px;margin-left:65px}
+.hd_sch_wr {float:left;padding:20px 0;width:445px;margin-left:65px}
 #hd_sch h3 {position:absolute;font-size:0;line-height:0;overflow:hidden}
 #hd_sch {border-radius:30px;overflow:hidden}
 #hd_sch #sch_stx {float:left;width:385px;height:45px;padding-left:10px;border-radius:30px 0 0 30px;background:#ffffff;border:0;border-right:0;font-size:1.25em;color:#000000;padding-left:30px}
-#hd_sch #sch_submit {float:left;width:60px;height:45px;border:0;background:#2c2c2c;color:#fff;border-radius:0 30px 30px 0;cursor:pointer;font-size:16px}
+#hd_sch #sch_submit {float:left;width:60px;height:45px;border:0;background:#2c2c2c;color:#fff;border-radius:0 30px 30px 0;cursor:pointer;font-size: 18px}
 
 #hd_define {float:left}
 #hd_define:after {display:block;visibility:hidden;clear:both;content:""}
@@ -109,13 +109,13 @@ border:1px solid #558ab7 !important;
 #hd_qnb li:last-child {padding-right:0;margin-right:0;border-right:0}
 #hd_qnb li span {display:block;margin-top:5px;font-size:0.92em}
 #hd_qnb li a {display:inline-block;color:#919191}
-#hd_qnb .visit .visit-num {display:inline-block;line-height:16px;padding:0 5px;margin-left:5px;border-radius:10px;background:#da22f5;color:#fff;font-size:10px}
+#hd_qnb .visit .visit-num {display:inline-block;line-height:16px;padding:0 5px;margin-left:5px;border-radius:10px;background:#da22f5;color:#fff;font-size: 12px}
 
 
 .hd_login {
 	position:absolute;
 	right:0;
-	top:53px;
+	top:30px;
 	display:flex;
 	align-items:center;
 	gap:8px;
@@ -143,13 +143,13 @@ border:1px solid #558ab7 !important;
 	transition:all 0.2s ease-in-out;
 }
 .hd_login a.hd_login_link i {
-	color:#3569ea;
+	color:#7a8aa7;
 	font-size:1em;
 }
 .hd_login a.hd_login_link:hover {
-	border-color:#3569ea;
-	background:#f3f7ff;
-	color:#163b97;
+	border-color:#7a8aa7;
+	background:#f8fafc;
+	color:#5a6a87;
 }
 .hd_login a.hd_login_link.tnb_admin {
 	background:#3569ea;
@@ -172,7 +172,7 @@ border:1px solid #558ab7 !important;
 #gnb .gnb_wrap:hover, #gnb .gnb_wrap:focus, #gnb .gnb_wrap:active{z-index:3}
 #gnb #gnb_1dul {font-size:1.083em;padding:0;border-bottom:1px solid #e0e2e5;zoom:1}
 #gnb ul:after {display:block;visibility:hidden;clear:both;content:""}
-#gnb .gnb_1dli {float:left;line-height:55px;padding:0px;position:relative}
+#gnb .gnb_1dli {float:left;line-height:55px;padding:0px;position:relative}1
 #gnb .gnb_1dli:hover > a {color:#3a8afd;
 -webkit-transition:background-color 2s ease-out;
 -moz-transition:background-color 0.3s ease-out;
@@ -203,8 +203,8 @@ transition:all 0.3s ease-out}
 .gnb_wrap .gnb_empty a {color:#3a8afd;text-decoration:underline}
 .gnb_wrap .gnb_al_ul .gnb_empty, .gnb_wrap .gnb_al_ul .gnb_empty a {color:#555}
 
-#gnb .gnb_menu_btn {background:#4158d1;color:#fff;width:50px;height:55px;border:0;vertical-align:top;font-size:18px}
-#gnb .gnb_close_btn {background:#fff;color:#b6b9bb;width:50px;height:50px;border:0;vertical-align:top;font-size:18px;position:absolute;top:0;right:0}
+#gnb .gnb_menu_btn {background:#4158d1;color:#fff;width:50px;height:55px;border:0;vertical-align:top;font-size: 20px}
+#gnb .gnb_close_btn {background:#fff;color:#b6b9bb;width:50px;height:50px;border:0;vertical-align:top;font-size: 20px;position:absolute;top:0;right:0}
 #gnb .gnb_mnal {float:right;padding:0}
 
 #gnb_all {display:none;position:absolute;border:1px solid #c5d6da;width:100%;background:#fff;z-index:1000;-webkit-box-shadow:0 2px 5px rgba(0,0,0,0.2);
@@ -258,7 +258,7 @@ box-shadow:0 2px 5px rgba(0,0,0,0.2)}
 #ft_company {font-weight:normal;color:#e3e3e3;line-height:2em}
 #ft_catch {margin:20px 0 10px}
 #ft_copy {text-align:center;width:1200px;margin:0 auto;padding:20px 0;color:#5b5b5b;font-size:0.92em;border-top:1px solid #383838}
-#top_btn {position:fixed;bottom:20px;right:20px;width:50px;height:50px;line-height:46px;border:2px solid #333;color:#333;text-align:center;font-size:15px;z-index:90;background:rgba(255,255,255,0.5)}
+#top_btn {position:fixed;bottom:20px;right:20px;width:50px;height:50px;line-height:46px;border:2px solid #333;color:#333;text-align:center;font-size: 17px;z-index:90;background:rgba(255,255,255,0.5)}
 #top_btn:hover {border-color:#3059c7;background:#3059c7;color:#fff}
 
 /* 게시물 선택복사 선택이동 */

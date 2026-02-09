@@ -54,7 +54,7 @@
                             <li th:if="${loginUser != null && (loginUser.id == post.mbId || loginUser.level >= 10)}">
                                 <form th:action="@{'/bbs/' + ${boTable} + '/delete/' + ${post.wrId}}" method="post" style="display:inline;">
                                     <input type="hidden" name="password" value="" />
-                                    <button type="submit" class="btn_b01 btn btn_delete" title="삭제" onclick="return confirm('정말 삭제하시겠습니까?');"><i class="fa fa-trash" aria-hidden="true"></i><span class="btn_text">삭제</span></button>
+                                    <button type="submit" class="btn_b01 btn btn_delete" title="삭제" data-confirm="정말 삭제하시겠습니까?"><i class="fa fa-trash" aria-hidden="true"></i><span class="btn_text">삭제</span></button>
                                 </form>
                             </li>
                         </ul>

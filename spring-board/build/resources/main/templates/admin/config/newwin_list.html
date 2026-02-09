@@ -52,7 +52,7 @@
                         <td class="td_mng td_mng_m">
                             <a th:href="@{/mgmt/config/newwin/form(nwId=${newWin.nwId})}" class="btn btn_03">수정</a>
                             <a th:href="@{/mgmt/config/newwin/delete(nwId=${newWin.nwId})}"
-                                onclick="return confirm('삭제하시겠습니까?');" class="btn btn_02">삭제</a>
+                                data-confirm="삭제하시겠습니까?" class="btn btn_02">삭제</a>
                         </td>
                     </tr>
                     <tr th:if="${#lists.isEmpty(newWinList)}">

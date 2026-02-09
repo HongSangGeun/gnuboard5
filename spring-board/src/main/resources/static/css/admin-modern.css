@@ -1,0 +1,657 @@
+@charset "utf-8";
+
+:root {
+    /* 로그인 화면과 동일한 블루 테마 적용 */
+    --adm-bg: #f3f6ff;
+    --adm-surface: #ffffff;
+    --adm-border: #dbe4f3;
+    --adm-border-strong: #cbd5e1;
+    --adm-text: #0f172a;
+    --adm-text-muted: #64748b;
+    --adm-primary: #2f6df6;
+    --adm-primary-strong: #1f57d5;
+    --adm-accent: #3a7bff;
+    --adm-success: #10b981;
+    --adm-danger: #d14343;
+    --adm-shadow: 0 18px 44px rgba(37, 74, 142, 0.15);
+    --adm-radius: 14px;
+    --adm-radius-sm: 10px;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+body.admin-modern {
+    background: var(--adm-bg);
+    color: var(--adm-text);
+    font-family: "Pretendard", "Noto Sans KR", "Malgun Gothic", sans-serif;
+    font-size: 13px;
+}
+
+body.admin-modern a:link,
+body.admin-modern a:visited {
+    color: var(--adm-primary-strong);
+}
+
+body.admin-modern #hd_top {
+    height: 64px;
+    background: var(--adm-primary);
+    border-bottom: 1px solid var(--adm-primary-strong);
+    box-shadow: 0 2px 8px rgba(47, 109, 246, 0.15);
+}
+
+body.admin-modern #btn_gnb,
+body.admin-modern #btn_gnb.btn_gnb_open {
+    width: 64px;
+    height: 64px;
+    border: 0;
+    background-color: transparent;
+    background-image: none;
+    position: absolute;
+    left: 0;
+    top: 0;
+    text-indent: -9999px;
+}
+
+body.admin-modern #btn_gnb::before,
+body.admin-modern #btn_gnb::after {
+    content: "";
+    position: absolute;
+    left: 22px;
+    width: 20px;
+    height: 2px;
+    background: #ffffff;
+    border-radius: 2px;
+    transition: 0.2s ease;
+}
+
+body.admin-modern #btn_gnb::before {
+    top: 26px;
+    box-shadow: 0 6px 0 #ffffff;
+}
+
+body.admin-modern #btn_gnb::after {
+    top: 38px;
+}
+
+body.admin-modern #btn_gnb.btn_gnb_open::before {
+    transform: rotate(45deg);
+    top: 31px;
+    box-shadow: none;
+}
+
+body.admin-modern #btn_gnb.btn_gnb_open::after {
+    transform: rotate(-45deg);
+    top: 31px;
+}
+
+body.admin-modern #logo {
+    width: 280px;
+    padding: 12px 0 12px 64px;
+    background: rgba(255, 255, 255, 0.12);
+    text-align: left;
+}
+
+body.admin-modern #logo img {
+    max-height: 40px;
+    width: auto;
+    filter: brightness(0) invert(1);
+    /* White Logo */
+    opacity: 1;
+}
+
+body.admin-modern #tnb {
+    padding: 17px 14px 0 14px;
+}
+
+body.admin-modern #tnb .tnb_community {
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.15);
+    font-size: 0;
+    position: relative;
+}
+
+body.admin-modern #tnb .tnb_community::before {
+    content: "\f015";
+    font-family: 'FontAwesome';
+    font-size: 16px;
+    color: #fff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+body.admin-modern #tnb .tnb_community:hover {
+    background-color: rgba(255, 255, 255, 0.24);
+}
+
+body.admin-modern #tnb button {
+    width: 124px;
+    height: 32px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.16);
+    color: #ffffff;
+    font-weight: 600;
+}
+
+body.admin-modern #tnb button span {
+    width: 30px;
+    height: 32px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.2);
+    font-size: 0;
+    position: relative;
+}
+
+body.admin-modern #tnb button span::before {
+    content: "\f0c9";
+    font-family: 'FontAwesome';
+    font-size: 14px;
+    color: #fff;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+body.admin-modern #tnb .tnb_mb_area {
+    margin-top: 6px;
+    width: 124px;
+    border-radius: 10px;
+    padding: 8px;
+    background: #f8fbff;
+    border: 1px solid var(--adm-border);
+    box-shadow: var(--adm-shadow);
+}
+
+body.admin-modern #tnb .tnb_mb_area a {
+    color: var(--adm-text);
+}
+
+body.admin-modern #gnb {
+    max-width: 280px;
+    padding-top: 64px;
+}
+
+body.admin-modern #gnb .gnb_ul {
+    width: 64px;
+    background: #ffffff;
+    border-right: 1px solid var(--adm-border);
+    box-shadow: 1px 0 0 rgba(15, 23, 42, 0.03);
+}
+
+body.admin-modern #gnb .gnb_li {
+    border-bottom: 1px solid var(--adm-border);
+}
+
+body.admin-modern #gnb .gnb_li button {
+    width: 64px;
+    height: 64px;
+    background-color: #ffffff;
+}
+
+body.admin-modern #gnb .gnb_li button:hover {
+    background-color: #f7f9fd;
+}
+
+body.admin-modern #gnb .on .btn_op {
+    background-color: #edf4ff !important;
+}
+
+body.admin-modern #gnb .gnb_oparea {
+    left: 64px;
+    width: 216px;
+    border-right: 1px solid var(--adm-border);
+    background: #ffffff;
+    padding: 20px 16px;
+}
+
+body.admin-modern #gnb .gnb_oparea h3 {
+    margin: 4px 0 14px;
+    font-size: 15px;
+    color: #0f172a;
+}
+
+body.admin-modern #gnb .gnb_oparea li {
+    line-height: 1.4;
+}
+
+body.admin-modern #gnb .gnb_oparea li a {
+    display: block;
+    color: #334155;
+    padding: 8px 10px;
+    border-radius: 8px;
+}
+
+body.admin-modern #gnb .gnb_oparea li a:hover,
+body.admin-modern #gnb .gnb_oparea li .on {
+    background: #edf4ff;
+    color: var(--adm-primary-strong);
+    font-weight: 600;
+}
+
+body.admin-modern #container {
+    background: transparent;
+    min-width: 0;
+    padding: 0 0 0 280px;
+    margin-top: 128px;
+}
+
+body.admin-modern #container.container-small {
+    padding-left: 88px;
+}
+
+body.admin-modern #container_title {
+    top: 64px;
+    height: 64px;
+    line-height: 64px;
+    font-size: 22px;
+    font-weight: 700;
+    color: #0f172a;
+    background: rgba(255, 255, 255, 0.95);
+    border-bottom: 1px solid var(--adm-border);
+    padding-left: 302px;
+}
+
+body.admin-modern #container.container-small #container_title {
+    padding-left: 106px;
+}
+
+body.admin-modern .container_wr {
+    padding: 24px;
+}
+
+body.admin-modern .container_wr>section,
+body.admin-modern .tbl_wrap,
+body.admin-modern .local_desc,
+body.admin-modern .local_desc01,
+body.admin-modern .local_desc02,
+body.admin-modern .compare_wrap section {
+    background: var(--adm-surface);
+    border: 1px solid var(--adm-border);
+    border-radius: var(--adm-radius);
+    box-shadow: var(--adm-shadow);
+}
+
+body.admin-modern .container_wr>section {
+    padding: 18px 18px 14px;
+    margin-bottom: 16px;
+}
+
+body.admin-modern h2,
+body.admin-modern .h2_frm {
+    margin: 0 0 14px;
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+body.admin-modern .tbl_frm01,
+body.admin-modern .tbl_head01 {
+    border: 1px solid var(--adm-border);
+    border-radius: var(--adm-radius);
+    overflow: hidden;
+    box-shadow: var(--adm-shadow);
+}
+
+body.admin-modern .tbl_frm01 table th {
+    background: #f8f9fa;
+    /* Flat light gray */
+    border-bottom: 1px solid var(--adm-border);
+    color: #334155;
+    font-weight: 600;
+    text-align: left;
+    padding: 12px 14px;
+    width: 180px;
+}
+
+body.admin-modern .tbl_frm01 table td {
+    border-bottom: 1px solid var(--adm-border);
+    padding: 10px 12px;
+}
+
+body.admin-modern .tbl_head01 table th {
+    background: #f8f9fa;
+    /* Flat light gray */
+    border-bottom: 1px solid var(--adm-border-strong);
+    color: #334155;
+    font-weight: 600;
+    padding: 10px 8px;
+    text-align: center;
+}
+
+body.admin-modern .tbl_head01 table td {
+    border-bottom: 1px solid var(--adm-border);
+    padding: 9px 8px;
+    background: #ffffff;
+}
+
+body.admin-modern .empty_table {
+    color: var(--adm-text-muted);
+    padding: 24px 8px;
+}
+
+body.admin-modern .local_desc,
+body.admin-modern .local_desc01 {
+    border: 1px solid #dbe7ff;
+    background: #f5f9ff;
+    color: #1e3a8a;
+    border-radius: 4px;
+}
+
+/* FLat Top Stats */
+body.admin-modern .local_ov {
+    border: none !important;
+    background: transparent !important;
+    padding: 10px 0 !important;
+    margin-bottom: 0 !important;
+    color: var(--adm-text);
+}
+
+body.admin-modern .local_ov .ov_listall,
+body.admin-modern .local_ov .btn_ov01 {
+    display: inline-block;
+    padding: 0 12px;
+    border-right: 1px solid #e2e8f0;
+    color: var(--adm-text-muted);
+    font-size: 13px;
+    margin-right: 0;
+}
+
+body.admin-modern .local_ov .ov_num {
+    font-weight: 700;
+    color: var(--adm-primary);
+    margin-left: 4px;
+}
+
+body.admin-modern .frm_input,
+body.admin-modern input[type="text"],
+body.admin-modern input[type="number"],
+body.admin-modern input[type="password"],
+body.admin-modern select,
+body.admin-modern textarea {
+    border: 1px solid var(--adm-border-strong);
+    border-radius: var(--adm-radius-sm);
+    padding: 0 12px;
+    height: 38px;
+    background: #ffffff;
+    color: var(--adm-text);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+body.admin-modern textarea {
+    min-height: 96px;
+    padding: 10px 12px;
+    line-height: 1.45;
+}
+
+body.admin-modern .frm_input:focus,
+body.admin-modern input[type="text"]:focus,
+body.admin-modern input[type="number"]:focus,
+body.admin-modern input[type="password"]:focus,
+body.admin-modern select:focus,
+body.admin-modern textarea:focus {
+    outline: none;
+    border-color: #93c5fd;
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+body.admin-modern .btn,
+body.admin-modern a.btn,
+body.admin-modern .btn_submit,
+body.admin-modern a.btn_submit,
+body.admin-modern input[type="submit"] {
+    border: 1px solid transparent;
+    /* Changed from 1px solid var(--adm-primary-strong) */
+    border-radius: 4px;
+    /* Changed from var(--adm-radius-sm) or 10px */
+    padding: 0 14px;
+    height: 34px;
+    /* Changed from 38px */
+    line-height: 32px;
+    font-weight: 500;
+    /* Changed from 600 or 700 */
+    transition: all 0.2s ease;
+    cursor: pointer;
+    box-shadow: none;
+    /* FLATTEN */
+    background-image: none;
+    /* NO GRADIENT */
+    font-size: 13px;
+    letter-spacing: normal;
+}
+
+/* Primary Button (Blue) - Search, Save, Add */
+body.admin-modern .btn_submit,
+body.admin-modern a.btn_submit,
+body.admin-modern .btn_01,
+body.admin-modern a.btn_01 {
+    background-color: var(--adm-primary) !important;
+    color: #ffffff !important;
+    border-color: var(--adm-primary) !important;
+    background: var(--adm-primary) !important;
+    /* Override gradient */
+}
+
+body.admin-modern .btn_submit:hover,
+body.admin-modern a.btn_submit:hover,
+body.admin-modern .btn_01:hover,
+body.admin-modern a.btn_01:hover {
+    background-color: var(--adm-primary-strong) !important;
+    border-color: var(--adm-primary-strong) !important;
+    background: var(--adm-primary-strong) !important;
+}
+
+/* Secondary Button (Slate/Grey) - Cancel, List, Group */
+body.admin-modern .btn_02,
+body.admin-modern a.btn_02,
+body.admin-modern .btn_03,
+body.admin-modern a.btn_03 {
+    background-color: #f1f5f9 !important;
+    color: #334155 !important;
+    border-color: #cbd5e1 !important;
+    background: #f1f5f9 !important;
+}
+
+body.admin-modern .btn_02:hover,
+body.admin-modern a.btn_02:hover,
+body.admin-modern .btn_03:hover,
+body.admin-modern a.btn_03:hover {
+    background-color: #e2e8f0 !important;
+    color: #0f172a !important;
+    border-color: #94a3b8 !important;
+}
+
+body.admin-modern .btn_fixed_top {
+    position: sticky;
+    top: 76px;
+    right: auto;
+    text-align: right;
+    padding: 12px 0 0;
+    background: transparent;
+}
+
+body.admin-modern .btn_confirm,
+body.admin-modern .btn_list {
+    margin-top: 12px;
+}
+
+body.admin-modern .btn_list03 {
+    text-align: right;
+}
+
+body.admin-modern .btn_list03 a {
+    height: 36px;
+    line-height: 36px;
+    border-radius: 10px;
+    background: #eef3fb;
+    color: #1e3a8a;
+    padding: 0 12px;
+    font-weight: 700;
+}
+
+body.admin-modern .frm_info {
+    margin-top: 6px;
+    color: var(--adm-text-muted);
+}
+
+body.admin-modern #ft {
+    margin-left: 280px;
+    background: transparent;
+    color: #6b7280;
+}
+
+body.admin-modern #container.container-small~#ft {
+    margin-left: 88px;
+}
+
+body.admin-modern #ft p {
+    line-height: 44px;
+}
+
+@media (max-width: 1280px) {
+    body.admin-modern #container {
+        padding-left: 88px;
+    }
+
+    body.admin-modern #container_title {
+        padding-left: 106px;
+    }
+
+    body.admin-modern #gnb .gnb_oparea {
+        display: none !important;
+    }
+}
+
+/* 
+   ------------------------------------------
+   FontAwesome Icon Replacements for Admin Menu 
+   ------------------------------------------
+*/
+
+/* Reset button style to remove image and prepare for font icon */
+body.admin-modern #gnb .gnb_li .btn_op {
+    background-image: none !important;
+    position: relative;
+}
+
+/* Common Icon Style */
+body.admin-modern #gnb .gnb_li .btn_op::before {
+    font-family: 'FontAwesome';
+    font-style: normal;
+    font-weight: normal;
+    font-size: 22px;
+    color: #64748b;
+    /* Slate-500 */
+
+    /* Center the icon */
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+
+    /* Ensure visibility despite text-indent */
+    text-indent: 0;
+    line-height: 1;
+}
+
+/* Active State Color */
+body.admin-modern #gnb .on .btn_op::before,
+body.admin-modern #gnb .gnb_li .btn_op:hover::before {
+    color: var(--adm-primary);
+    /* Primary Blue */
+}
+
+/* Specific Icons for Menu Codes */
+
+/* 100: Environment (config) -> Cog */
+body.admin-modern #gnb .gnb_li .btn_op.menu-100::before {
+    content: "\f013";
+}
+
+/* 200: Member Management -> Users */
+body.admin-modern #gnb .gnb_li .btn_op.menu-200::before {
+    content: "\f0c0";
+}
+
+/* 300: Board Management -> File/Edit */
+body.admin-modern #gnb .gnb_li .btn_op.menu-300::before {
+    content: "\f044";
+}
+
+/* 400: Shop/Poll/Stats -> Chart Bar (Assuming stats/poll) or Shopping Cart */
+body.admin-modern #gnb .gnb_li .btn_op.menu-400::before {
+    content: "\f080";
+}
+
+/* 500: Mobile/Board Group? -> Mobile Phone */
+body.admin-modern #gnb .gnb_li .btn_op.menu-500::before {
+    content: "\f10b";
+    font-size: 26px;
+    /* Adjust size for mobile icon */
+}
+
+/* 900: SMS/Config -> Envelope */
+body.admin-modern #gnb .gnb_li .btn_op.menu-900::before {
+    content: "\f0e0";
+}
+
+/* Default Fallback */
+body.admin-modern #gnb .gnb_li .btn_op:not([class*="menu-"])::before {
+    content: "\f07b";
+}
+
+/* 
+   ------------------------------------------
+   General Layout & Pagination Fixes (Global)
+   ------------------------------------------
+*/
+
+/* 1. Pagination Visibility */
+.pg_wrap .pg_current {
+    background: var(--adm-primary) !important;
+    color: #fff !important;
+    font-weight: bold !important;
+    border: 1px solid var(--adm-primary) !important;
+}
+
+.pg_wrap .pg_page {
+    color: #64748b !important;
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+}
+
+/* 2. Button Readability (Global) */
+.btn_02,
+.btn_03 {
+    background: #f1f5f9 !important;
+    /* Slate-100 */
+    color: #334155 !important;
+    /* Slate-700 */
+    border: 1px solid #cbd5e1 !important;
+    font-weight: 500 !important;
+}
+
+.btn_02:hover,
+.btn_03:hover {
+    background: #e2e8f0 !important;
+    color: #0f172a !important;
+}
+
+/* 3. Table Spacing (global/PC) */
+.tbl_head01 td,
+.tbl_head01 th,
+.tbl_head02 td,
+.tbl_head02 th {
+    padding: 12px 10px;
+    /* Increase padding */
+    font-size: 14px;
+    white-space: nowrap;
+    /* Prevent wrapping */
+    word-break: keep-all;
+}

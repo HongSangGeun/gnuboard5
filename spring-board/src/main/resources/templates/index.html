@@ -183,9 +183,9 @@
 </div>
 <div th:replace="~{fragments/nav :: nav_end}"></div>
 
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@fullcalendar/google-calendar@6.1.15/index.global.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
+<script th:src="'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'"></script>
+<script th:src="'https://cdn.jsdelivr.net/npm/@fullcalendar/google-calendar@6.1.15/index.global.min.js'"></script>
+<script th:src="'https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js'"></script>
 <script th:src="@{/js/index_card.js}"></script>
 
 <script th:inline="javascript" th:attr="nonce=${cspNonce}">

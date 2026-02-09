@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>접속자집계</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <div class="local_desc">
+            <p>일자별 접속자 현황을 확인할 수 있습니다.</p>
+        </div>
+
+        <div class="local_ov">
+            <span class="btn_ov01">
+                <span class="ov_txt">전체 접속자</span>
+                <span class="ov_num" th:text="${#numbers.formatInteger(totalVisit, 0, 'COMMA')} + '명'">0명</span>
+            </span>
+            <span class="btn_ov01">
+                <span class="ov_txt">오늘 접속자</span>
+                <span class="ov_num" th:text="${#numbers.formatInteger(todayVisit, 0, 'COMMA')} + '명'">0명</span>
+            </span>
+        </div>
+
+        <form method="get" th:action="@{/mgmt/visit}" class="local_sch">
+            <label for="days">조회 기간:</label>
+            <select name="days" id="days" data-autosubmit>
+                <option value="7" th:selected="${days == 7}">최근 7일</option>
+                <option value="30" th:selected="${days == 30}">최근 30일</option>
+                <option value="90" th:selected="${days == 90}">최근 90일</option>
+                <option value="365" th:selected="${days == 365}">최근 1년</option>
+            </select>
+        </form>
+
+        <div class="tbl_head01 tbl_wrap">
+            <table>
+                <caption>접속자 집계</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">날짜</th>
+                        <th scope="col">접속자수</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${#lists.isEmpty(visitStats)}">
+                        <td colspan="2" class="empty_table">집계 데이터가 없습니다.</td>
+                    </tr>
+                    <tr th:each="stat : ${visitStats}">
+                        <td th:text="${stat.vs_date}">2024-01-01</td>
+                        <td th:text="${#numbers.formatInteger(stat.vs_count, 0, 'COMMA')} + '명'">0명</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</body>
+
+</html>

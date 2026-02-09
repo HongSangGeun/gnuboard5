@@ -1,0 +1,527 @@
+/* 게시글 보기 - 로그인 스타일 카드 디자인 */
+
+#bo_v {
+    max-width: 1000px;
+    margin: 30px auto;
+    background: #fff;
+    border-radius: 22px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+}
+
+/* 헤더 영역 */
+#bo_v header {
+    background: linear-gradient(135deg, #2f6df6 0%, #1f57d5 100%);
+    padding: 40px 40px 30px;
+    color: #fff;
+}
+
+#bo_v_title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.4;
+    color: #fff;
+}
+
+.bo_v_cate {
+    display: inline-block;
+    padding: 6px 16px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-right: 12px;
+    vertical-align: middle;
+}
+
+.bo_v_tit {
+    vertical-align: middle;
+}
+
+/* 정보 영역 */
+#bo_v_info {
+    padding: 30px 40px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+#bo_v_info h2 {
+    display: none;
+}
+
+.profile_info {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 20px;
+}
+
+.pf_img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    flex-shrink: 0;
+}
+
+.profile_info_ct {
+    flex: 1;
+    line-height: 1.6;
+    color: #555;
+}
+
+.profile_info_ct strong {
+    color: #2f6df6;
+    font-weight: 600;
+}
+
+.profile_info_ct a {
+    color: #2f6df6;
+    text-decoration: none;
+}
+
+.profile_info_ct a:hover {
+    text-decoration: underline;
+}
+
+.profile_info_ct .fa {
+    margin-right: 4px;
+    color: #2f6df6;
+}
+
+.if_date {
+    display: inline-block;
+    margin-left: 8px;
+}
+
+/* 상단 버튼 */
+#bo_v_top {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.btn_bo_user {
+    display: flex;
+    gap: 8px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.btn_bo_user li {
+    position: relative;
+}
+
+.btn_bo_user .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 90px;
+    height: 38px;
+    padding: 0 20px;
+    background: #fff;
+    border: 1px solid #2f6df6;
+    border-radius: 19px;
+    color: #2f6df6;
+    font-size: 14px;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s;
+    cursor: pointer;
+}
+
+.btn_bo_user .btn:hover {
+    background: #2f6df6;
+    color: #fff;
+}
+
+.btn_bo_user .btn .fa {
+    margin-right: 6px;
+}
+
+/* 더보기 옵션 */
+.more_opt {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    margin-top: 8px;
+    background: #fff;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    list-style: none;
+    padding: 8px 0;
+    min-width: 120px;
+    z-index: 100;
+    display: none;
+}
+
+.more_opt li {
+    margin: 0;
+}
+
+.more_opt a,
+.more_opt button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 16px;
+    background: none;
+    border: none;
+    color: #333;
+    font-size: 14px;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.more_opt a:hover,
+.more_opt button:hover {
+    background: #f5f5f5;
+}
+
+.more_opt .linklike {
+    text-align: left;
+}
+
+/* 본문 영역 */
+#bo_v_atc {
+    padding: 40px 40px;
+}
+
+#bo_v_atc_title {
+    display: none;
+}
+
+#bo_v_con {
+    font-size: 16px;
+    line-height: 1.8;
+    color: #333;
+    min-height: 200px;
+}
+
+#bo_v_con img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin: 20px 0;
+}
+
+/* 추천/비추천 */
+#bo_v_act {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin-top: 40px;
+    padding-top: 30px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.bo_v_good,
+.bo_v_nogood {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: #f8f9fa;
+    border-radius: 20px;
+    font-size: 15px;
+    color: #666;
+}
+
+.bo_v_good .fa {
+    color: #2f6df6;
+    font-size: 18px;
+}
+
+.bo_v_nogood .fa {
+    color: #999;
+    font-size: 18px;
+}
+
+.bo_v_good strong,
+.bo_v_nogood strong {
+    color: #333;
+    font-weight: 600;
+}
+
+/* 첨부파일 */
+#bo_v_file {
+    padding: 30px 40px;
+    background: #f8f9fa;
+    border-top: 1px solid #f0f0f0;
+}
+
+#bo_v_file h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 16px;
+}
+
+#bo_v_file ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#bo_v_file li {
+    padding: 16px;
+    background: #fff;
+    border-radius: 12px;
+    margin-bottom: 12px;
+}
+
+#bo_v_file .fa {
+    color: #2f6df6;
+    margin-right: 8px;
+}
+
+#bo_v_file a {
+    color: #2f6df6;
+    text-decoration: none;
+}
+
+#bo_v_file a:hover {
+    text-decoration: underline;
+}
+
+.bo_v_file_cnt {
+    display: inline-block;
+    margin-top: 8px;
+    font-size: 13px;
+    color: #999;
+}
+
+.view_file_preview {
+    margin-top: 16px;
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.view_file_preview img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.view_file_preview iframe {
+    width: 100%;
+    height: 600px;
+    border: none;
+}
+
+/* 댓글 버튼 */
+.cmt_btn {
+    display: block;
+    width: calc(100% - 80px);
+    max-width: 920px;
+    margin: 0 auto;
+    padding: 16px 24px;
+    background: #f8f9fa;
+    border: 1px solid #e0e0e0;
+    border-radius: 16px;
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.cmt_btn:hover {
+    background: #2f6df6;
+    border-color: #2f6df6;
+    color: #fff;
+}
+
+.cmt_btn .total {
+    display: inline-block;
+}
+
+.cmt_btn b {
+    font-weight: 600;
+    margin-right: 8px;
+}
+
+/* 댓글 영역 */
+#bo_vc {
+    padding: 40px 40px 20px;
+}
+
+#bo_vc h2 {
+    display: none;
+}
+
+#bo_vc article {
+    display: flex;
+    gap: 16px;
+    padding: 24px 0;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+#bo_vc article .pf_img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+    flex-shrink: 0;
+}
+
+.cm_wrap {
+    flex: 1;
+    min-width: 0;
+}
+
+.cm_wrap header h2 {
+    display: inline;
+    font-size: 15px;
+    font-weight: 600;
+    color: #333;
+    margin-right: 12px;
+}
+
+.bo_vc_hdinfo {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: #999;
+    margin-top: 4px;
+}
+
+.bo_vc_hdinfo .fa {
+    font-size: 12px;
+}
+
+.cmt_contents {
+    margin-top: 12px;
+    font-size: 15px;
+    line-height: 1.6;
+    color: #555;
+}
+
+.cmt_reply_actions button {
+    padding: 6px 14px !important;
+    font-size: 13px !important;
+}
+
+#bo_vc_empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: #999;
+    font-size: 15px;
+}
+
+/* 댓글 작성 */
+#bo_vc_w {
+    padding: 30px 40px 40px;
+    background: #f8f9fa;
+    border-top: 1px solid #f0f0f0;
+}
+
+#bo_vc_w h2 {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 16px;
+}
+
+#bo_vc_w textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 15px;
+    line-height: 1.6;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+#bo_vc_w textarea:focus {
+    outline: none;
+    border-color: #2f6df6;
+}
+
+.bo_vc_w_wr {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.bo_vc_w_info input {
+    padding: 10px 16px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-right: 8px;
+}
+
+.btn_confirm .btn_submit {
+    min-width: 120px;
+    height: 44px;
+    padding: 0 28px;
+    background: #2f6df6;
+    border: none;
+    border-radius: 22px;
+    color: #fff;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn_confirm .btn_submit:hover {
+    background: #1f57d5;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(47, 109, 246, 0.3);
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+    #bo_v {
+        margin: 20px 16px;
+        border-radius: 16px;
+    }
+
+    #bo_v header {
+        padding: 30px 24px 20px;
+    }
+
+    #bo_v_title {
+        font-size: 22px;
+    }
+
+    #bo_v_info {
+        padding: 20px 24px;
+    }
+
+    #bo_v_atc {
+        padding: 24px 24px;
+    }
+
+    #bo_v_file {
+        padding: 20px 24px;
+    }
+
+    #bo_vc {
+        padding: 24px 24px 16px;
+    }
+
+    #bo_vc_w {
+        padding: 20px 24px;
+    }
+
+    .btn_bo_user .btn {
+        min-width: auto;
+        padding: 0 16px;
+        font-size: 13px;
+    }
+
+    .cmt_btn {
+        width: calc(100% - 48px);
+    }
+}

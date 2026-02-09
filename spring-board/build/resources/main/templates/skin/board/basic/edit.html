@@ -76,7 +76,7 @@
     </div>
 </div>
 <div th:replace="~{fragments/nav :: nav_end}"></div>
-<script>
+<script th:attr="nonce=${cspNonce}">
     (function() {
         var buttons = document.querySelectorAll(".category-buttons button");
         var input = document.getElementById("ca_name");
@@ -99,7 +99,7 @@
 <script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'smarteditor2'}" th:src="@{/plugin/editor/smarteditor2/js/service/HuskyEZCreator.js}"></script>
 <script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'smarteditor2'}" th:src="@{/plugin/editor/smarteditor2/config.js}"></script>
 <script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'cheditor5'}" th:src="@{/plugin/editor/cheditor5/cheditor.js}"></script>
-<script th:inline="javascript">
+<script th:inline="javascript" th:attr="nonce=${cspNonce}">
     /*<![CDATA[*/
     var useEditor = /*[[${board.boUseDhtmlEditor}]]*/ 0;
     var editorType = /*[[${board.boSelectEditor}]]*/ '';

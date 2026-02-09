@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title th:text="${htmlTitle}">메일 관리</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <div class="local_desc">
+            <p>메일 내용에 {이름}, {닉네임}, {회원아이디}, {이메일} 처럼 내용에 삽입하면 해당 내용에 맞게 변환하여 메일을 발송합니다.</p>
+        </div>
+
+        <form th:action="@{/mgmt/mail/save}" method="post">
+            <input type="hidden" name="_csrf" th:value="${csrfToken}">
+            <input type="hidden" name="maId" th:value="${mail.maId}">
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption th:text="${htmlTitle}">메일 관리</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row"><label for="ma_subject">메일 제목 <strong class="sound_only">필수</strong></label></th>
+                            <td>
+                                <input type="text" name="maSubject" id="ma_subject"
+                                       th:value="${mail.maSubject}"
+                                       required class="required frm_input" style="width:100%;">
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="ma_content">메일 내용 <strong class="sound_only">필수</strong></label></th>
+                            <td>
+                                <textarea name="maContent" id="ma_content"
+                                          required class="required"
+                                          style="width:100%; height:400px;"
+                                          th:text="${mail.maContent}"></textarea>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="btn_fixed_top">
+                <button type="submit" class="btn btn_submit">확인</button>
+                <a th:href="@{/mgmt/mail}" class="btn btn_02">목록</a>
+            </div>
+        </form>
+
+    </div>
+</body>
+
+</html>

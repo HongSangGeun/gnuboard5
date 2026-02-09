@@ -48,7 +48,7 @@
                 <tr>
                     <th scope="row"><label for="msAuthType">인증 타입</label></th>
                     <td>
-                        <select name="msAuthType" id="msAuthType" class="frm_input" onchange="toggleAuthFields()">
+                        <select name="msAuthType" id="msAuthType" class="frm_input">
                             <option value="NONE" th:selected="${service?.msAuthType == 'NONE' or service?.msAuthType == null}">인증 없음</option>
                             <option value="BASIC" th:selected="${service?.msAuthType == 'BASIC'}">Basic Auth</option>
                             <option value="BEARER" th:selected="${service?.msAuthType == 'BEARER'}">Bearer Token</option>
@@ -181,6 +181,7 @@
         // 페이지 로드 시 초기 상태 설정
         document.addEventListener('DOMContentLoaded', function() {
             toggleAuthFields();
+            document.getElementById('msAuthType').addEventListener('change', toggleAuthFields);
         });
     </script>
 </div>

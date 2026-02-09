@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -8,67 +9,433 @@
     <link rel="stylesheet" th:href="@{/css/default.css}">
     <link rel="stylesheet" th:href="@{/css/mobile.css}">
     <link rel="stylesheet" th:href="@{/css/mobile-index.css}">
+    <script th:src="'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js'"></script>
 </head>
+
 <body>
-<div th:replace="~{fragments/nav :: nav}"></div>
+    <div th:replace="~{fragments/nav :: nav}"></div>
 
-<div id="wrapper">
-    <div id="container_wr">
-        <div id="container" class="m_index">
-            <section class="m_section">
-                <div class="m_section_head">
-                    <h2>내가 작성한 글</h2>
-                    <a th:href="@{/bbs/search(sfl='mb_id', stx=${loginUser != null ? loginUser.id : ''}, sop='and')}" class="m_more">더보기</a>
-                </div>
-                <ul class="m_post_list">
-                    <li th:if="${#lists.isEmpty(myPosts)}" class="m_empty">작성한 게시글이 없습니다.</li>
-                    <li th:each="item : ${myPosts}">
-                        <a class="m_post_link"
-                           th:href="@{'/bbs/' + ${item.board.boTable} + '/view/' + ${item.viewTargetId}}">
-                            <span class="m_board_tag" th:text="${item.board.boSubject}">게시판</span>
-                            <i class="fa fa-commenting-o m_comment_icon" th:if="${item.comment}" aria-hidden="true"></i>
-                            <span class="m_title" th:text="${item.displayTitle}">제목</span>
-                            <span class="m_new_icon" th:if="${item.post.newPost}" aria-label="새글"></span>
-                            <span class="m_date"
-                                  th:text="${item.post.wrDatetime != null ? #strings.substring(item.post.wrDatetime, 5, 10) : ''}">00-00</span>
+    <div id="wrapper">
+        <div id="container_wr" class="m_container">
+            <div id="container" class="m_index">
+                <section class="m_card">
+                    <div class="m_card_title">
+                        <h2>내가 작성한 글</h2>
+                        <a th:href="@{/bbs/search(sfl='mb_id', stx=${loginUser != null ? loginUser.id : ''}, sop='and')}"
+                            class="m_card_more">더보기</a>
+                    </div>
+                    <ul class="m_post_list">
+                        <li th:if="${#lists.isEmpty(myPosts)}" class="m_empty">작성한 게시글이 없습니다.</li>
+                        <li th:each="item : ${myPosts}">
+                            <a class="m_post_link"
+                                th:href="@{'/bbs/' + ${item.board.boTable} + '/view/' + ${item.viewTargetId}}">
+                                <span class="m_board_tag" th:text="${item.board.boSubject}">게시판</span>
+                                <i class="fa fa-commenting-o m_comment_icon" th:if="${item.comment}"
+                                    aria-hidden="true"></i>
+                                <span class="m_title" th:text="${item.displayTitle}">제목</span>
+                                <span class="m_new_icon" th:if="${item.post.newPost}" aria-label="새글"></span>
+                                <span class="m_date"
+                                    th:text="${item.post.wrDatetime != null ? #strings.substring(item.post.wrDatetime, 5, 10) : ''}">00-00</span>
+                            </a>
+                        </li>
+                    </ul>
+                </section>
+
+                <section class="m_card" th:each="card : ${cards}">
+                    <div class="m_card_title">
+                        <h2 th:text="${card.board.boSubject}">게시판</h2>
+                        <a class="m_card_more" th:href="@{'/bbs/' + ${card.board.boTable} + '/list'}">더보기</a>
+                    </div>
+                    <ul class="m_post_list">
+                        <li th:if="${#lists.isEmpty(card.posts)}" class="m_empty">게시물이 없습니다.</li>
+                        <li th:each="post : ${card.posts}">
+                            <a class="m_post_link"
+                                th:href="@{'/bbs/' + ${card.board.boTable} + '/view/' + ${post.wrId}}">
+                                <span class="m_title" th:text="${post.wrSubject}">제목</span>
+                                <span class="m_new_icon" th:if="${post.newPost}" aria-label="새글"></span>
+                                <span class="m_cmt" th:if="${post.wrComment > 0}" th:text="${post.wrComment}">0</span>
+                                <span class="m_date"
+                                    th:text="${post.wrDatetime != null ? #strings.substring(post.wrDatetime, 5, 10) : ''}">00-00</span>
+                            </a>
+                        </li>
+                    </ul>
+                </section>
+
+                <!-- 모니터링 카드 -->
+                <section class="m_card m_monitoring" th:if="${hasMonitoring}">
+                    <div class="m_card_title">
+                        <h2><i class="fa fa-heartbeat"></i> 시스템 모니터링</h2>
+                    </div>
+                    <div class="m_monitoring_selector">
+                        <select id="mobileMonitoringServiceSelector" class="m_select">
+                            <option value="">모니터링 서비스 선택...</option>
+                            <option th:each="service : ${monitoringServices}"
+                                    th:value="${service.msId}"
+                                    th:text="${service.msName}">서비스명</option>
+                        </select>
+                    </div>
+                    <div id="mobileMonitoringCharts" class="m_monitoring_charts">
+                        <p class="m_monitoring_empty">서비스를 선택하세요</p>
+                    </div>
+                </section>
+
+                <section class="m_card m_quick" th:if="${scheduleBoard != null}">
+                    <div class="m_quick_wrap">
+                        <a class="m_quick_btn" th:href="@{'/bbs/' + ${scheduleBoard.boTable} + '/list'}">
+                            <i class="fa fa-calendar" aria-hidden="true"></i> 일정 목록
                         </a>
-                    </li>
-                </ul>
-            </section>
-
-            <section class="m_section" th:each="card : ${cards}">
-                <div class="m_section_head">
-                    <h2 th:text="${card.board.boSubject}">게시판</h2>
-                    <a class="m_more" th:href="@{'/bbs/' + ${card.board.boTable} + '/list'}">더보기</a>
-                </div>
-                <ul class="m_post_list">
-                    <li th:if="${#lists.isEmpty(card.posts)}" class="m_empty">게시물이 없습니다.</li>
-                    <li th:each="post : ${card.posts}">
-                        <a class="m_post_link" th:href="@{'/bbs/' + ${card.board.boTable} + '/view/' + ${post.wrId}}">
-                            <span class="m_title" th:text="${post.wrSubject}">제목</span>
-                            <span class="m_new_icon" th:if="${post.newPost}" aria-label="새글"></span>
-                            <span class="m_cmt" th:if="${post.wrComment > 0}" th:text="${post.wrComment}">0</span>
-                            <span class="m_date"
-                                  th:text="${post.wrDatetime != null ? #strings.substring(post.wrDatetime, 5, 10) : ''}">00-00</span>
+                        <a class="m_quick_btn" th:href="@{'/bbs/' + ${scheduleBoard.boTable} + '/write'}">
+                            <i class="fa fa-plus-circle" aria-hidden="true"></i> 일정 등록
                         </a>
-                    </li>
-                </ul>
-            </section>
-
-            <section class="m_section m_quick" th:if="${scheduleBoard != null}">
-                <div class="m_quick_wrap">
-                    <a class="m_quick_btn" th:href="@{'/bbs/' + ${scheduleBoard.boTable} + '/list'}">
-                        <i class="fa fa-calendar" aria-hidden="true"></i> 일정 목록
-                    </a>
-                    <a class="m_quick_btn" th:href="@{'/bbs/' + ${scheduleBoard.boTable} + '/write'}">
-                        <i class="fa fa-plus-circle" aria-hidden="true"></i> 일정 등록
-                    </a>
-                </div>
-            </section>
+                    </div>
+                </section>
+            </div>
         </div>
     </div>
-</div>
 
-<div th:replace="~{fragments/nav :: nav_end}"></div>
+    <div th:replace="~{fragments/nav :: nav_end}"></div>
+
+    <!-- 모바일 모니터링 차트 스크립트 -->
+    <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+    /*<![CDATA[*/
+    (function() {
+        const monitoringContainer = document.getElementById('mobileMonitoringCharts');
+        const serviceSelector = document.getElementById('mobileMonitoringServiceSelector');
+
+        if (!monitoringContainer || !serviceSelector) {
+            return;
+        }
+
+        let allServices = [];
+        let currentChart = null;
+
+        function loadMobileMonitoringChart() {
+            console.log('Loading mobile monitoring chart...');
+
+            fetch('/datahub/board/api/monitoring/chart-data')
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error('HTTP ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Monitoring data:', data);
+
+                    if (data.success && data.services && data.services.length > 0) {
+                        allServices = data.services;
+                        populateServiceSelector(data.services);
+
+                        // 저장된 서비스 ID 복원
+                        const savedServiceId = localStorage.getItem('mobileSelectedMonitoringServiceId');
+                        if (savedServiceId) {
+                            const service = allServices.find(s => s.id == savedServiceId);
+                            if (service) {
+                                serviceSelector.value = savedServiceId;
+                                renderMobileMonitoringChart(service);
+                            }
+                        }
+                    } else {
+                        monitoringContainer.innerHTML = '<p class="m_monitoring_empty">모니터링 데이터가 없습니다.</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading monitoring data:', error);
+                    monitoringContainer.innerHTML = '';
+                    var errP = document.createElement('p');
+                    errP.className = 'm_monitoring_error';
+                    errP.textContent = '데이터 로드 실패: ' + error.message;
+                    monitoringContainer.appendChild(errP);
+                });
+        }
+
+        function populateServiceSelector(services) {
+            // 기존 옵션 유지하고 새 옵션 추가
+            const defaultOption = serviceSelector.querySelector('option[value=""]');
+            serviceSelector.innerHTML = '';
+            if (defaultOption) {
+                serviceSelector.appendChild(defaultOption);
+            }
+
+            services.forEach((service, index) => {
+                const option = document.createElement('option');
+                option.value = service.id;
+                option.textContent = service.name;
+                serviceSelector.appendChild(option);
+            });
+        }
+
+        function renderMobileMonitoringChart(service) {
+            if (!service) return;
+
+            // 기존 차트 제거
+            if (currentChart) {
+                currentChart.destroy();
+                currentChart = null;
+            }
+
+            // 평균 CPU 계산
+            const avgCpu = service.cpuUsages && service.cpuUsages.length > 0
+                ? (service.cpuUsages.reduce((a, b) => a + b, 0) / service.cpuUsages.length).toFixed(1)
+                : 0;
+
+            var safeUpRate = parseFloat(service.upRate) || 0;
+            var safeAvgTime = parseInt(service.avgResponseTime) || 0;
+            var safeTotalChecks = parseInt(service.totalChecks) || 0;
+            var safeId = parseInt(service.id) || 0;
+            var rateColor = safeUpRate >= 95 ? '#22c55e' : safeUpRate >= 80 ? '#f59e0b' : '#ef4444';
+
+            monitoringContainer.innerHTML = '<div class="m_monitoring_info"><div class="m_monitoring_stats">'
+                + '<div class="m_stat"><span class="m_stat_label">가동률</span>'
+                + '<span class="m_stat_value" style="color:' + rateColor + '">' + safeUpRate + '%</span></div>'
+                + '<div class="m_stat"><span class="m_stat_label">응답시간</span>'
+                + '<span class="m_stat_value">' + safeAvgTime + 'ms</span></div>'
+                + '<div class="m_stat"><span class="m_stat_label">평균 CPU</span>'
+                + '<span class="m_stat_value">' + avgCpu + '%</span></div>'
+                + '</div></div>'
+                + '<div class="m_chart_container"><canvas id="mobileMonitoringChart"></canvas></div>'
+                + '<div class="m_monitoring_footer">'
+                + '<span><i class="fa fa-history"></i> 최근 ' + safeTotalChecks + '회 체크</span>'
+                + '<a href="/datahub/board/monitoring/history/' + safeId + '" class="m_more_link">상세보기 →</a>'
+                + '</div>';
+
+            const canvas = document.getElementById('mobileMonitoringChart');
+            const ctx = canvas.getContext('2d');
+
+            currentChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: service.labels,
+                    datasets: [{
+                        label: '응답시간',
+                        data: service.responseTimes,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.3,
+                        fill: true,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'CPU',
+                        data: service.cpuUsages,
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        tension: 0.3,
+                        fill: true,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                font: { size: 10 },
+                                padding: 8,
+                                usePointStyle: true,
+                                boxWidth: 6
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed.y !== null) {
+                                        if (context.datasetIndex === 0) {
+                                            label += context.parsed.y + 'ms';
+                                        } else {
+                                            label += context.parsed.y + '%';
+                                        }
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            grid: { display: false },
+                            ticks: {
+                                font: { size: 9 },
+                                maxRotation: 0,
+                                autoSkip: true,
+                                maxTicksLimit: 5
+                            }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: {
+                                display: true,
+                                text: '응답(ms)',
+                                font: { size: 10 },
+                                color: '#3b82f6'
+                            },
+                            ticks: {
+                                font: { size: 9 },
+                                color: '#3b82f6'
+                            }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: {
+                                display: true,
+                                text: 'CPU(%)',
+                                font: { size: 10 },
+                                color: '#f59e0b'
+                            },
+                            ticks: {
+                                font: { size: 9 },
+                                color: '#f59e0b'
+                            },
+                            grid: { drawOnChartArea: false },
+                            min: 0,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // 서비스 선택 이벤트
+        serviceSelector.addEventListener('change', function(event) {
+            const serviceId = event.target.value;
+            if (!serviceId) {
+                monitoringContainer.innerHTML = '<p class="m_monitoring_empty">서비스를 선택하세요</p>';
+                localStorage.removeItem('mobileSelectedMonitoringServiceId');
+                return;
+            }
+
+            const selectedService = allServices.find(s => s.id == serviceId);
+            if (selectedService) {
+                localStorage.setItem('mobileSelectedMonitoringServiceId', serviceId);
+                renderMobileMonitoringChart(selectedService);
+            }
+        });
+
+        // 초기 로드
+        loadMobileMonitoringChart();
+
+        // 5분마다 자동 새로고침
+        setInterval(function() {
+            console.log('Auto-refreshing mobile monitoring chart...');
+            const currentServiceId = serviceSelector.value;
+            loadMobileMonitoringChart();
+
+            // 선택된 서비스 유지
+            if (currentServiceId) {
+                setTimeout(() => {
+                    serviceSelector.value = currentServiceId;
+                    const service = allServices.find(s => s.id == currentServiceId);
+                    if (service) {
+                        renderMobileMonitoringChart(service);
+                    }
+                }, 500);
+            }
+        }, 5 * 60 * 1000);
+    })();
+    /*]]>*/
+    </script>
+
+    <style>
+        .m_monitoring {
+            background: #fff;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .m_monitoring_selector {
+            margin-bottom: 16px;
+        }
+
+        .m_select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            font-size: 14px;
+            background: #fff;
+        }
+
+        .m_monitoring_charts {
+            margin-top: 12px;
+        }
+
+        .m_monitoring_empty,
+        .m_monitoring_error {
+            text-align: center;
+            padding: 20px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .m_monitoring_error {
+            color: #ef4444;
+        }
+
+        .m_monitoring_info {
+            margin-bottom: 16px;
+        }
+
+        .m_monitoring_stats {
+            display: flex;
+            gap: 16px;
+            justify-content: space-around;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 6px;
+        }
+
+        .m_stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .m_stat_label {
+            font-size: 11px;
+            color: #64748b;
+        }
+
+        .m_stat_value {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .m_chart_container {
+            height: 180px;
+            margin-bottom: 12px;
+        }
+
+        .m_monitoring_footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #64748b;
+            padding-top: 12px;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .m_more_link {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+        }
+    </style>
 </body>
+
 </html>

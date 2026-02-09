@@ -57,8 +57,7 @@
                 </a>
             </header>
             <div class="m_search_wrap" th:unless="${hideSearch}">
-                <form name="fsearchbox_mobile" method="get" th:action="@{/bbs/search}"
-                    onsubmit="return fsearchbox_submit(this);">
+                <form name="fsearchbox_mobile" method="get" th:action="@{/bbs/search}">
                     <input type="hidden" name="sfl" value="wr_subject||wr_content||bf_ocr_text">
                     <input type="hidden" name="sop" value="and">
                     <label for="sch_stx_mobile" class="sound_only">검색어 필수</label>
@@ -74,7 +73,8 @@
             <div id="m_nav_backdrop" aria-hidden="true"></div>
             <aside id="m_nav_drawer" aria-hidden="true">
                 <div class="m_nav_head">
-                    <strong>메뉴</strong>
+                    <strong th:if="${loginUser != null}" th:text="${loginUser.nick + '님'}">메뉴</strong>
+                    <strong th:if="${loginUser == null}">메뉴</strong>
                     <button type="button" id="m_nav_close" aria-label="모바일 메뉴 닫기">
                         <i class="fa fa-times" aria-hidden="true"></i>
                     </button>
@@ -193,8 +193,7 @@
                 <div class="hd_sch_wr">
                     <fieldset id="hd_sch">
                         <legend>사이트 내 전체검색</legend>
-                        <form name="fsearchbox" method="get" th:action="@{/bbs/search}"
-                            onsubmit="return fsearchbox_submit(this);">
+                        <form name="fsearchbox" method="get" th:action="@{/bbs/search}">
                             <input type="hidden" name="sfl" value="wr_subject||wr_content||bf_ocr_text">
                             <input type="hidden" name="sop" value="and">
                             <label for="sch_stx" class="sound_only">검색어 필수</label>
@@ -206,6 +205,11 @@
                 </div>
 
                 <ul class="hd_login">
+                    <li th:if="${loginUser != null}" class="hd_login_name">
+                        <span class="hd_login_link">
+                            <i class="fa fa-user" aria-hidden="true"></i><span th:text="${loginUser.nick + '님'}">사용자님</span>
+                        </span>
+                    </li>
                     <li th:if="${loginUser != null}">
                         <a th:href="@{/member/confirm}" class="hd_login_link">
                             <i class="fa fa-user-circle-o" aria-hidden="true"></i><span>정보수정</span>
@@ -347,6 +351,49 @@
                 f.stx.value = stx;
                 return true;
             }
+            // --- 글로벌 이벤트 위임 핸들러 ---
+            // 1. data-confirm: 클릭/제출 시 confirm 대화상자
+            $(document).on('click', '[data-confirm]:not(form)', function(e) {
+                if (!confirm(this.getAttribute('data-confirm'))) {
+                    e.preventDefault();
+                }
+            });
+            $(document).on('submit', 'form[data-confirm]', function(e) {
+                if (!confirm(this.getAttribute('data-confirm'))) {
+                    e.preventDefault();
+                }
+            });
+            // 2. data-back: history.back() 버튼
+            $(document).on('click', '[data-back]', function(e) {
+                e.preventDefault();
+                history.back();
+            });
+            // 3. data-check-all: 전체선택 체크박스
+            $(document).on('click', '[data-check-all]', function() {
+                var name = this.getAttribute('data-check-all');
+                var form = this.closest('form');
+                var chks = form.querySelectorAll("input[name='" + name + "']");
+                for (var i = 0; i < chks.length; i++) chks[i].checked = this.checked;
+            });
+            // 4. data-autosubmit: select 변경 시 폼 자동 제출
+            $(document).on('change', '[data-autosubmit]', function() {
+                this.closest('form').submit();
+            });
+            // 5. data-pressed: submit 버튼 클릭 시 document.pressed 설정
+            $(document).on('click', '[data-pressed]', function() {
+                document.pressed = this.getAttribute('data-pressed');
+            });
+            // 6. data-alert: 클릭 시 alert 대화상자
+            $(document).on('click', '[data-alert]', function(e) {
+                e.preventDefault();
+                alert(this.getAttribute('data-alert'));
+            });
+
+            // --- 검색폼 onsubmit 바인딩 ---
+            $('form[name=fsearchbox], form[name=fsearchbox_mobile]').on('submit', function(e) {
+                if (!fsearchbox_submit(this)) e.preventDefault();
+            });
+
             $(function () {
                 $("#top_btn").on("click", function () {
                     $("html, body").animate({ scrollTop: 0 }, '500');

@@ -48,7 +48,7 @@
                 <button class="login-submit" type="submit">확인</button>
 
                 <div class="login-links" style="margin-top: 20px;">
-                    <a href="#" onclick="history.back(); return false;"
+                    <a href="#" data-back
                         style="color:#64748b; text-decoration:none; font-weight:normal;">취소</a>
                 </div>
                 <div class="login-links" style="margin-top:8px;">
@@ -57,6 +57,11 @@
             </form>
         </section>
     </div>
+    <script th:attr="nonce=${cspNonce}">
+        document.querySelectorAll('[data-back]').forEach(function(el) {
+            el.addEventListener('click', function(e) { e.preventDefault(); history.back(); });
+        });
+    </script>
 </body>
 
 </html>

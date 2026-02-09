@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -9,145 +10,755 @@
     <link rel="stylesheet" th:href="@{/css/mobile-board-skin.css}">
     <link rel="stylesheet" th:href="@{/css/index.css}">
     <title th:text="${board.boSubject} + ' - 일정'">일정</title>
-    <link rel="stylesheet" th:href="@{/skin/board/schedule/wzappend.css}">
+    <!-- Old v3 CSS removed, using PC's index.css for calendar styles or custom if needed -->
     <link rel="stylesheet" th:href="@{/skin/board/schedule/style.css}">
+    <style>
+        /* Mobile specific overrides for FullCalendar v6 */
+        .fc .fc-toolbar {
+            display: none;
+        }
+
+        /* 달력 전체 스타일 */
+        #calendar {
+            background-color: #ffffff;
+            min-height: 300px;
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+
+        /* 그리드 스타일 - 깔끔하게 */
+        .fc-theme-standard td,
+        .fc-theme-standard th {
+            border: 1px solid #e5e7eb !important;
+        }
+
+        .fc-theme-standard .fc-scrollgrid {
+            border: 1px solid #e5e7eb !important;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        /* 헤더 (요일) 스타일 */
+        .fc .fc-col-header-cell {
+            background: #f8fafc !important;
+            padding: 8px 4px !important;
+        }
+
+        .fc .fc-col-header-cell-cushion {
+            color: #64748b !important;
+            text-decoration: none !important;
+            font-weight: 600 !important;
+            font-size: 12px !important;
+        }
+
+        /* 일요일 빨간색 */
+        .fc .fc-day-sun .fc-col-header-cell-cushion {
+            color: #ef4444 !important;
+        }
+
+        /* 토요일 파란색 */
+        .fc .fc-day-sat .fc-col-header-cell-cushion {
+            color: #3b82f6 !important;
+        }
+
+        /* 날짜 셀 */
+        .fc .fc-daygrid-day {
+            padding: 2px !important;
+        }
+
+        .fc .fc-daygrid-day-frame {
+            min-height: 48px;
+        }
+
+        .fc .fc-daygrid-day-top {
+            flex-direction: row;
+            justify-content: center;
+            padding: 4px 0;
+        }
+
+        .fc .fc-daygrid-day-number {
+            color: #1e293b !important;
+            text-decoration: none !important;
+            font-weight: 600 !important;
+            font-size: 14px !important;
+            padding: 4px 6px !important;
+        }
+
+        /* 일요일 날짜 빨간색 */
+        .fc .fc-day-sun .fc-daygrid-day-number {
+            color: #ef4444 !important;
+        }
+
+        /* 토요일 날짜 파란색 */
+        .fc .fc-day-sat .fc-daygrid-day-number {
+            color: #3b82f6 !important;
+        }
+
+        /* 다른 월 날짜 */
+        .fc .fc-day-other .fc-daygrid-day-number {
+            color: #94a3b8 !important;
+        }
+
+        /* 오늘 날짜 */
+        .fc .fc-day-today {
+            background: #eff6ff !important;
+        }
+
+        .fc .fc-day-today .fc-daygrid-day-number {
+            background: #3b82f6;
+            color: #fff !important;
+            border-radius: 50%;
+            width: 28px;
+            height: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 이벤트 스타일 */
+        .fc .fc-daygrid-event {
+            margin: 1px 2px !important;
+            padding: 2px 4px !important;
+            border-radius: 4px !important;
+            font-size: 11px !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .fc .fc-event-title {
+            font-weight: 500;
+        }
+
+        /* 더보기 링크 */
+        .fc .fc-daygrid-more-link {
+            font-size: 11px !important;
+            color: #3b82f6 !important;
+            font-weight: 600;
+            margin: 1px 2px;
+        }
+
+        .fc .fc-view-harness {
+            min-height: 320px;
+        }
+
+        /* 일정 목록 스타일 */
+        .m_schedule_list {
+            padding: 0 16px 20px;
+        }
+
+        .m_schedule_empty {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 20px;
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .m_schedule_items {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .m_schedule_card {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .m_schedule_card:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.12);
+        }
+
+        .m_schedule_link {
+            display: flex;
+            gap: 14px;
+            padding: 16px;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .m_schedule_date_badge {
+            flex-shrink: 0;
+            width: 56px;
+            height: 56px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+        }
+
+        .m_schedule_month {
+            font-size: 11px;
+            font-weight: 500;
+            opacity: 0.9;
+            line-height: 1;
+        }
+
+        .m_schedule_day {
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.2;
+            margin-top: 2px;
+        }
+
+        .m_schedule_content {
+            flex: 1;
+            min-width: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .m_schedule_header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .m_schedule_category {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            font-weight: 600;
+            color: #fff;
+            background: #3b82f6;
+            white-space: nowrap;
+        }
+
+        .m_schedule_new {
+            display: inline-flex;
+            align-items: center;
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 10px;
+            font-weight: 700;
+            color: #fff;
+            background: #ef4444;
+            letter-spacing: 0.5px;
+        }
+
+        .m_schedule_title {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            line-height: 1.4;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .m_schedule_meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .m_schedule_time,
+        .m_schedule_author,
+        .m_schedule_comment {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .m_schedule_time i,
+        .m_schedule_author i,
+        .m_schedule_comment i {
+            font-size: 13px;
+            opacity: 0.7;
+        }
+
+        .m_schedule_comment {
+            color: #3b82f6;
+            font-weight: 500;
+        }
+
+        /* 카테고리별 색상 조정 */
+        .m_schedule_category:has(+ .m_schedule_new) {
+            background: #64748b;
+        }
+
+        /* 반응형 */
+        @media (max-width: 360px) {
+            .m_schedule_date_badge {
+                width: 48px;
+                height: 48px;
+            }
+
+            .m_schedule_day {
+                font-size: 20px;
+            }
+
+            .m_schedule_title {
+                font-size: 15px;
+            }
+        }
+
+        /* 달력 헤더 개선 */
+        .m_cal_header {
+            padding: 16px 6px 12px;
+            background: #fff;
+            margin: 0 2px;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .m_cal_nav_row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .m_cal_month_nav {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+        }
+
+        .m_cal_nav_btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            transition: all 0.2s;
+            cursor: pointer;
+        }
+
+        .m_cal_nav_btn:active {
+            background: #e2e8f0;
+            transform: scale(0.95);
+        }
+
+        .m_cal_month_title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #1e293b;
+            text-align: center;
+            flex: 1;
+        }
+
+        .m_cal_actions {
+            display: flex;
+            gap: 6px;
+        }
+
+        .m_cal_action_btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .m_cal_action_btn:active {
+            background: #e2e8f0;
+            transform: scale(0.95);
+        }
+
+        /* 범례 숨김 */
+        .calendar-legend {
+            display: none;
+        }
+
+    </style>
 </head>
+
 <body>
-<div th:replace="~{fragments/nav :: nav}"></div>
-<div id="wrapper">
-    <div id="container_wr">
-        <div id="container">
-            <h1 id="container_title" th:text="${pageTitle} ?: (board != null ? board.boSubject : '게시판')">게시판</h1>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <div id="wrapper">
+        <div id="container_wr">
+            <div id="container">
+                <h1 id="container_title" th:text="${pageTitle} ?: (board != null ? board.boSubject : '게시판')">게시판</h1>
 
-            <script th:src="@{/skin/board/schedule/wz.js/jquery.min.js}"></script>
-            <script th:src="@{/skin/board/schedule/wz.js/fullcalendar.js}"></script>
-            <script th:src="@{/skin/board/schedule/wz.js/ko.js}"></script>
+                <!-- FullCalendar v6 Local Files -->
+                <script th:src="@{/js/fullcalendar/index.global.min.js}"></script>
 
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header"></div>
-                    <div class="card-body">
-                        <div id="calendar"></div>
+                <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+                    document.addEventListener('DOMContentLoaded', function () {
+                        if (typeof FullCalendar === 'undefined') {
+                            alert('오류: FullCalendar 라이브러리가 로드되지 않았습니다.');
+                            return;
+                        }
+                        console.log('FullCalendar loaded');
+                    });
+                </script>
+
+                <!-- Custom Calendar Header -->
+                <div class="m_cal_header">
+                    <div class="m_cal_nav_row">
+                        <div class="m_cal_month_nav">
+                            <button type="button" class="m_cal_nav_btn" id="cal_prev_month_btn">
+                                <i class="fa fa-chevron-left"></i>
+                            </button>
+                            <div class="m_cal_month_title" id="cal_month_display">2026년 2월</div>
+                            <button type="button" class="m_cal_nav_btn" id="cal_next_month_btn">
+                                <i class="fa fa-chevron-right"></i>
+                            </button>
+                        </div>
+                        <div class="m_cal_actions">
+                            <button type="button" class="m_cal_action_btn" id="btn_toggle_view"><i
+                                    class="fa fa-list-ul"></i></button>
+                            <button type="button" class="m_cal_action_btn" id="btn_toggle_search"><i
+                                    class="fa fa-search"></i></button>
+                            <a th:href="@{'/bbs/' + ${boTable} + '/write'}" class="m_cal_action_btn"><i
+                                    class="fa fa-plus"></i></a>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="calendar-legend" th:if="${board.boUseCategory == 1}">
-                <div class="legend-left">
-                    <span class="legend-item" data-category="" style="background:#999;"></span> 전체
-                    <span th:each="cat : ${#strings.arraySplit(board.boCategoryList, '|')}"
-                          class="legend-item"
-                          th:attr="data-category=${cat}"
-                          th:text="${cat}">분류</span>
+                <div class="m_calendar_wrap"
+                    style="background:#fff; padding:12px 4px 16px; border-radius:12px; margin:0 2px 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06);">
+                    <div id="calendar"></div>
                 </div>
-                <div class="legend-right">
-                    <a th:if="${(loginUser != null && loginUser.level >= board.boWriteLevel) || (loginUser == null && board.boWriteLevel <= 1)}"
-                       th:href="@{'/bbs/' + ${boTable} + '/write'}" class="btn-add-event">+ 일정 등록하기</a>
+
+                <div class="calendar-legend" th:if="${board.boUseCategory == 1}" style="padding: 0 16px;">
+                    <div class="legend-left">
+                        <span class="legend-item" data-category="" style="background:#999;"></span> 전체
+                        <span th:each="cat : ${#strings.arraySplit(board.boCategoryList, '|')}" class="legend-item"
+                            th:attr="data-category=${cat}" th:text="${cat}">분류</span>
+                    </div>
                 </div>
-            </div>
 
-            <script th:inline="javascript">
-                document.addEventListener('DOMContentLoaded', function () {
-                    if (!window.jQuery || !jQuery.fn.fullCalendar) {
-                        return;
-                    }
-        var boTable = /*[[${boTable}]]*/ '';
-        var appBase = /*[[@{/}]]*/ '/';
-        appBase = appBase.replace(/\/?$/, '/');
-        var categories = /*[[${board.boUseCategory == 1 ? #strings.arraySplit(board.boCategoryList, '|') : null}]]*/ null;
-                    var palette = ['#FF6B6B', '#4ECDC4', '#4A90E2', '#A29BFE', '#FEFB9B', '#7C7C7C', '#1d69b5'];
-                    var categoryColors = {};
-                    if (categories) {
-                        categories.forEach(function (cat, idx) {
-                            categoryColors[cat] = palette[idx % palette.length];
-                        });
-                    }
-                    var currentCategory = null;
+                <!-- Board List -->
+                <div class="m_schedule_list">
+                    <div th:if="${result.totalCount == 0}" class="m_schedule_empty">
+                        <i class="fa fa-calendar-times-o" style="font-size:48px;color:#cbd5e1;margin-bottom:12px;"></i>
+                        <p>등록된 일정이 없습니다</p>
+                    </div>
+                    <div th:if="${result.totalCount > 0}" class="m_schedule_items">
+                        <div th:each="post : ${result.items}" class="m_schedule_card">
+                            <a th:href="@{'/bbs/' + ${boTable} + '/view/' + ${post.wrId}}" class="m_schedule_link">
+                                <div class="m_schedule_date_badge">
+                                    <div class="m_schedule_month"
+                                         th:text="${post.wrDatetime != null && post.wrDatetime.length() >= 7 ? post.wrDatetime.substring(5, 7) + '월' : '-'}">
+                                        월
+                                    </div>
+                                    <div class="m_schedule_day"
+                                         th:text="${post.wrDatetime != null && post.wrDatetime.length() >= 10 ? post.wrDatetime.substring(8, 10) : '-'}">
+                                        일
+                                    </div>
+                                </div>
+                                <div class="m_schedule_content">
+                                    <div class="m_schedule_header">
+                                        <span th:if="${post.caName}"
+                                              class="m_schedule_category"
+                                              th:text="${post.caName}"
+                                              th:style="'background-color:' + ${post.caName == '유지보수' ? '#FF6B6B' : (post.caName == '하드웨어' ? '#4ECDC4' : (post.caName == '데이터허브' ? '#4A90E2' : (post.caName == '응급의료' ? '#A29BFE' : (post.caName == '집중관제' ? '#FEFB9B' : '#999'))))}">
+                                            분류
+                                        </span>
+                                        <span th:if="${post.newPost}" class="m_schedule_new">NEW</span>
+                                    </div>
+                                    <h3 class="m_schedule_title" th:text="${post.wrSubject}">제목</h3>
+                                    <div class="m_schedule_meta">
+                                        <span class="m_schedule_time">
+                                            <i class="fa fa-clock-o"></i>
+                                            <span th:text="${post.wrDatetime != null && post.wrDatetime.length() >= 16 ? post.wrDatetime.substring(11, 16) : '시간 미정'}">시간</span>
+                                        </span>
+                                        <span class="m_schedule_author">
+                                            <i class="fa fa-user-o"></i>
+                                            <span th:text="${post.wrName}">글쓴이</span>
+                                        </span>
+                                        <span th:if="${post.wrComment > 0}" class="m_schedule_comment">
+                                            <i class="fa fa-commenting-o"></i>
+                                            <span th:text="${post.wrComment}">0</span>
+                                        </span>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
 
-                    function colorFor(cat) {
-                        return (cat && categoryColors[cat]) ? categoryColors[cat] : '#3788d8';
-                    }
-
-                    var $calendar = jQuery('#calendar');
-                    $calendar.fullCalendar({
-            locale: 'ko',
-            height: 600,
-            header: { left: 'prev,next today', center: 'title', right: 'month,agendaWeek,agendaDay' },
-            events: appBase + 'bbs/' + boTable + '/events',
-            dayClick: function (date) {
-                var ymd = date.format('YYYY-MM-DD');
-                window.location.href = appBase + 'bbs/' + boTable + '/write?wr_1=' + ymd + '&wr_2=' + ymd + '&allday=1';
-            },
-                        eventClick: function (event) {
-                            if (event.url) {
-                                window.location.href = event.url;
-                                return false;
-                            }
-                            return true;
-                        },
-                        eventRender: function (event, element) {
-                            if (currentCategory && event.category !== currentCategory) {
-                                return false;
-                            }
-                            var color = event.color || colorFor(event.category);
-                            element.css('background-color', color);
-                            element.css('border-color', color);
-                            if (event.commentCount && event.commentCount > 0) {
-                                element.find('.fc-title').append(' <span class="cnt_cmt">' + event.commentCount + '</span>');
-                            }
-                            return true;
-                        }
-                    });
-
-                    var legendItems = document.querySelectorAll('.calendar-legend .legend-item');
-                    if (legendItems.length) {
-                        legendItems.forEach(function (el) {
-                            var cat = el.getAttribute('data-category');
-                            if (cat) {
-                                el.style.background = colorFor(cat);
-                                if (colorFor(cat) === '#FEFB9B') {
-                                    el.style.color = '#000';
-                                }
-                            }
-                            el.addEventListener('click', function () {
-                                currentCategory = cat || null;
-                                $calendar.fullCalendar('refetchEvents');
-                            });
-                        });
-                    }
-                });
-            </script>
-
-            <form method="get" th:action="@{'/bbs/' + ${boTable} + '/list'}" style="margin: 12px 0;">
-                <input type="hidden" name="page" value="1" />
-                <input type="hidden" name="size" th:value="${result.size}" />
-                <span th:if="${board.boUseCategory == 1}">
-                    <select name="sca">
-                        <option value="">전체 분류</option>
-                        <option th:each="cat : ${#strings.arraySplit(board.boCategoryList, '|')}"
-                                th:value="${cat}"
-                                th:selected="${sca == cat}"
-                                th:text="${cat}">분류</option>
+                <!-- Search Form Hidden by Default -->
+                <form method="get" th:action="@{'/bbs/' + ${boTable} + '/list'}" style="margin: 12px 0; display:none;"
+                    id="mobile_sch_form">
+                    <input type="hidden" name="page" value="1" />
+                    <input type="hidden" name="size" th:value="${result.size}" />
+                    <span th:if="${board.boUseCategory == 1}">
+                        <select name="sca">
+                            <option value="">전체 분류</option>
+                            <option th:each="cat : ${#strings.arraySplit(board.boCategoryList, '|')}" th:value="${cat}"
+                                th:selected="${sca == cat}" th:text="${cat}">분류</option>
+                        </select>
+                    </span>
+                    <select name="sfl">
+                        <option value="wr_subject,1" th:selected="${sfl == 'wr_subject' || sfl == 'wr_subject,1'}">제목</option>
+                        <option value="wr_content,1" th:selected="${sfl == 'wr_content' || sfl == 'wr_content,1'}">내용</option>
+                        <option value="wr_subject||wr_content,1" th:selected="${sfl == 'wr_subject||wr_content' || sfl == 'wr_subject||wr_content,1'}">제목+내용
+                        </option>
+                        <option value="wr_subject||wr_content||bf_ocr_text,1" th:selected="${sfl == 'wr_subject||wr_content||bf_ocr_text' || sfl == 'wr_subject||wr_content||bf_ocr_text,1'}">제목+내용+이미지
+                        </option>
+                        <option value="bf_ocr_text,1" th:selected="${sfl == 'bf_ocr_text' || sfl == 'bf_ocr_text,1'}">이미지</option>
+                        <option th:if="${loginUser != null && loginUser.level >= 10}" value="mb_id,1"
+                            th:selected="${sfl == 'mb_id,1'}">회원아이디</option>
+                        <option th:if="${loginUser != null && loginUser.level >= 10}" value="mb_id,0"
+                            th:selected="${sfl == 'mb_id,0'}">회원아이디(코)</option>
+                        <option value="wr_name,1" th:selected="${sfl == 'wr_name,1'}">글쓴이</option>
+                        <option value="wr_name,0" th:selected="${sfl == 'wr_name,0'}">글쓴이(코)</option>
                     </select>
-                </span>
-                <select name="sfl">
-                    <option value="wr_subject" th:selected="${sfl == 'wr_subject'}">제목</option>
-                    <option value="wr_content" th:selected="${sfl == 'wr_content'}">내용</option>
-                    <option value="wr_subject||wr_content" th:selected="${sfl == 'wr_subject||wr_content'}">제목+내용</option>
-                    <option th:if="${loginUser != null && loginUser.level >= 10}" value="mb_id,1" th:selected="${sfl == 'mb_id,1'}">회원아이디</option>
-                    <option th:if="${loginUser != null && loginUser.level >= 10}" value="mb_id,0" th:selected="${sfl == 'mb_id,0'}">회원아이디(코)</option>
-                    <option value="wr_name,1" th:selected="${sfl == 'wr_name,1'}">글쓴이</option>
-                    <option value="wr_name,0" th:selected="${sfl == 'wr_name,0'}">글쓴이(코)</option>
-                </select>
-                <input type="text" name="stx" th:value="${stx}" placeholder="검색어" />
-                <input type="date" name="sdate" th:value="${sdate}" />
-                <input type="date" name="edate" th:value="${edate}" />
-                <input type="hidden" name="sop" th:value="${sop}" />
-                <button type="submit">검색</button>
-            </form>
+                    <input type="text" name="stx" th:value="${stx}" placeholder="검색어" />
+                    <input type="date" name="sdate" th:value="${sdate}" />
+                    <input type="date" name="edate" th:value="${edate}" />
+                    <input type="hidden" name="sop" th:value="${sop}" />
+                    <button type="submit">검색</button>
+                </form>
+            </div>
         </div>
     </div>
-</div>
-<div th:replace="~{fragments/nav :: nav_end}"></div>
+
+    <div th:replace="~{fragments/nav :: nav_end}"></div>
+
+    <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+        document.addEventListener('DOMContentLoaded', function () {
+            var calendarEl = document.getElementById('calendar');
+            if (!calendarEl || typeof FullCalendar === 'undefined') return;
+
+            var boTable = /*[[${boTable}]]*/ '';
+            var appBase = /*[[@{/}]]*/ '/';
+            appBase = appBase.replace(/\/?$/, '/');
+            var eventsUrl = appBase + 'bbs/' + boTable + '/events';
+            var writeUrl = appBase + 'bbs/' + boTable + '/write';
+
+            var categories = /*[[${board.boUseCategory == 1 ? #strings.arraySplit(board.boCategoryList, '|') : null}]]*/ null;
+            var palette = ['#FF6B6B', '#4ECDC4', '#4A90E2', '#A29BFE', '#FEFB9B', '#7C7C7C', '#1d69b5'];
+            var categoryColors = {};
+            if (categories) {
+                categories.forEach(function (cat, idx) {
+                    categoryColors[cat] = palette[idx % palette.length];
+                });
+            }
+            var currentCategory = null;
+            var allEvents = []; // 모든 이벤트 저장
+
+            function colorFor(cat) {
+                return (cat && categoryColors[cat]) ? categoryColors[cat] : '#3788d8';
+            }
+
+            // 목록 업데이트 함수
+            function updateScheduleList(year, month) {
+                var listContainer = document.querySelector('.m_schedule_items');
+                if (!listContainer) return;
+
+                // 해당 월의 이벤트 필터링
+                var filteredEvents = allEvents.filter(function(event) {
+                    var eventDate = new Date(event.start);
+                    return eventDate.getFullYear() === year && eventDate.getMonth() === month - 1;
+                });
+
+                // 날짜순 정렬
+                filteredEvents.sort(function(a, b) {
+                    return new Date(a.start) - new Date(b.start);
+                });
+
+                if (filteredEvents.length === 0) {
+                    listContainer.innerHTML = '<div class="m_schedule_empty" style="padding:60px 20px;text-align:center;color:#64748b;"><i class="fa fa-calendar-times-o" style="font-size:48px;color:#cbd5e1;margin-bottom:12px;display:block;"></i><p>등록된 일정이 없습니다</p></div>';
+                    return;
+                }
+
+                // 목록 생성
+                var html = '';
+                filteredEvents.forEach(function(event) {
+                    var date = new Date(event.start);
+                    var monthStr = (date.getMonth() + 1).toString().padStart(2, '0') + '월';
+                    var dayStr = date.getDate().toString().padStart(2, '0');
+                    var timeStr = date.toTimeString().substring(0, 5);
+
+                    var categoryHtml = event.extendedProps && event.extendedProps.category
+                        ? '<span class="m_schedule_category" style="background-color:' + colorFor(event.extendedProps.category) + '">' + event.extendedProps.category + '</span>'
+                        : '';
+
+                    var privateIcon = event.extendedProps && event.extendedProps.isPrivate
+                        ? '<i class="fa fa-lock" style="margin-left:6px;color:#94a3b8;font-size:13px;"></i>'
+                        : '';
+
+                    html += '<div class="m_schedule_card">' +
+                        '<a href="' + (event.url || '#') + '" class="m_schedule_link">' +
+                        '<div class="m_schedule_date_badge">' +
+                        '<div class="m_schedule_month">' + monthStr + '</div>' +
+                        '<div class="m_schedule_day">' + dayStr + '</div>' +
+                        '</div>' +
+                        '<div class="m_schedule_content">' +
+                        '<div class="m_schedule_header">' + categoryHtml + '</div>' +
+                        '<h3 class="m_schedule_title">' + event.title + privateIcon + '</h3>' +
+                        '<div class="m_schedule_meta">' +
+                        '<span class="m_schedule_time"><i class="fa fa-clock-o"></i> <span>' + timeStr + '</span></span>' +
+                        '</div>' +
+                        '</div>' +
+                        '</a>' +
+                        '</div>';
+                });
+
+                listContainer.innerHTML = html;
+            }
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                locale: 'ko',
+                contentHeight: 'auto',
+                headerToolbar: false,
+                events: function(info, successCallback, failureCallback) {
+                    fetch(eventsUrl)
+                        .then(response => response.json())
+                        .then(data => {
+                            allEvents = data; // 모든 이벤트 저장
+                            successCallback(data);
+                            // 초기 목록 업데이트
+                            var currentDate = calendar.getDate();
+                            updateScheduleList(currentDate.getFullYear(), currentDate.getMonth() + 1);
+                        })
+                        .catch(error => {
+                            console.error('Error loading events:', error);
+                            failureCallback(error);
+                        });
+                },
+                dateClick: function (info) {
+                    var ymd = info.dateStr;
+                    window.location.href = writeUrl + '?wr_1=' + ymd + '&wr_2=' + ymd + '&allday=1';
+                },
+                eventClick: function (info) {
+                    if (info.event.url) {
+                        window.location.href = info.event.url;
+                        info.jsEvent.preventDefault();
+                    }
+                },
+                eventDidMount: function (info) {
+                    var cat = info.event.extendedProps.category || '';
+                    if (currentCategory && cat !== currentCategory) {
+                        info.el.style.display = 'none';
+                    }
+                    var color = info.event.backgroundColor || colorFor(cat);
+                    info.el.style.backgroundColor = color;
+                    info.el.style.borderColor = color;
+                    info.el.classList.add('m_cal_event');
+                },
+                datesSet: function (info) {
+                    var date = info.view.currentStart;
+                    var year = date.getFullYear();
+                    var month = date.getMonth() + 1;
+                    document.getElementById('cal_month_display').textContent = year + '년 ' + month + '월';
+
+                    // 목록 업데이트
+                    updateScheduleList(year, month);
+                }
+            });
+
+            calendar.render();
+
+            // 이전달/다음달 버튼
+            document.getElementById('cal_prev_month_btn').addEventListener('click', function () {
+                calendar.prev();
+            });
+
+            document.getElementById('cal_next_month_btn').addEventListener('click', function () {
+                calendar.next();
+            });
+
+            // Swipe Logic (Basic Touch Support)
+            // FullCalendar v6 has built-in touch support for dragging, but maybe not for swiping the whole view?
+            // Actually it handles scroll/drag mainly for timegrid. For month view navigation, custom swipe is often needed.
+            var touchStartX = 0;
+            var touchEndX = 0;
+            calendarEl.addEventListener('touchstart', function (e) {
+                touchStartX = e.changedTouches[0].screenX;
+            }, { passive: true });
+            calendarEl.addEventListener('touchend', function (e) {
+                touchEndX = e.changedTouches[0].screenX;
+                if (touchEndX < touchStartX - 50) {
+                    calendar.next();
+                }
+                if (touchEndX > touchStartX + 50) {
+                    calendar.prev();
+                }
+            }, { passive: true });
+
+            // Legend Logic
+            var legendItems = document.querySelectorAll('.legend-item');
+            if (legendItems.length) {
+                legendItems.forEach(function (el) {
+                    var cat = el.getAttribute('data-category');
+                    if (cat) {
+                        el.style.background = colorFor(cat);
+                        if (colorFor(cat) === '#FEFB9B') { el.style.color = '#000'; }
+                    }
+                    el.addEventListener('click', function () {
+                        currentCategory = cat || null;
+                        // v6: refetch is not always needed if we just hide elements, but refetch is safer for fresh data
+                        calendar.refetchEvents();
+                    });
+                });
+            }
+
+            // Toggle Search
+            document.getElementById('btn_toggle_search').addEventListener('click', function () {
+                var form = document.getElementById('mobile_sch_form');
+                form.style.display = (form.style.display === 'none') ? 'block' : 'none';
+            });
+
+            // Toggle List View
+            document.getElementById('btn_toggle_view').addEventListener('click', function () {
+                var btn = this;
+                var icon = btn.querySelector('i');
+                var calWrap = document.querySelector('.m_calendar_wrap');
+                var calHeaderYear = document.querySelector('.m_cal_year_btn'); // Hide year part?? Or just hide month title?
+                var calMonthTitle = document.querySelector('.m_cal_month_title');
+
+                if (calWrap.style.display !== 'none') {
+                    // Go to List
+                    calWrap.style.display = 'none';
+                    calMonthTitle.style.display = 'none'; // Hide Month Title
+                    // calHeaderYear.style.display = 'none'; // Optional: Hide Year too? Let's keep year nav visible or hide it? User said "Hide Header"
+                    // Let's hide the Month Title as requested.
+                    icon.classList.remove('fa-list-ul');
+                    icon.classList.add('fa-calendar');
+                } else {
+                    // Go to Calendar
+                    calWrap.style.display = 'block';
+                    calMonthTitle.style.display = 'block';
+                    icon.classList.remove('fa-calendar');
+                    icon.classList.add('fa-list-ul');
+                    calendar.updateSize(); // Important when showing hidden calendar
+                }
+            });
+
+            // 캘린더 자동 갱신 (1분마다)
+            setInterval(function() {
+                calendar.refetchEvents();
+                console.log('Mobile calendar events refreshed');
+            }, 60000); // 60초 = 1분
+        });
+    </script>
 </body>
+
 </html>

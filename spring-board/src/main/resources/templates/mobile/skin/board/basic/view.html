@@ -60,7 +60,7 @@
                                     <li
                                         th:if="${(loginUser != null && loginUser.id == post.mbId) || (loginUser != null && loginUser.level >= 10)}">
                                         <form th:action="@{'/bbs/' + ${boTable} + '/delete/' + ${post.wrId}}"
-                                            method="post" onsubmit="return confirm('삭제하시겠습니까?');">
+                                            method="post" data-confirm="삭제하시겠습니까?">
                                             <button type="submit"
                                                 style="display: block; width: 100%; text-align: left; padding: 10px; background: none; border: none; color: #ff5b5b; cursor: pointer;">삭제</button>
                                         </form>
@@ -113,7 +113,7 @@
                                         <form
                                             th:action="@{'/bbs/' + ${boTable} + '/comment/' + ${post.wrId} + '/delete/' + ${comment.wrId}}"
                                             method="post" style="display:inline;"
-                                            onsubmit="return confirm('댓글을 삭제하시겠습니까?');">
+                                            data-confirm="댓글을 삭제하시겠습니까?">
                                             <button type="submit"
                                                 style="background: none; border: none; color: #aaa; font-size: 12px; cursor: pointer;">삭제</button>
                                         </form>

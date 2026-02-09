@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>메일 테스트</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <div th:if="${successCount != null}" class="local_desc01 local_desc">
+            <p>다음 <span th:text="${successCount}">0</span>개의 메일 주소로 테스트 메일 발송이 완료되었습니다.</p>
+            <ul>
+                <li th:each="email : ${emails}" th:text="${email}">test@example.com</li>
+            </ul>
+            <p style="margin-top:10px;">
+                해당 주소로 테스트 메일이 도착했는지 확인해 주십시오.<br>
+                만약, 테스트 메일이 오지 않는다면 더 다양한 계정의 메일 주소로 메일을 보내 보십시오.<br>
+                그래도 메일이 하나도 도착하지 않는다면 메일 서버(SMTP server)의 오류일 가능성이 높으니, 시스템 관리자에게 문의하여 주십시오.<br>
+                도메인을 소유하고 있을 시 SPF, DKIM 설정이 필요할 수 있습니다.
+            </p>
+        </div>
+
+        <form th:action="@{/mgmt/mail/test}" method="post">
+            <input type="hidden" name="_csrf" th:value="${csrfToken}">
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>메일 테스트</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row"><label for="email">받는 메일주소</label></th>
+                            <td>
+                                <input type="text" name="email" id="email" required class="required frm_input"
+                                       style="width:100%;" placeholder="test@example.com, test2@example.com">
+                                <p class="frm_info">여러 메일 주소는 쉼표(,)로 구분하여 입력하세요.</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="btn_fixed_top">
+                <button type="submit" class="btn btn_submit">테스트 메일 발송</button>
+                <a th:href="@{/mgmt/mail}" class="btn btn_02">메일 관리</a>
+            </div>
+        </form>
+
+    </div>
+</body>
+
+</html>

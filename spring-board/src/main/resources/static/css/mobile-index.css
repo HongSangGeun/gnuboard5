@@ -1,9 +1,9 @@
 @charset "utf-8";
 
 .m_index {
-    max-width: 100%;
-    margin: 0 auto;
-    padding: 10px 12px 24px;
+    width: 100%;
+    margin: 0;
+    padding: 10px 0 24px;
 }
 
 .m_section {
@@ -22,88 +22,93 @@
     border-bottom: 1px solid #eef2f7;
 }
 
-.m_section_head h2 {
-    margin: 0;
-    font-size: 15px;
-    font-weight: 700;
-    color: #1f2a44;
+/* dashboard specific */
+.m_index .m_section {
+    /* Uses .m_card styles from mobile-layout.css implicitly by class in html */
+    /* If we want to extend or override, do it here */
 }
 
-.m_more {
-    color: #2f6df6;
-    font-size: 12px;
-    font-weight: 600;
-}
-
+/* My Posts List */
 .m_post_list {
-    list-style: none;
     margin: 0;
     padding: 0;
+    list-style: none;
 }
 
 .m_post_list li {
-    border-bottom: 1px solid #f0f3f8;
+    border-bottom: 1px solid var(--border-color);
+    padding: 12px 0;
 }
 
 .m_post_list li:last-child {
-    border-bottom: 0;
+    border-bottom: none;
+}
+
+.m_post_list .m_empty {
+    text-align: center;
+    color: var(--text-muted);
+    padding: 20px 0;
 }
 
 .m_post_link {
     display: flex;
     align-items: center;
-    gap: 6px;
-    padding: 10px 12px;
+    justify-content: space-between;
+    color: var(--text-color);
+    text-decoration: none;
+    gap: 8px;
+    /* Space between title and date */
+    width: 100%;
+    box-sizing: border-box;
+    min-width: 0;
+    /* Important for nested flex truncation */
 }
 
 .m_board_tag {
-    flex: 0 0 auto;
     display: inline-block;
-    background: #edf3ff;
-    color: #2858d7;
-    font-size: 11px;
-    line-height: 1;
-    border-radius: 20px;
-    padding: 4px 8px;
+    background-color: #eff6ff;
+    color: var(--primary-color);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    flex-shrink: 0;
+    /* Prevent tag from shrinking */
 }
 
 .m_title {
-    flex: 1 1 auto;
+    font-size: 0.95rem;
+    vertical-align: middle;
+    flex: 1;
+    /* Take remaining space */
     min-width: 0;
+    /* Enable truncation in flex item */
+    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
-    color: #2e3340;
-    font-size: 13px;
 }
 
 .m_comment_icon {
-    color: #4f81ff;
-    font-size: 12px;
-}
-
-.m_cmt {
-    flex: 0 0 auto;
-    background: #e9f0ff;
-    color: #2f63e0;
-    font-size: 11px;
-    border-radius: 10px;
-    padding: 1px 6px;
-    line-height: 16px;
+    color: var(--primary-color);
+    margin-right: 4px;
+    flex-shrink: 0;
 }
 
 .m_new_icon {
-    flex: 0 0 auto;
-    width: 16px;
-    height: 16px;
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    background-color: #ef4444;
     border-radius: 50%;
-    background: url("../img/icon_board_new.png") no-repeat center / contain;
+    margin-left: 4px;
+    flex-shrink: 0;
 }
 
 .m_date {
-    flex: 0 0 auto;
+    flex-shrink: 0;
     color: #798196;
-    font-size: 11px;
+    font-size: 0.75rem;
+    white-space: nowrap;
 }
 
 .m_empty {

@@ -1,0 +1,168 @@
+@charset "utf-8";
+
+/* ==========================================================================
+   Variables & Reset
+   ========================================================================== */
+:root {
+    --primary-color: #2563eb;
+    --primary-dark: #1d4ed8;
+    --text-color: #1f2937;
+    --text-muted: #6b7280;
+    --bg-color: #f3f4f6;
+    --card-bg: #ffffff;
+    --border-color: #e5e7eb;
+    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    --topbar-height: 60px;
+    --bottombar-height: 60px;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+/* Overrides for default.css PC fixed widths */
+#hd,
+#wrapper,
+#ft,
+#container_wr,
+#hd_wrapper,
+#tnb .inner,
+#gnb .gnb_wrap,
+#ft_wr {
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+}
+
+#container_wr {
+    margin: 0 auto;
+    padding: 0;
+    /* Let .m_container handle padding if needed, or keeping it 0 */
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    margin: 0;
+    padding-top: var(--topbar-height);
+    padding-bottom: 20px;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* Prevent iOS zoom on focus */
+input,
+textarea,
+select,
+button {
+    font-size: 16px !important;
+    max-height: 100%;
+    /* Prevent some layout shifts */
+}
+
+/* ==========================================================================
+   Layout Components
+   ========================================================================== */
+
+/* Top Bar */
+.m_topbar {
+    position: relative;
+    /* top: 0; left: 0; right: 0; REMOVED to allow flow within #m_hd */
+    height: var(--topbar-height);
+    background-color: transparent;
+    /* Icon's background color (transparent) */
+    /* backdrop-filter: blur(10px); Removed to match transparent request? Or keep? */
+    border-bottom: 0;
+    /* Remove border if blending */
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    box-shadow: var(--shadow-sm);
+}
+
+.m_top_logo img {
+    height: 28px;
+    vertical-align: middle;
+}
+
+.m_top_icon {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-color);
+    font-size: 1.25rem;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+
+/* Card Component */
+.m_card {
+    background-color: var(--card-bg);
+    border-radius: 12px;
+    box-shadow: var(--shadow-sm);
+    padding: 20px;
+    margin-bottom: 16px;
+    border: 1px solid var(--border-color);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
+    /* Force content to stay inside */
+}
+
+.m_card_title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.m_card_more {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: normal;
+}
+
+/* Responsive Table Wrapper */
+.m_table_wrap {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    margin-bottom: 10px;
+}
+
+.m_table_wrap table {
+    width: 100%;
+    min-width: 600px;
+    /* Force scroll on small screens */
+    white-space: nowrap;
+}
+
+/* Base Container */
+.m_container {
+    padding: 16px;
+    width: 100%;
+    max-width: 96%;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
+/* Drawer adjustments */
+#m_nav_drawer {
+    z-index: 2000;
+    /* Higher than top/bottom bars */
+}
+
+#m_nav_backdrop {
+    z-index: 1999;
+}

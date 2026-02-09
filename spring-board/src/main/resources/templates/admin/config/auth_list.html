@@ -33,7 +33,7 @@
                         <td th:text="${auth.auAuth}">r,w,d</td>
                         <td>
                             <form th:action="@{/mgmt/config/auth/delete}" method="post"
-                                onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                                data-confirm="정말 삭제하시겠습니까?">
                                 <input type="hidden" name="mbId" th:value="${auth.mbId}">
                                 <input type="hidden" name="auMenu" th:value="${auth.auMenu}">
                                 <button type="submit" class="btn btn_02">삭제</button>

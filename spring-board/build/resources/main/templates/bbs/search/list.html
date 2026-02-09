@@ -34,8 +34,10 @@
                     <label for="sfl" class="sound_only">검색조건</label>
                     <select name="sfl" id="sfl">
                         <option value="wr_subject||wr_content" th:selected="${sfl == 'wr_subject||wr_content'}">제목+내용</option>
+                        <option value="wr_subject||wr_content||bf_ocr_text" th:selected="${sfl == 'wr_subject||wr_content||bf_ocr_text'}">제목+내용+첨부파일</option>
                         <option value="wr_subject" th:selected="${sfl == 'wr_subject'}">제목</option>
                         <option value="wr_content" th:selected="${sfl == 'wr_content'}">내용</option>
+                        <option value="bf_ocr_text" th:selected="${sfl == 'bf_ocr_text'}">첨부파일 (이미지/PDF)</option>
                         <option value="mb_id" th:selected="${sfl == 'mb_id'}">회원아이디</option>
                         <option value="wr_name" th:selected="${sfl == 'wr_name'}">이름</option>
                     </select>
@@ -108,6 +110,9 @@
                                             <span class="sound_only">댓글</span>
                                         </span>
                                         <span th:text="${item.subject}">제목</span>
+                                        <span th:if="${item.pageInfo != null and item.pageInfo != ''}" class="ocr_page_badge"
+                                              style="display:inline-block;margin-left:8px;padding:3px 10px;background:#e3f2fd;color:#1976d2;border-radius:12px;font-size:12px;font-weight:500;"
+                                              th:text="'📄 ' + ${item.pageInfo}">📄 2, 5페이지</span>
                                     </a>
                                     <a th:href="@{${item.href}}" target="_blank" class="pop_a">
                                         <i class="fa fa-window-restore" aria-hidden="true"></i>

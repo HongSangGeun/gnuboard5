@@ -1,0 +1,234 @@
+@charset "utf-8";
+
+:root {
+    --register-bg: #f3f6ff;
+    --register-card-bg: #ffffff;
+    --register-text: #0f172a;
+    --register-subtext: #64748b;
+    --register-line: #dbe4f3;
+    --register-primary: #2f6df6;
+    --register-primary-dark: #1f57d5;
+    --register-error: #d14343;
+    --register-success: #10b981;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+    min-height: 100%;
+}
+
+body.register-body {
+    background:
+        radial-gradient(110% 65% at 100% 0%, #dce7ff 0%, rgba(220, 231, 255, 0) 70%),
+        radial-gradient(75% 55% at 0% 100%, #e9f2ff 0%, rgba(233, 242, 255, 0) 70%),
+        var(--register-bg);
+    color: var(--register-text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+.register-shell {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.register-card {
+    width: 100%;
+    max-width: 520px;
+    border: 1px solid #e5ecf8;
+    border-radius: 22px;
+    background: var(--register-card-bg);
+    box-shadow: 0 18px 44px rgba(37, 74, 142, 0.15);
+    overflow: hidden;
+}
+
+.register-head {
+    padding: 40px 32px 20px;
+    text-align: center;
+}
+
+.register-logo {
+    width: 180px;
+    height: auto;
+    margin: 0 auto 18px;
+    display: block;
+}
+
+.register-title {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+}
+
+.register-subtitle {
+    margin: 8px 0 0;
+    color: var(--register-subtext);
+    font-size: 14px;
+}
+
+.register-error {
+    margin: 0 32px 10px;
+    padding: 11px 12px;
+    border: 1px solid #f0b0b0;
+    border-radius: 12px;
+    background: #fff5f5;
+    color: var(--register-error);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.register-success {
+    margin: 0 32px 10px;
+    padding: 11px 12px;
+    border: 1px solid #a7f3d0;
+    border-radius: 12px;
+    background: #ecfdf5;
+    color: var(--register-success);
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.register-form {
+    padding: 8px 32px 40px;
+}
+
+.register-section {
+    margin-bottom: 28px;
+}
+
+.register-section-title {
+    margin: 0 0 16px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid var(--register-primary);
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--register-primary);
+}
+
+.register-field {
+    margin-bottom: 14px;
+}
+
+.register-label {
+    display: block;
+    margin: 0 0 7px;
+    color: #334155;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.register-label-required::after {
+    content: " *";
+    color: var(--register-error);
+}
+
+.register-input-wrap {
+    position: relative;
+}
+
+.register-input {
+    width: 100%;
+    height: 52px;
+    box-sizing: border-box;
+    border: 1px solid var(--register-line);
+    border-radius: 14px;
+    padding: 0 14px 0 46px;
+    background: #fff;
+    color: #0f172a;
+    font-size: 16px;
+    line-height: 1.2;
+    outline: none;
+    transition: border-color .16s ease, box-shadow .16s ease;
+}
+
+.register-input:focus {
+    border-color: #7ea6ff;
+    box-shadow: 0 0 0 3px rgba(47, 109, 246, 0.14);
+}
+
+.register-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #7a8aa7;
+    font-size: 16px;
+    pointer-events: none;
+}
+
+.register-submit {
+    margin-top: 28px;
+    width: 100%;
+    height: 52px;
+    border: 0;
+    border-radius: 14px;
+    background: linear-gradient(180deg, #3a7bff 0%, var(--register-primary) 100%);
+    color: #fff;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    letter-spacing: 0.01em;
+    transition: transform 0.1s ease;
+}
+
+.register-submit:hover {
+    opacity: 0.95;
+}
+
+.register-submit:active {
+    background: var(--register-primary-dark);
+    transform: scale(0.98);
+}
+
+.register-links {
+    margin-top: 20px;
+    text-align: center;
+    color: var(--register-subtext);
+    font-size: 13px;
+}
+
+.register-links a {
+    color: var(--register-primary-dark);
+    text-decoration: none;
+    font-weight: 700;
+    margin-left: 4px;
+}
+
+.register-links a:hover {
+    text-decoration: underline;
+}
+
+/* 반응형 */
+@media (max-width: 640px) {
+    body.register-body {
+        padding: 24px 16px;
+    }
+
+    .register-card {
+        max-width: 100%;
+    }
+
+    .register-head {
+        padding: 32px 24px 16px;
+    }
+
+    .register-form {
+        padding: 8px 24px 32px;
+    }
+
+    .register-title {
+        font-size: 24px;
+    }
+
+    .register-section-title {
+        font-size: 16px;
+    }
+}

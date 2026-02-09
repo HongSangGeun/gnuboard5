@@ -7,6 +7,7 @@
     <link rel="stylesheet" th:href="@{/css/index.css}">
     <title th:text="${post.wrSubject} + ' - 보기'">게시글 보기</title>
     <link rel="stylesheet" th:href="@{/skin/board/basic/style.css}">
+    <link rel="stylesheet" th:href="@{/css/board-view-modern.css}">
 </head>
 <body>
 <div th:replace="~{fragments/nav :: nav}"></div>
@@ -26,7 +27,9 @@
                 <section id="bo_v_info">
                     <h2>페이지 정보</h2>
                     <div class="profile_info">
-                        <div class="pf_img"></div>
+                        <div class="pf_img">
+                            <img th:src="@{/css/images/no_profile.gif}" alt="profile" />
+                        </div>
                         <div class="profile_info_ct">
                             <span class="sound_only">작성자</span>
                             <strong th:text="${post.wrName}">작성자</strong>
@@ -41,21 +44,18 @@
 
                     <div id="bo_v_top">
                         <ul class="btn_bo_user bo_v_com">
-                            <li><a th:href="@{'/bbs/' + ${boTable} + '/list'}" class="btn_b01 btn" title="목록"><i class="fa fa-list" aria-hidden="true"></i><span class="sound_only">목록</span></a></li>
+                            <li><a th:href="@{'/bbs/' + ${boTable} + '/list'}" class="btn_b01 btn" title="목록"><i class="fa fa-list" aria-hidden="true"></i><span class="btn_text">목록</span></a></li>
                             <li th:if="${(loginUser != null && loginUser.level >= board.boWriteLevel) || (loginUser == null && board.boWriteLevel <= 1)}">
-                                <a th:href="@{'/bbs/' + ${boTable} + '/write'}" class="btn_b01 btn" title="글쓰기"><i class="fa fa-pencil" aria-hidden="true"></i><span class="sound_only">글쓰기</span></a>
+                                <a th:href="@{'/bbs/' + ${boTable} + '/write'}" class="btn_b01 btn" title="글쓰기"><i class="fa fa-pencil" aria-hidden="true"></i><span class="btn_text">글쓰기</span></a>
                             </li>
-                            <li>
-                                <button type="button" class="btn_more_opt is_view_btn btn_b01 btn"><i class="fa fa-ellipsis-v" aria-hidden="true"></i><span class="sound_only">게시판 리스트 옵션</span></button>
-                                <ul class="more_opt is_view_btn">
-                                    <li><a th:href="@{'/bbs/' + ${boTable} + '/edit/' + ${post.wrId}}">수정<i class="fa fa-pencil-square-o" aria-hidden="true"></i></a></li>
-                                    <li>
-                                        <form th:action="@{'/bbs/' + ${boTable} + '/delete/' + ${post.wrId}}" method="post" style="display:inline;">
-                                            <input type="hidden" name="password" value="" th:if="${loginUser != null}" />
-                                            <button type="submit" class="linklike">삭제<i class="fa fa-trash-o" aria-hidden="true"></i></button>
-                                        </form>
-                                    </li>
-                                </ul>
+                            <li th:if="${loginUser != null && (loginUser.id == post.mbId || loginUser.level >= 10)}">
+                                <a th:href="@{'/bbs/' + ${boTable} + '/edit/' + ${post.wrId}}" class="btn_b01 btn" title="수정"><i class="fa fa-edit" aria-hidden="true"></i><span class="btn_text">수정</span></a>
+                            </li>
+                            <li th:if="${loginUser != null && (loginUser.id == post.mbId || loginUser.level >= 10)}">
+                                <form th:action="@{'/bbs/' + ${boTable} + '/delete/' + ${post.wrId}}" method="post" style="display:inline;">
+                                    <input type="hidden" name="password" value="" />
+                                    <button type="submit" class="btn_b01 btn btn_delete" title="삭제" data-confirm="정말 삭제하시겠습니까?"><i class="fa fa-trash" aria-hidden="true"></i><span class="btn_text">삭제</span></button>
+                                </form>
                             </li>
                         </ul>
                     </div>
@@ -84,7 +84,7 @@
                                th:href="@{'/bbs/' + ${boTable} + '/file/' + ${post.wrId} + '/' + ${vf.file.bfNo}}"
                                class="view_file_open" target="_blank" rel="noopener">바로보기</a>
                             <br>
-                            <span class="bo_v_file_cnt" th:text="${vf.file.bfDownload} + '회 다운로드 | DATE : ' + ${vf.file.bfDatetime}">0회 다운로드</span>
+                            <span class="bo_v_file_cnt" th:text="${vf.file.bfDownload} + '회 다운로드 | DATE : ' + vf.file.bfDatetime">0회 다운로드</span>
 
                             <div class="view_file_preview" th:if="${vf.viewType == 'image'}">
                                 <img th:src="@{'/bbs/' + ${boTable} + '/file/' + ${post.wrId} + '/' + ${vf.file.bfNo}}" alt="" loading="lazy">
@@ -114,7 +114,6 @@
                              th:attr="data-comment-id=${comment.wrId},data-comment-name=${displayName}"
                              th:style="${comment.wrCommentReply != null && #strings.length(comment.wrCommentReply) > 1} ? 'margin-left:' + ((${#strings.length(comment.wrCommentReply)} - 1) * 26) + 'px;' : ''"
                              >
-                        <div class="pf_img"></div>
                         <div class="cm_wrap">
                             <header style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:nowrap;">
                                 <div style="flex:1 1 auto;min-width:0;">
@@ -202,7 +201,7 @@
     </div>
 </div>
 <div th:replace="~{fragments/nav :: nav_end}"></div>
-<script>
+<script th:attr="nonce=${cspNonce}">
     (function() {
         var btn = document.querySelector('.btn_more_opt.is_view_btn');
         var menu = document.querySelector('.more_opt.is_view_btn');

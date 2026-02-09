@@ -1,0 +1,15 @@
+# 디버그 모드 설정
+# 사용법: java -jar app.jar --spring.profiles.active=debug
+
+logging:
+  level:
+    root: INFO
+    com.deepcode.springboard: DEBUG
+    com.deepcode.springboard.bbs.mapper.WriteTableSqlProvider: DEBUG
+    com.deepcode.springboard.bbs.mapper.WriteMapper: DEBUG
+    com.deepcode.springboard.bbs.web.BoardController: DEBUG
+    com.deepcode.springboard.bbs.web.SearchController: DEBUG
+    # MyBatis SQL 쿼리 로그 (디버그 모드)
+    org.apache.ibatis: DEBUG
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%level] %logger{36} - %msg%n"

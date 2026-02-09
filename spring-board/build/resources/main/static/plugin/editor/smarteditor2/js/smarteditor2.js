@@ -3031,7 +3031,7 @@ nhn.husky.CorePlugin = jindo.$Class({
 			this.oApp.createMessageMap(sLoaderHandlerName);
 		}
 
-		var oPlugin = eval(sClassName+".prototype");
+		var oPlugin = (typeof window[sClassName] === "function") ? window[sClassName].prototype : eval(sClassName+".prototype");
 		//var oPlugin = eval("new "+sClassName+"()");
 
 		var bAcceptLocalBeforeFirstAgain = false;
@@ -12793,7 +12793,7 @@ nhn.husky.SE2M_QuickEditor_Common = jindo.$Class({
 		};
 		
 		if(sResult){
-			oResult = eval("("+sResult+")");	
+			try { oResult = JSON.parse(sResult); } catch(e) { oResult = eval("("+sResult+")"); }
 		}
 		
 		this._environmentData = {

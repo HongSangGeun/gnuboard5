@@ -1,236 +1,436 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-      layout:decorate="~{admin/layout/layout}">
+    layout:decorate="~{admin/layout/layout}">
+
 <head>
     <title>회원관리</title>
 </head>
+
 <body>
-<div layout:fragment="content">
+    <div layout:fragment="content">
 
-    <div th:if="${message}" class="local_desc01 local_desc">
-        <p th:text="${message}">완료되었습니다.</p>
-    </div>
-    <div th:if="${error}" class="local_desc01 local_desc">
-        <p th:text="${error}">오류가 발생했습니다.</p>
-    </div>
+        <div th:if="${message}" class="local_desc01 local_desc">
+            <p th:text="${message}">완료되었습니다.</p>
+        </div>
+        <div th:if="${error}" class="local_desc01 local_desc">
+            <p th:text="${error}">오류가 발생했습니다.</p>
+        </div>
 
-    <div class="local_ov01 local_ov">
-        <a th:href="@{/mgmt/member}" class="ov_listall">전체목록</a>
-        <span class="btn_ov01"><span class="ov_txt">총회원수 </span><span class="ov_num"
-                th:text="${#numbers.formatInteger(totalCount, 0, 'COMMA')} + '명'">0명</span></span>
-        <a class="btn_ov01"
-           th:href="@{/mgmt/member(sst='mb_intercept_date',sod='desc',sfl=${crit.sfl},stx=${crit.stx})}">
-            <span class="ov_txt">차단 </span><span class="ov_num"
-            th:text="${#numbers.formatInteger(interceptCount, 0, 'COMMA')} + '명'">0명</span>
-        </a>
-        <a class="btn_ov01"
-           th:href="@{/mgmt/member(sst='mb_leave_date',sod='desc',sfl=${crit.sfl},stx=${crit.stx})}">
-            <span class="ov_txt">탈퇴 </span><span class="ov_num"
-            th:text="${#numbers.formatInteger(leaveCount, 0, 'COMMA')} + '명'">0명</span>
-        </a>
-    </div>
+        <div class="local_ov01 local_ov">
+            <a th:href="@{/mgmt/member}" class="ov_listall">전체목록</a>
+            <span class="btn_ov01"><span class="ov_txt">총회원수 </span><span class="ov_num"
+                    th:text="${#numbers.formatInteger(totalCount, 0, 'COMMA')} + '명'">0명</span></span>
+            <a class="btn_ov01"
+                th:href="@{/mgmt/member(sst='mb_intercept_date',sod='desc',sfl=${crit.sfl},stx=${crit.stx})}">
+                <span class="ov_txt">차단 </span><span class="ov_num"
+                    th:text="${#numbers.formatInteger(interceptCount, 0, 'COMMA')} + '명'">0명</span>
+            </a>
+            <a class="btn_ov01"
+                th:href="@{/mgmt/member(sst='mb_leave_date',sod='desc',sfl=${crit.sfl},stx=${crit.stx})}">
+                <span class="ov_txt">탈퇴 </span><span class="ov_num"
+                    th:text="${#numbers.formatInteger(leaveCount, 0, 'COMMA')} + '명'">0명</span>
+            </a>
+        </div>
 
-    <form id="fsearch" name="fsearch" class="local_sch01 local_sch" method="get">
-        <label for="sfl" class="sound_only">검색대상</label>
-        <select name="sfl" id="sfl">
-            <option value="mb_id" th:selected="${crit.sfl == 'mb_id'}">회원아이디</option>
-            <option value="mb_nick" th:selected="${crit.sfl == 'mb_nick'}">닉네임</option>
-            <option value="mb_name" th:selected="${crit.sfl == 'mb_name'}">이름</option>
-            <option value="mb_level" th:selected="${crit.sfl == 'mb_level'}">권한</option>
-            <option value="mb_email" th:selected="${crit.sfl == 'mb_email'}">E-MAIL</option>
-            <option value="mb_tel" th:selected="${crit.sfl == 'mb_tel'}">전화번호</option>
-            <option value="mb_hp" th:selected="${crit.sfl == 'mb_hp'}">휴대폰번호</option>
-            <option value="mb_point" th:selected="${crit.sfl == 'mb_point'}">포인트</option>
-            <option value="mb_datetime" th:selected="${crit.sfl == 'mb_datetime'}">가입일시</option>
-            <option value="mb_ip" th:selected="${crit.sfl == 'mb_ip'}">IP</option>
-            <option value="mb_recommend" th:selected="${crit.sfl == 'mb_recommend'}">추천인</option>
-        </select>
-        <label for="stx" class="sound_only">검색어</label>
-        <input type="text" name="stx" th:value="${crit.stx}" id="stx" class="frm_input">
-        <input type="hidden" name="sst" th:value="${crit.sst}">
-        <input type="hidden" name="sod" th:value="${crit.sod}">
-        <input type="submit" class="btn_submit" value="검색">
-    </form>
+        <form id="fsearch" name="fsearch" class="local_sch01 local_sch" method="get">
+            <label for="sfl" class="sound_only">검색대상</label>
+            <select name="sfl" id="sfl">
+                <option value="mb_id" th:selected="${crit.sfl == 'mb_id'}">회원아이디</option>
+                <option value="mb_nick" th:selected="${crit.sfl == 'mb_nick'}">닉네임</option>
+                <option value="mb_name" th:selected="${crit.sfl == 'mb_name'}">이름</option>
+                <option value="mb_level" th:selected="${crit.sfl == 'mb_level'}">권한</option>
+                <option value="mb_email" th:selected="${crit.sfl == 'mb_email'}">E-MAIL</option>
+                <option value="mb_tel" th:selected="${crit.sfl == 'mb_tel'}">전화번호</option>
+                <option value="mb_hp" th:selected="${crit.sfl == 'mb_hp'}">휴대폰번호</option>
+                <option value="mb_point" th:selected="${crit.sfl == 'mb_point'}">포인트</option>
+                <option value="mb_datetime" th:selected="${crit.sfl == 'mb_datetime'}">가입일시</option>
+                <option value="mb_ip" th:selected="${crit.sfl == 'mb_ip'}">IP</option>
+                <option value="mb_recommend" th:selected="${crit.sfl == 'mb_recommend'}">추천인</option>
+            </select>
+            <label for="stx" class="sound_only">검색어</label>
+            <div style="position: relative; display: inline-block;">
+                <input type="text" name="stx" th:value="${crit.stx}" id="stx" class="frm_input" autocomplete="off">
+                <div id="member-autocomplete-list" class="autocomplete-items"></div>
+            </div>
+            <input type="hidden" name="sst" th:value="${crit.sst}">
+            <input type="hidden" name="sod" th:value="${crit.sod}">
+            <input type="submit" class="btn_submit" value="검색">
+        </form>
 
-    <div class="local_desc01 local_desc">
-        <p>회원자료 삭제 시 기존 회원아이디는 재사용되지 않도록 내부 식별자가 보관됩니다.</p>
-    </div>
+        <div class="local_desc01 local_desc">
+            <p>회원자료 삭제 시 기존 회원아이디는 재사용되지 않도록 내부 식별자가 보관됩니다.</p>
+        </div>
 
-    <form name="fmemberlist" id="fmemberlist" th:action="@{/mgmt/member/bulk}" method="post"
-          onsubmit="return fmemberlist_submit(this);">
-        <input type="hidden" name="sst" th:value="${crit.sst}">
-        <input type="hidden" name="sod" th:value="${crit.sod}">
-        <input type="hidden" name="sfl" th:value="${crit.sfl}">
-        <input type="hidden" name="stx" th:value="${crit.stx}">
-        <input type="hidden" name="page" th:value="${crit.page}">
+        <form name="fmemberlist" id="fmemberlist" th:action="@{/mgmt/member/bulk}" method="post">
+            <input type="hidden" name="sst" th:value="${crit.sst}">
+            <input type="hidden" name="sod" th:value="${crit.sod}">
+            <input type="hidden" name="sfl" th:value="${crit.sfl}">
+            <input type="hidden" name="stx" th:value="${crit.stx}">
+            <input type="hidden" name="page" th:value="${crit.page}">
 
-        <div class="tbl_head01 tbl_wrap">
-            <table>
-                <caption>회원관리 목록</caption>
-                <thead>
-                <tr>
-                    <th scope="col" id="mb_list_chk" rowspan="2">
-                        <label for="chkall" class="sound_only">회원 전체</label>
-                        <input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
-                    </th>
-                    <th scope="col" id="mb_list_id" colspan="2">
-                        <a th:href="@{/mgmt/member(sst='mb_id',sod=${crit.sst=='mb_id' and crit.sod=='asc' ? 'desc':'asc'},sfl=${crit.sfl},stx=${crit.stx},page=${crit.page})}">아이디</a>
-                    </th>
-                    <th scope="col" rowspan="2" id="mb_list_cert">본인확인</th>
-                    <th scope="col" id="mb_list_mailc">메일인증</th>
-                    <th scope="col" id="mb_list_open">정보공개</th>
-                    <th scope="col" id="mb_list_mailr">메일수신</th>
-                    <th scope="col" id="mb_list_stat">상태</th>
-                    <th scope="col" id="mb_list_mobile">휴대폰</th>
-                    <th scope="col" id="mb_list_lastcall">
-                        <a th:href="@{/mgmt/member(sst='mb_today_login',sod=${crit.sst=='mb_today_login' and crit.sod=='asc' ? 'desc':'asc'},sfl=${crit.sfl},stx=${crit.stx},page=${crit.page})}">최종접속</a>
-                    </th>
-                    <th scope="col" id="mb_list_grp">접근그룹</th>
-                    <th scope="col" rowspan="2" id="mb_list_mng">관리</th>
-                </tr>
-                <tr>
-                    <th scope="col" id="mb_list_name">
-                        <a th:href="@{/mgmt/member(sst='mb_name',sod=${crit.sst=='mb_name' and crit.sod=='asc' ? 'desc':'asc'},sfl=${crit.sfl},stx=${crit.stx},page=${crit.page})}">이름</a>
-                    </th>
-                    <th scope="col" id="mb_list_nick">
-                        <a th:href="@{/mgmt/member(sst='mb_nick',sod=${crit.sst=='mb_nick' and crit.sod=='asc' ? 'desc':'asc'},sfl=${crit.sfl},stx=${crit.stx},page=${crit.page})}">닉네임</a>
-                    </th>
-                    <th scope="col" id="mb_list_sms">SMS수신</th>
-                    <th scope="col" id="mb_list_adultc">성인인증</th>
-                    <th scope="col" id="mb_list_block">
-                        <a th:href="@{/mgmt/member(sst='mb_intercept_date',sod=${crit.sst=='mb_intercept_date' and crit.sod=='asc' ? 'desc':'asc'},sfl=${crit.sfl},stx=${crit.stx},page=${crit.page})}">접근차단</a>
-                    </th>
-                    <th scope="col" id="mb_list_level">
-                        <a th:href="@{/mgmt/member(sst='mb_level',sod=${crit.sst=='mb_level' and crit.sod=='asc' ? 'desc':'asc'},sfl=${crit.sfl},stx=${crit.stx},page=${crit.page})}">권한</a>
-                    </th>
-                    <th scope="col" id="mb_list_tel">전화번호</th>
-                    <th scope="col" id="mb_list_join">
-                        <a th:href="@{/mgmt/member(sst='mb_datetime',sod=${crit.sst=='mb_datetime' and crit.sod=='asc' ? 'desc':'asc'},sfl=${crit.sfl},stx=${crit.stx},page=${crit.page})}">가입일</a>
-                    </th>
-                    <th scope="col" id="mb_list_point">
-                        <a th:href="@{/mgmt/member(sst='mb_point',sod=${crit.sst=='mb_point' and crit.sod=='asc' ? 'desc':'asc'},sfl=${crit.sfl},stx=${crit.stx},page=${crit.page})}">포인트</a>
-                    </th>
-                </tr>
-                </thead>
-                <tbody>
-                <th:block th:each="member, stat : ${members}">
-                    <tr th:class="${stat.index % 2 == 0} ? 'bg0' : 'bg1'">
-                        <td headers="mb_list_chk" class="td_chk" rowspan="2">
-                            <input type="hidden" th:name="|mb_id[${stat.index}]|" th:value="${member.mbId}">
-                            <label th:for="|chk_${stat.index}|" class="sound_only" th:text="${member.mbName + ' ' + member.mbNick + '님'}">회원</label>
-                            <input type="checkbox" name="chk[]" th:value="${stat.index}" th:id="|chk_${stat.index}|">
-                        </td>
-                        <td headers="mb_list_id" colspan="2" class="td_name sv_use" th:text="${member.mbId}">admin</td>
-                        <td headers="mb_list_cert" rowspan="2" class="td_mbcert" th:text="${member.mbCertify != null and member.mbCertify != '' ? member.mbCertify : '-'}">-</td>
-                        <td headers="mb_list_mailc" th:text="${member.mbEmailCertify != null and member.mbEmailCertify != '' ? 'Yes' : 'No'}">No</td>
-                        <td headers="mb_list_open">
-                            <label th:for="|mb_open_${stat.index}|" class="sound_only">정보공개</label>
-                            <input type="checkbox" th:name="|mb_open[${stat.index}]|" value="1"
-                                   th:id="|mb_open_${stat.index}|" th:checked="${member.mbOpen == 1}">
-                        </td>
-                        <td headers="mb_list_mailr">
-                            <label th:for="|mb_mailling_${stat.index}|" class="sound_only">메일수신</label>
-                            <input type="checkbox" th:name="|mb_mailling[${stat.index}]|" value="1"
-                                   th:id="|mb_mailling_${stat.index}|" th:checked="${member.mbMailling == 1}">
-                        </td>
-                        <td headers="mb_list_stat" class="td_mbstat">
-                            <th:block th:if="${member.mbLeaveDate != null and member.mbLeaveDate != ''}">탈퇴함</th:block>
-                            <th:block th:if="${(member.mbLeaveDate == null or member.mbLeaveDate == '') and (member.mbInterceptDate != null and member.mbInterceptDate != '')}">차단됨</th:block>
-                            <th:block th:if="${(member.mbLeaveDate == null or member.mbLeaveDate == '') and (member.mbInterceptDate == null or member.mbInterceptDate == '')}">정상</th:block>
-                        </td>
-                        <td headers="mb_list_mobile" class="td_tel" th:text="${member.mbHp}"></td>
-                        <td headers="mb_list_lastcall" class="td_date"
-                            th:text="${member.mbTodayLogin != null and #strings.length(member.mbTodayLogin) &gt;= 10 ? #strings.substring(member.mbTodayLogin,2,10) : ''}"></td>
-                        <td headers="mb_list_grp" class="td_numsmall">
-                            <a th:href="@{/mgmt/boardgroupmember/form(mbId=${member.mbId})}"
-                               th:text="${member.groupCount}">0</a>
-                        </td>
-                        <td headers="mb_list_mng" rowspan="2" class="td_mng td_mng_s">
-                            <a th:href="@{/mgmt/member/form(mbId=${member.mbId},w='u')}" class="btn btn_03">수정</a>
-                            <a th:href="@{/mgmt/boardgroupmember/form(mbId=${member.mbId})}" class="btn btn_02">그룹</a>
-                            <a th:href="@{/mgmt/member/delete(mbId=${member.mbId})}"
-                               onclick="return confirm('삭제하시겠습니까?');" class="btn btn_02">삭제</a>
-                        </td>
-                    </tr>
-                    <tr th:class="${stat.index % 2 == 0} ? 'bg0' : 'bg1'">
-                        <td headers="mb_list_name" class="td_mbname" th:text="${member.mbName}">이름</td>
-                        <td headers="mb_list_nick" class="td_name sv_use"><div th:text="${member.mbNick}">닉네임</div></td>
-                        <td headers="mb_list_sms">
-                            <label th:for="|mb_sms_${stat.index}|" class="sound_only">SMS수신</label>
-                            <input type="checkbox" th:name="|mb_sms[${stat.index}]|" value="1"
-                                   th:id="|mb_sms_${stat.index}|" th:checked="${member.mbSms == 1}">
-                        </td>
-                        <td headers="mb_list_adultc">
-                            <label th:for="|mb_adult_${stat.index}|" class="sound_only">성인인증</label>
-                            <input type="checkbox" th:name="|mb_adult[${stat.index}]|" value="1"
-                                   th:id="|mb_adult_${stat.index}|" th:checked="${member.mbAdult == 1}">
-                        </td>
-                        <td headers="mb_list_block">
-                            <th:block th:if="${member.mbLeaveDate == null or member.mbLeaveDate == ''}">
-                                <input type="checkbox" th:name="|mb_intercept_date[${stat.index}]|"
-                                       th:id="|mb_intercept_date_${stat.index}|" th:value="${todayYmd}"
-                                       th:checked="${member.mbInterceptDate != null and member.mbInterceptDate != ''}">
-                                <label th:for="|mb_intercept_date_${stat.index}|" class="sound_only">접근차단</label>
-                            </th:block>
-                        </td>
-                        <td headers="mb_list_level">
-                            <select th:name="|mb_level[${stat.index}]|">
-                                <option th:each="lvl : ${#numbers.sequence(1, 10)}" th:value="${lvl}" th:text="${lvl}"
-                                        th:selected="${member.mbLevel == lvl}">1</option>
-                            </select>
-                        </td>
-                        <td headers="mb_list_tel" class="td_tel" th:text="${member.mbTel}"></td>
-                        <td headers="mb_list_join" class="td_date"
-                            th:text="${member.mbDatetime != null and #strings.length(member.mbDatetime) &gt;= 10 ? #strings.substring(member.mbDatetime,2,10) : ''}"></td>
-                        <td headers="mb_list_point" class="td_num" th:text="${#numbers.formatInteger(member.mbPoint, 0, 'COMMA')}">0</td>
-                    </tr>
+            <div class="tbl_head01 tbl_wrap">
+                <table>
+                    <caption>회원관리 목록</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col" id="mb_list_chk" class="chk_box">
+                                <label for="chkall" class="sound_only">회원 전체</label>
+                                <input type="checkbox" name="chkall" value="1" id="chkall"
+                                    data-check-all="chk[]">
+                            </th>
+                            <th scope="col" id="mb_list_id">
+                                <a
+                                    th:href="@{/mgmt/member(sst='mb_id',sod=${crit.sst=='mb_id' and crit.sod=='asc' ? 'desc':'asc'},sfl=${crit.sfl},stx=${crit.stx},page=${crit.page})}">아이디</a>
+                            </th>
+                            <th scope="col" id="mb_list_name">
+                                <a
+                                    th:href="@{/mgmt/member(sst='mb_name',sod=${crit.sst=='mb_name' and crit.sod=='asc' ? 'desc':'asc'},sfl=${crit.sfl},stx=${crit.stx},page=${crit.page})}">이름</a>
+                            </th>
+                            <th scope="col" id="mb_list_nick">
+                                <a
+                                    th:href="@{/mgmt/member(sst='mb_nick',sod=${crit.sst=='mb_nick' and crit.sod=='asc' ? 'desc':'asc'},sfl=${crit.sfl},stx=${crit.stx},page=${crit.page})}">닉네임</a>
+                            </th>
+                            <th scope="col" id="mb_list_cert">본인확인</th>
+                            <th scope="col" id="mb_list_mailc">메일·SMS</th>
+                            <th scope="col" id="mb_list_open">정보공개</th>
+                            <th scope="col" id="mb_list_stat">상태</th>
+                            <th scope="col" id="mb_list_mobile">휴대폰</th>
+                            <th scope="col" id="mb_list_tel">전화번호</th>
+                            <th scope="col" id="mb_list_level">
+                                <a
+                                    th:href="@{/mgmt/member(sst='mb_level',sod=${crit.sst=='mb_level' and crit.sod=='asc' ? 'desc':'asc'},sfl=${crit.sfl},stx=${crit.stx},page=${crit.page})}">권한</a>
+                            </th>
+                            <th scope="col" id="mb_list_point">
+                                <a
+                                    th:href="@{/mgmt/member(sst='mb_point',sod=${crit.sst=='mb_point' and crit.sod=='asc' ? 'desc':'asc'},sfl=${crit.sfl},stx=${crit.stx},page=${crit.page})}">포인트</a>
+                            </th>
+                            <th scope="col" id="mb_list_join">
+                                <a
+                                    th:href="@{/mgmt/member(sst='mb_datetime',sod=${crit.sst=='mb_datetime' and crit.sod=='asc' ? 'desc':'asc'},sfl=${crit.sfl},stx=${crit.stx},page=${crit.page})}">가입일</a>
+                            </th>
+                            <th scope="col" id="mb_list_lastcall">
+                                <a
+                                    th:href="@{/mgmt/member(sst='mb_today_login',sod=${crit.sst=='mb_today_login' and crit.sod=='asc' ? 'desc':'asc'},sfl=${crit.sfl},stx=${crit.stx},page=${crit.page})}">최종접속</a>
+                            </th>
+                            <th scope="col" id="mb_list_grp">접근그룹</th>
+                            <th scope="col" id="mb_list_mng">관리</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <th:block th:each="member, stat : ${members}">
+                            <tr th:class="${stat.index % 2 == 0} ? 'bg0' : 'bg1'">
+                                <td headers="mb_list_chk" class="td_chk">
+                                    <input type="hidden" th:name="|mb_id[${stat.index}]|" th:value="${member.mbId}">
+                                    <label th:for="|chk_${stat.index}|" class="sound_only"
+                                        th:text="${member.mbName + ' ' + member.mbNick + '님'}">회원</label>
+                                    <input type="checkbox" name="chk[]" th:value="${stat.index}"
+                                        th:id="|chk_${stat.index}|">
+                                </td>
+                                <td headers="mb_list_id" class="td_name sv_use" th:text="${member.mbId}">admin</td>
+                                <td headers="mb_list_name" class="td_mbname" th:text="${member.mbName}">이름</td>
+                                <td headers="mb_list_nick" class="td_name sv_use">
+                                    <div th:text="${member.mbNick}">닉네임</div>
+                                </td>
+                                <td headers="mb_list_cert" class="td_mbcert">
+                                    <span
+                                        th:text="${member.mbCertify != null and member.mbCertify != '' ? member.mbCertify : '-'}">-</span>
+                                    <span th:if="${member.mbAdult == 1}" title="성인">(성인)</span>
+                                </td>
+                                <td headers="mb_list_mailc" class="td_mbsms">
+                                    <span
+                                        th:text="${member.mbEmailCertify != null and member.mbEmailCertify != '' ? 'Y' : 'N'}"
+                                        title="메일인증">N</span>
+                                    <span th:text="${member.mbMailling == 1 ? 'M' : ''}" title="메일수신"></span>
+                                    <span th:text="${member.mbSms == 1 ? 'S' : ''}" title="SMS수신"></span>
+                                </td>
+                                <td headers="mb_list_open" class="td_mbopen">
+                                    <input type="checkbox" th:name="|mb_open[${stat.index}]|" value="1"
+                                        th:id="|mb_open_${stat.index}|" th:checked="${member.mbOpen == 1}">
+                                </td>
+                                <td headers="mb_list_stat" class="td_mbstat">
+                                    <th:block th:if="${member.mbLeaveDate != null and member.mbLeaveDate != ''}"><span
+                                            class="txt_expired">탈퇴</span></th:block>
+                                    <th:block
+                                        th:if="${(member.mbLeaveDate == null or member.mbLeaveDate == '') and (member.mbInterceptDate != null and member.mbInterceptDate != '')}">
+                                        <span class="txt_blocked">차단</span></th:block>
+                                    <th:block
+                                        th:if="${(member.mbLeaveDate == null or member.mbLeaveDate == '') and (member.mbInterceptDate == null or member.mbInterceptDate == '')}">
+                                        <span class="txt_active">정상</span></th:block>
+                                </td>
+                                <td headers="mb_list_mobile" class="td_tel" th:text="${member.mbHp}"></td>
+                                <td headers="mb_list_tel" class="td_tel" th:text="${member.mbTel}"></td>
+                                <td headers="mb_list_level" class="td_num">
+                                    <select th:name="|mb_level[${stat.index}]|">
+                                        <option th:each="lvl : ${#numbers.sequence(1, 10)}" th:value="${lvl}"
+                                            th:text="${lvl}" th:selected="${member.mbLevel == lvl}">1</option>
+                                    </select>
+                                </td>
+                                <td headers="mb_list_point" class="td_num"><a
+                                        th:href="@{/mgmt/point/list(sfl='mb_id',stx=${member.mbId})}" target="_blank"
+                                        th:text="${#numbers.formatInteger(member.mbPoint, 0, 'COMMA')}">0</a></td>
+                                <td headers="mb_list_join" class="td_date"
+                                    th:text="${member.mbDatetime != null and #strings.length(member.mbDatetime) &gt;= 10 ? #strings.substring(member.mbDatetime,2,10) : ''}">
+                                </td>
+                                <td headers="mb_list_lastcall" class="td_date"
+                                    th:text="${member.mbTodayLogin != null and #strings.length(member.mbTodayLogin) &gt;= 10 ? #strings.substring(member.mbTodayLogin,2,10) : ''}">
+                                </td>
+                                <td headers="mb_list_grp" class="td_numsmall">
+                                    <a th:href="@{/mgmt/boardgroupmember/form(mbId=${member.mbId})}"
+                                        th:text="${member.groupCount}">0</a>
+                                </td>
+                                <td headers="mb_list_mng" class="td_mng td_mng_s">
+                                    <a th:href="@{/mgmt/member/form(mbId=${member.mbId},w='u')}"
+                                        class="btn btn_03 btn_sm">수정</a>
+                                    <a th:href="@{/mgmt/boardgroupmember/form(mbId=${member.mbId})}"
+                                        class="btn btn_02 btn_sm">그룹</a>
+                                </td>
+                            </tr>
+                        </th:block>
+                        <tr th:if="${#lists.isEmpty(members)}">
+                            <td colspan="15" class="empty_table">자료가 없습니다.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="btn_fixed_top">
+                <input type="submit" name="act_button" value="선택수정" data-pressed="선택수정"
+                    class="btn btn_02">
+                <input type="submit" name="act_button" value="선택삭제" data-pressed="선택삭제"
+                    class="btn btn_02">
+                <a th:href="@{/mgmt/member/form}" id="member_add" class="btn btn_01">회원추가</a>
+            </div>
+        </form>
+
+        <div class="pg_wrap">
+            <span class="pg">
+                <th:block th:if="${totalPage > 0}" th:each="i : ${#numbers.sequence(1, totalPage)}">
+                    <a th:href="@{/mgmt/member(page=${i},sfl=${crit.sfl},stx=${crit.stx},sst=${crit.sst},sod=${crit.sod})}"
+                        th:text="${i}" th:class="${crit.page == i} ? 'pg_current' : 'pg_page'">1</a>
                 </th:block>
-                <tr th:if="${#lists.isEmpty(members)}">
-                    <td colspan="16" class="empty_table">자료가 없습니다.</td>
-                </tr>
-                </tbody>
-            </table>
+            </span>
         </div>
 
-        <div class="btn_fixed_top">
-            <input type="submit" name="act_button" value="선택수정" onclick="document.pressed=this.value" class="btn btn_02">
-            <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value" class="btn btn_02">
-            <a th:href="@{/mgmt/member/form}" id="member_add" class="btn btn_01">회원추가</a>
-        </div>
-    </form>
-
-    <div class="pg_wrap">
-        <span class="pg">
-            <th:block th:if="${totalPage > 0}" th:each="i : ${#numbers.sequence(1, totalPage)}">
-                <a th:href="@{/mgmt/member(page=${i},sfl=${crit.sfl},stx=${crit.stx},sst=${crit.sst},sod=${crit.sod})}"
-                   th:text="${i}" th:class="${crit.page == i} ? 'pg_current' : 'pg_page'">1</a>
-            </th:block>
-        </span>
-    </div>
-
-    <script th:inline="javascript">
-        function check_all(f) {
-            var chk = f.querySelectorAll("input[name='chk[]']");
-            for (var i = 0; i < chk.length; i++) {
-                chk[i].checked = f.chkall.checked;
-            }
-        }
-
-        function fmemberlist_submit(f) {
-            var checked = f.querySelectorAll("input[name='chk[]']:checked");
-            if (checked.length < 1) {
-                alert((document.pressed || "선택수정") + " 하실 항목을 하나 이상 선택하세요.");
-                return false;
-            }
-            if (document.pressed === "선택삭제") {
-                if (!confirm("선택한 자료를 정말 삭제하시겠습니까?")) {
-                    return false;
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+            function check_all(f) {
+                var chk = f.querySelectorAll("input[name='chk[]']");
+                for (var i = 0; i < chk.length; i++) {
+                    chk[i].checked = f.chkall.checked;
                 }
             }
-            return true;
-        }
-    </script>
 
-</div>
+            function fmemberlist_submit(f) {
+                var checked = f.querySelectorAll("input[name='chk[]']:checked");
+                if (checked.length < 1) {
+                    alert((document.pressed || "선택수정") + " 하실 항목을 하나 이상 선택하세요.");
+                    return false;
+                }
+                if (document.pressed === "선택삭제") {
+                    if (!confirm("선택한 자료를 정말 삭제하시겠습니까?")) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+            $('#fmemberlist').on('submit', function(e) {
+                if (!fmemberlist_submit(this)) e.preventDefault();
+            });
+
+            // 회원 자동완성
+            (function() {
+                var input = document.getElementById('stx');
+                var sflSelect = document.getElementById('sfl');
+                var autocompleteList = document.getElementById('member-autocomplete-list');
+                var debounceTimer;
+
+                if (!input || !sflSelect || !autocompleteList) {
+                    return;
+                }
+
+                var contextPath = /*[[@{/}]]*/ '/';
+                var searchUrl = contextPath + 'mgmt/config/auth/search-members';
+
+                input.addEventListener('input', function() {
+                    // 회원아이디, 닉네임, 이름 검색일 때만 자동완성 활성화
+                    var sfl = sflSelect.value;
+                    if (sfl !== 'mb_id' && sfl !== 'mb_nick' && sfl !== 'mb_name') {
+                        autocompleteList.innerHTML = '';
+                        return;
+                    }
+
+                    var query = this.value.trim();
+                    clearTimeout(debounceTimer);
+
+                    if (query.length < 1) {
+                        autocompleteList.innerHTML = '';
+                        return;
+                    }
+
+                    debounceTimer = setTimeout(function() {
+                        fetch(searchUrl + '?query=' + encodeURIComponent(query))
+                            .then(response => {
+                                if (!response.ok) {
+                                    throw new Error('HTTP error! status: ' + response.status);
+                                }
+                                return response.json();
+                            })
+                            .then(data => {
+                                autocompleteList.innerHTML = '';
+
+                                if (data.length === 0) {
+                                    autocompleteList.innerHTML = '<div class="autocomplete-item" style="color:#999;">검색 결과가 없습니다.</div>';
+                                    return;
+                                }
+
+                                data.forEach(function(member) {
+                                    var div = document.createElement('div');
+                                    div.className = 'autocomplete-item';
+
+                                    var initial = member.name ? member.name.charAt(0).toUpperCase() :
+                                                 member.nick ? member.nick.charAt(0).toUpperCase() :
+                                                 member.id.charAt(0).toUpperCase();
+
+                                    var iconDiv = document.createElement('div');
+                                    iconDiv.className = 'autocomplete-item-icon';
+                                    iconDiv.textContent = initial;
+
+                                    var textSpan = document.createElement('span');
+                                    textSpan.innerHTML = '<strong>' + member.id + '</strong>' +
+                                                        (member.nick ? '<small>' + member.nick + '</small>' : '') +
+                                                        (member.name ? '<small>(' + member.name + ')</small>' : '');
+
+                                    div.appendChild(iconDiv);
+                                    div.appendChild(textSpan);
+
+                                    div.addEventListener('click', function() {
+                                        // 검색 대상에 따라 적절한 값 입력
+                                        var sfl = sflSelect.value;
+                                        if (sfl === 'mb_nick' && member.nick) {
+                                            input.value = member.nick;
+                                        } else if (sfl === 'mb_name' && member.name) {
+                                            input.value = member.name;
+                                        } else {
+                                            input.value = member.id;
+                                        }
+                                        autocompleteList.innerHTML = '';
+                                    });
+
+                                    autocompleteList.appendChild(div);
+                                });
+                            })
+                            .catch(error => {
+                                console.error('Fetch error:', error);
+                                autocompleteList.innerHTML = '';
+                            });
+                    }, 300);
+                });
+
+                // 검색 대상 변경 시 자동완성 초기화
+                sflSelect.addEventListener('change', function() {
+                    autocompleteList.innerHTML = '';
+                });
+
+                // 외부 클릭 시 자동완성 닫기
+                document.addEventListener('click', function(e) {
+                    if (e.target !== input) {
+                        autocompleteList.innerHTML = '';
+                    }
+                });
+            })();
+        </script>
+
+        <style>
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            z-index: 9999;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            max-height: 280px;
+            overflow-y: auto;
+            background-color: #ffffff;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            margin-top: 2px;
+        }
+
+        .autocomplete-items::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .autocomplete-items::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+
+        .autocomplete-items::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .autocomplete-items::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .autocomplete-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item:hover {
+            background: linear-gradient(90deg, #f8fafc 0%, #ffffff 100%);
+            padding-left: 20px;
+        }
+
+        .autocomplete-item strong {
+            color: #2f6df6;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .autocomplete-item small {
+            color: #64748b;
+            font-size: 13px;
+            margin-left: 4px;
+        }
+
+        .autocomplete-item small:first-of-type {
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .autocomplete-item[style*="color:#999"] {
+            justify-content: center;
+            padding: 16px;
+            font-size: 13px;
+        }
+
+        .autocomplete-item-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+        </style>
+
+    </div>
 </body>
+
 </html>

@@ -94,10 +94,11 @@
         <div th:if="${error}" th:text="${error}" class="error"></div>
 
         <form th:action="@{/install}" method="post" th:object="${form}">
+            <input type="hidden" name="_csrf" th:value="${csrfToken}">
             <div class="section-title">데이터베이스 정보</div>
             <div class="form-group">
                 <label for="dbHost">호스트</label>
-                <input type="text" id="dbHost" th:field="*{dbHost}" placeholder="localhost">
+                <input type="text" id="dbHost" th:field="*{dbHost}" placeholder="db">
             </div>
             <div class="form-group">
                 <label for="dbPort">포트</label>
@@ -105,7 +106,7 @@
             </div>
             <div class="form-group">
                 <label for="dbUser">사용자</label>
-                <input type="text" id="dbUser" th:field="*{dbUser}" placeholder="gnuboard">
+                <input type="text" id="dbUser" th:field="*{dbUser}" placeholder="sprBoard">
             </div>
             <div class="form-group">
                 <label for="dbPassword">비밀번호</label>
@@ -113,7 +114,7 @@
             </div>
             <div class="form-group">
                 <label for="dbName">데이터베이스명</label>
-                <input type="text" id="dbName" th:field="*{dbName}" placeholder="gnuboard5">
+                <input type="text" id="dbName" th:field="*{dbName}" placeholder="sprBoard">
             </div>
 
             <div class="section-title">최고관리자 정보</div>
@@ -134,10 +135,18 @@
                 <input type="email" id="adminEmail" th:field="*{adminEmail}" value="admin@example.com">
             </div>
 
-            <button type="submit" onclick="return confirm('설치를 진행하시겠습니까? 데이터베이스 테이블이 생성됩니다.');">설치 시작</button>
+            <button type="submit" data-confirm="설치를 진행하시겠습니까? 데이터베이스 테이블이 생성됩니다.">설치 시작</button>
         </form>
     </div>
 
+    <script th:attr="nonce=${cspNonce}">
+        document.addEventListener('click', function(e) {
+            var el = e.target.closest('[data-confirm]');
+            if (el && !confirm(el.getAttribute('data-confirm'))) {
+                e.preventDefault();
+            }
+        });
+    </script>
 </body>
 
 </html>

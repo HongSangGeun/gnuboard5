@@ -31,8 +31,7 @@
         <input type="submit" value="선택" class="btn_submit btn">
     </form>
 
-    <form id="fboardgroupmember" method="post" th:action="@{/mgmt/boardgroupmember/delete}"
-          onsubmit="return fboardgroupmember_submit(this);">
+    <form id="fboardgroupmember" method="post" th:action="@{/mgmt/boardgroupmember/delete}">
         <input type="hidden" name="mbId" th:value="${member.mbId}">
 
         <div class="tbl_head01 tbl_wrap">
@@ -42,7 +41,7 @@
                 <tr>
                     <th scope="col">
                         <label for="chkall" class="sound_only">접근가능그룹 전체</label>
-                        <input type="checkbox" name="chkall" value="1" id="chkall" onclick="check_all(this.form)">
+                        <input type="checkbox" name="chkall" value="1" id="chkall" data-check-all="chk[]">
                     </th>
                     <th scope="col">그룹아이디</th>
                     <th scope="col">그룹</th>
@@ -88,6 +87,9 @@
             }
             return confirm("선택한 접근가능그룹을 삭제하시겠습니까?");
         }
+        $('#fboardgroupmember').on('submit', function(e) {
+            if (!fboardgroupmember_submit(this)) e.preventDefault();
+        });
     </script>
 </div>
 </body>

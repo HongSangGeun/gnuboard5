@@ -48,7 +48,7 @@
                 </div>
 
                 <div style="display: flex; gap: 10px; margin-top: 20px;">
-                    <a href="#" onclick="history.back(); return false;" class="mobile-login-submit"
+                    <a href="#" data-back class="mobile-login-submit"
                         style="background-color: #9ca3af; text-decoration: none; display: flex; align-items: center; justify-content: center;">취소</a>
                     <button class="mobile-login-submit" type="submit" id="btn_submit">확인</button>
                 </div>
@@ -58,6 +58,10 @@
     </div>
     <script th:attr="nonce=${cspNonce}">
         (function () {
+            // data-back 핸들러
+            document.querySelectorAll('[data-back]').forEach(function(el) {
+                el.addEventListener('click', function(e) { e.preventDefault(); history.back(); });
+            });
             var btn = document.getElementById('btn_submit');
             var form = document.forms.fmemberconfirm;
             if (!form) return;

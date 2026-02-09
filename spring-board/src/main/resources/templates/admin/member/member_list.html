@@ -61,8 +61,7 @@
             <p>회원자료 삭제 시 기존 회원아이디는 재사용되지 않도록 내부 식별자가 보관됩니다.</p>
         </div>
 
-        <form name="fmemberlist" id="fmemberlist" th:action="@{/mgmt/member/bulk}" method="post"
-            onsubmit="return fmemberlist_submit(this);">
+        <form name="fmemberlist" id="fmemberlist" th:action="@{/mgmt/member/bulk}" method="post">
             <input type="hidden" name="sst" th:value="${crit.sst}">
             <input type="hidden" name="sod" th:value="${crit.sod}">
             <input type="hidden" name="sfl" th:value="${crit.sfl}">
@@ -77,7 +76,7 @@
                             <th scope="col" id="mb_list_chk" class="chk_box">
                                 <label for="chkall" class="sound_only">회원 전체</label>
                                 <input type="checkbox" name="chkall" value="1" id="chkall"
-                                    onclick="check_all(this.form)">
+                                    data-check-all="chk[]">
                             </th>
                             <th scope="col" id="mb_list_id">
                                 <a
@@ -195,9 +194,9 @@
             </div>
 
             <div class="btn_fixed_top">
-                <input type="submit" name="act_button" value="선택수정" onclick="document.pressed=this.value"
+                <input type="submit" name="act_button" value="선택수정" data-pressed="선택수정"
                     class="btn btn_02">
-                <input type="submit" name="act_button" value="선택삭제" onclick="document.pressed=this.value"
+                <input type="submit" name="act_button" value="선택삭제" data-pressed="선택삭제"
                     class="btn btn_02">
                 <a th:href="@{/mgmt/member/form}" id="member_add" class="btn btn_01">회원추가</a>
             </div>
@@ -233,6 +232,9 @@
                 }
                 return true;
             }
+            $('#fmemberlist').on('submit', function(e) {
+                if (!fmemberlist_submit(this)) e.preventDefault();
+            });
 
             // 회원 자동완성
             (function() {

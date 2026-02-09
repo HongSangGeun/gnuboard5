@@ -18,9 +18,9 @@
                 <h1 id="container_title" th:text="${pageTitle} ?: (board != null ? board.boSubject : '게시판')">게시판</h1>
 
                 <!-- FullCalendar v6 CDN -->
-                <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+                <script th:src="'https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js'"></script>
                 <script
-                    src="https://cdn.jsdelivr.net/npm/@fullcalendar/google-calendar@6.1.15/index.global.min.js"></script>
+                    th:src="'https://cdn.jsdelivr.net/npm/@fullcalendar/google-calendar@6.1.15/index.global.min.js'"></script>
 
                 <div class="latest-card calendar-card" data-id="calendar" style="width:100%; max-width:100%;">
                     <div class="card">

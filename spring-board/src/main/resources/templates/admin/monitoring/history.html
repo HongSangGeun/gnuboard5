@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>모니터링 이력</title>
+</head>
+
+<body>
+<div layout:fragment="content">
+    <div class="local_desc01 local_desc">
+        <h2 th:text="${service.msName}">서비스명</h2>
+        <p>URL: <span th:text="${service.msUrl}">URL</span></p>
+    </div>
+
+    <div class="local_ov01 local_ov">
+        <a th:href="@{/mgmt/monitoring}" class="btn btn_02">목록으로</a>
+        <a th:href="@{'/mgmt/monitoring/edit/' + ${service.msId}}" class="btn btn_03">설정 수정</a>
+    </div>
+
+    <!-- 날짜 검색 폼 -->
+    <div class="search_box" style="background:#fff;padding:15px;margin-bottom:20px;border:1px solid #e2e8f0;border-radius:4px;">
+        <form method="get" th:action="@{'/mgmt/monitoring/history/' + ${service.msId}}" style="display:flex;align-items:flex-end;gap:10px;flex-wrap:nowrap;">
+            <div style="display:flex;flex-direction:column;gap:5px;flex:0 0 auto;">
+                <label for="startDate" style="font-size:13px;font-weight:500;color:#64748b;white-space:nowrap;">시작일</label>
+                <input type="date" id="startDate" name="startDate" th:value="${startDate}"
+                       style="padding:8px;border:1px solid #e2e8f0;border-radius:4px;font-size:14px;width:150px;">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px;flex:0 0 auto;">
+                <label for="endDate" style="font-size:13px;font-weight:500;color:#64748b;white-space:nowrap;">종료일</label>
+                <input type="date" id="endDate" name="endDate" th:value="${endDate}"
+                       style="padding:8px;border:1px solid #e2e8f0;border-radius:4px;font-size:14px;width:150px;">
+            </div>
+            <button type="submit" class="btn btn_03" style="margin-bottom:0;white-space:nowrap;">
+                <i class="fa fa-search"></i> 검색
+            </button>
+            <a th:href="@{'/mgmt/monitoring/history/' + ${service.msId}}" class="btn btn_02" style="margin-bottom:0;white-space:nowrap;">
+                <i class="fa fa-refresh"></i> 초기화
+            </a>
+        </form>
+    </div>
+
+    <div class="tbl_head01 tbl_wrap">
+        <table>
+            <caption>모니터링 이력 (<span th:text="${startDate}"></span> ~ <span th:text="${endDate}"></span>)</caption>
+            <thead>
+            <tr>
+                <th scope="col">체크 일시</th>
+                <th scope="col">상태</th>
+                <th scope="col">HTTP 코드</th>
+                <th scope="col">응답시간</th>
+                <th scope="col">에러 메시지</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="h : ${history}">
+                <td th:text="${h.mhCheckedAt}">2024-01-01 12:00:00</td>
+                <td>
+                    <span th:if="${h.mhStatus == 'UP'}" style="color:#22c55e;font-weight:600;">✓ UP</span>
+                    <span th:if="${h.mhStatus == 'DOWN'}" style="color:#f59e0b;font-weight:600;">⚠ DOWN</span>
+                    <span th:if="${h.mhStatus == 'ERROR'}" style="color:#ef4444;font-weight:600;">✗ ERROR</span>
+                </td>
+                <td>
+                    <span th:if="${h.mhStatusCode != null}" th:text="${h.mhStatusCode}">200</span>
+                    <span th:unless="${h.mhStatusCode != null}">-</span>
+                </td>
+                <td>
+                    <span th:if="${h.mhResponseTime != null}" th:text="${h.mhResponseTime} + 'ms'">100ms</span>
+                    <span th:unless="${h.mhResponseTime != null}">-</span>
+                </td>
+                <td>
+                    <div th:if="${h.mhErrorMessage != null}" style="color:#ef4444;font-size:12px;max-width:400px;">
+                        <span th:text="${h.mhErrorMessage}">에러 메시지</span>
+                    </div>
+                    <span th:unless="${h.mhErrorMessage != null}">-</span>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(history)}">
+                <td colspan="5" class="empty_table">모니터링 이력이 없습니다.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <style>
+        .empty_table {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+
+        .local_desc01 h2 {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .local_desc01 p {
+            font-size: 13px;
+            color: #64748b;
+        }
+    </style>
+</div>
+</body>
+</html>

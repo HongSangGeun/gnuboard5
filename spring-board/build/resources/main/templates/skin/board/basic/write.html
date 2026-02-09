@@ -7,6 +7,7 @@
     <link rel="stylesheet" th:href="@{/css/index.css}">
     <title th:text="${board.boSubject} + ' - 글쓰기'">글쓰기</title>
     <link rel="stylesheet" th:href="@{/skin/board/basic/style.css}">
+    <link rel="stylesheet" th:href="@{/css/board-write-modern.css}">
 </head>
 <body>
 <div th:replace="~{fragments/nav :: nav}"></div>
@@ -17,6 +18,10 @@
 
             <section id="bo_w">
                 <h2 class="sound_only">글쓰기</h2>
+                <div th:if="${error}"
+                     role="alert"
+                     style="margin:0 0 14px;padding:10px 12px;border:1px solid #f5c2c7;background:#f8d7da;color:#842029;border-radius:8px;"
+                     th:text="${error}">업로드에 실패했습니다.</div>
                 <form name="fwrite" id="fwrite" th:action="@{'/bbs/' + ${boTable} + '/write'}" method="post" enctype="multipart/form-data" autocomplete="off">
                     <div class="bo_w_select write_div" th:if="${board.boUseCategory == 1}">
                         <label for="ca_name" class="sound_only">분류<strong>필수</strong></label>
@@ -76,7 +81,7 @@
     </div>
 </div>
 <div th:replace="~{fragments/nav :: nav_end}"></div>
-<script>
+<script th:attr="nonce=${cspNonce}">
     (function() {
         var buttons = document.querySelectorAll(".category-buttons button");
         var input = document.getElementById("ca_name");
@@ -99,7 +104,7 @@
 <script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'smarteditor2'}" th:src="@{/plugin/editor/smarteditor2/js/service/HuskyEZCreator.js}"></script>
 <script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'smarteditor2'}" th:src="@{/plugin/editor/smarteditor2/config.js}"></script>
 <script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'cheditor5'}" th:src="@{/plugin/editor/cheditor5/cheditor.js}"></script>
-<script th:inline="javascript">
+<script th:inline="javascript" th:attr="nonce=${cspNonce}">
     /*<![CDATA[*/
     var useEditor = /*[[${board.boUseDhtmlEditor}]]*/ 0;
     var editorType = /*[[${board.boSelectEditor}]]*/ '';
@@ -142,6 +147,45 @@
         }
         if (textarea) {
             textarea.removeAttribute('required');
+        }
+    })();
+
+    // 폼 중복 제출 방지
+    (function() {
+        var form = document.getElementById('fwrite');
+        var submitBtn = document.getElementById('btn_submit');
+        var isSubmitting = false;
+
+        if (form && submitBtn) {
+            form.addEventListener('submit', function(e) {
+                if (isSubmitting) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                // 필수 입력 검증
+                var subject = document.getElementById('wr_subject');
+                var content = document.getElementById('wr_content');
+
+                if (!subject || !subject.value.trim()) {
+                    alert('제목을 입력해주세요.');
+                    e.preventDefault();
+                    return false;
+                }
+
+                if (!content || !content.value.trim()) {
+                    alert('내용을 입력해주세요.');
+                    e.preventDefault();
+                    return false;
+                }
+
+                // 제출 중 상태로 변경
+                isSubmitting = true;
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.6';
+                submitBtn.style.cursor = 'not-allowed';
+                submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> 저장 중...';
+            });
         }
     })();
 </script>

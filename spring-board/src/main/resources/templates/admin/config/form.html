@@ -10,8 +10,7 @@
 
     <div layout:fragment="content">
 
-        <form name="fconfigform" id="fconfigform" th:action="@{/mgmt/config}" th:object="${config}" method="post"
-            onsubmit="return fconfigform_submit(this);">
+        <form name="fconfigform" id="fconfigform" th:action="@{/mgmt/config}" th:object="${config}" method="post">
             <input type="hidden" th:field="*{cfId}">
             <input type="hidden" th:field="*{cfTheme}">
 
@@ -244,6 +243,9 @@
             function fconfigform_submit(f) {
                 return true;
             }
+            $('#fconfigform').on('submit', function(e) {
+                if (!fconfigform_submit(this)) e.preventDefault();
+            });
         </script>
     </div>
 

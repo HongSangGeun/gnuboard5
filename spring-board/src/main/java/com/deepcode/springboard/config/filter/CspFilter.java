@@ -29,13 +29,15 @@ public class CspFilter implements Filter {
         String nonce = generateNonce();
         httpRequest.setAttribute("cspNonce", nonce);
 
-        // CSP 정책 설정
-        String cspPolicy = buildCspPolicy(nonce);
+        // 에디터 사용 페이지 여부 판단 (글쓰기/수정)
+        String uri = httpRequest.getRequestURI();
+        boolean isEditorPage = uri.matches(".*/bbs/[^/]+/(write|edit/.*)$");
 
-        // 1단계: Report-Only 모드로 시작 (실제 차단 안 함, 로그만 기록)
-        // 문제 없으면 주석 전환하여 실제 차단 모드로 변경
-        httpResponse.setHeader("Content-Security-Policy-Report-Only", cspPolicy);
-        // httpResponse.setHeader("Content-Security-Policy", cspPolicy);
+        // CSP 정책 설정
+        String cspPolicy = buildCspPolicy(nonce, isEditorPage);
+
+        // CSP Enforce 모드: 정책 위반 시 실제 차단
+        httpResponse.setHeader("Content-Security-Policy", cspPolicy);
 
         // 추가 보안 헤더
         httpResponse.setHeader("X-Content-Type-Options", "nosniff");
@@ -52,15 +54,24 @@ public class CspFilter implements Filter {
         return Base64.getEncoder().encodeToString(bytes);
     }
 
-    private String buildCspPolicy(String nonce) {
+    private String buildCspPolicy(String nonce, boolean isEditorPage) {
         StringBuilder policy = new StringBuilder();
 
         // 기본: 같은 도메인만 허용
         policy.append("default-src 'self'; ");
 
-        // 스크립트: 자체 + nonce 기반 인라인 허용 + 신뢰할 수 있는 CDN
-        policy.append("script-src 'self' 'nonce-").append(nonce).append("' ")
-              .append("https://cdn.jsdelivr.net ")
+        // 스크립트: 자체 + 신뢰할 수 있는 CDN
+        policy.append("script-src 'self' ");
+        if (isEditorPage) {
+            // 서드파티 에디터(CKEditor4, SmartEditor2, CHEditor5)가 내부적으로
+            // 인라인 스크립트와 eval()을 사용하므로 글쓰기/수정 페이지에서만 허용
+            // nonce + unsafe-inline 동시 지정 시 CSP Level 2+에서 unsafe-inline이 무시되므로
+            // 에디터 페이지에서는 nonce 대신 unsafe-inline/unsafe-eval 사용
+            policy.append("'unsafe-inline' 'unsafe-eval' ");
+        } else {
+            policy.append("'nonce-").append(nonce).append("' ");
+        }
+        policy.append("https://cdn.jsdelivr.net ")
               .append("https://t1.daumcdn.net ")
               .append("https://i1.daumcdn.net ")
               .append("https://ssl.daumcdn.net; ");
@@ -77,7 +88,7 @@ public class CspFilter implements Filter {
               .append("https://cdn.jsdelivr.net; ");
 
         // AJAX/WebSocket: 자체 + Google Calendar API
-        policy.append("connect-src 'self' https://www.googleapis.com; ");
+        policy.append("connect-src 'self' https://www.googleapis.com https://cdn.jsdelivr.net; ");
 
         // 미디어: 자체만
         policy.append("media-src 'self'; ");

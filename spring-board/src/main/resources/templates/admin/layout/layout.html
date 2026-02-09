@@ -27,12 +27,39 @@
         var APP_CSRF_TOKEN = /*[[${csrfToken}]]*/ "";
     </script>
 
-    <script th:src="@{/js/jquery.min.js}"></script>
+    <script th:src="@{/js/jquery-3.7.1.min.js}"></script>
     <script th:src="@{/js/jquery-migrate-3.5.0.min.js}"></script>
     <script th:src="@{/js/csrf.js}"></script>
     <script th:src="@{/js/jquery.menu.js}"></script>
     <script th:src="@{/js/common.js}"></script>
     <script th:src="@{/js/wrest.js}"></script>
+    <script th:attr="nonce=${cspNonce}">
+        // 글로벌 이벤트 위임 핸들러 (관리자 레이아웃)
+        $(document).on('click', '[data-confirm]:not(form)', function(e) {
+            if (!confirm(this.getAttribute('data-confirm'))) { e.preventDefault(); }
+        });
+        $(document).on('submit', 'form[data-confirm]', function(e) {
+            if (!confirm(this.getAttribute('data-confirm'))) { e.preventDefault(); }
+        });
+        $(document).on('click', '[data-back]', function(e) {
+            e.preventDefault(); history.back();
+        });
+        $(document).on('click', '[data-check-all]', function() {
+            var name = this.getAttribute('data-check-all');
+            var form = this.closest('form');
+            var chks = form.querySelectorAll("input[name='" + name + "']");
+            for (var i = 0; i < chks.length; i++) chks[i].checked = this.checked;
+        });
+        $(document).on('change', '[data-autosubmit]', function() {
+            this.closest('form').submit();
+        });
+        $(document).on('click', '[data-pressed]', function() {
+            document.pressed = this.getAttribute('data-pressed');
+        });
+        $(document).on('click', '[data-alert]', function(e) {
+            e.preventDefault(); alert(this.getAttribute('data-alert'));
+        });
+    </script>
 
 </head>
 

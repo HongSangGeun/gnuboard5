@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>메일 관리</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <div th:if="${message}" class="local_desc01 local_desc">
+            <p th:text="${message}"></p>
+        </div>
+
+        <div th:if="${error}" class="local_desc01 local_desc" style="background:#fff5f5; border-color:#f0b0b0;">
+            <p th:text="${error}" style="color:#d14343;"></p>
+        </div>
+
+        <div class="local_desc02 local_desc">
+            <p>메일 내용에 {이름}, {닉네임}, {회원아이디}, {이메일} 처럼 삽입하면 해당 내용에 맞게 변환하여 메일을 발송합니다.</p>
+        </div>
+
+        <div class="btn_fixed_top">
+            <a th:href="@{/mgmt/mail/form}" class="btn btn_01">메일 등록</a>
+            <a th:href="@{/mgmt/mail/select}" class="btn btn_01">메일 발송</a>
+            <a th:href="@{/mgmt/mail/test}" class="btn btn_02">메일 테스트</a>
+        </div>
+
+        <div class="tbl_head01 tbl_wrap">
+            <table>
+                <caption>메일 목록</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">번호</th>
+                        <th scope="col">제목</th>
+                        <th scope="col">발송시간</th>
+                        <th scope="col">관리</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="mail : ${mails}">
+                        <td class="td_num" th:text="${mail.maId}">1</td>
+                        <td class="td_subject" th:text="${mail.maSubject}">메일 제목</td>
+                        <td class="td_datetime" th:text="${mail.maTime != null ? #temporals.format(mail.maTime, 'yyyy-MM-dd HH:mm') : ''}">2024-01-01 00:00</td>
+                        <td class="td_mng">
+                            <a th:href="@{/mgmt/mail/form(maId=${mail.maId})}" class="btn btn_03">수정</a>
+                            <form th:action="@{/mgmt/mail/delete}" method="post" style="display:inline;">
+                                <input type="hidden" name="_csrf" th:value="${csrfToken}">
+                                <input type="hidden" name="maId" th:value="${mail.maId}">
+                                <button type="submit" class="btn btn_02" data-confirm="정말 삭제하시겠습니까?">삭제</button>
+                            </form>
+                        </td>
+                    </tr>
+                    <tr th:if="${mails == null || mails.isEmpty()}">
+                        <td colspan="4" class="empty_table">등록된 메일이 없습니다.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</body>
+
+</html>

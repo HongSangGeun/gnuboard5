@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>접속자검색</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <div class="local_desc">
+            <p>접속자 로그를 검색합니다.</p>
+        </div>
+
+        <form method="get" th:action="@{/mgmt/visit/search}" class="local_sch">
+            <label for="searchDate">날짜:</label>
+            <input type="date" name="searchDate" id="searchDate" th:value="${searchDate}" class="frm_input">
+
+            <label for="searchIp">IP:</label>
+            <input type="text" name="searchIp" id="searchIp" th:value="${searchIp}" class="frm_input" placeholder="IP 주소">
+
+            <button type="submit" class="btn_submit">검색</button>
+        </form>
+
+        <div class="local_ov">
+            <span class="btn_ov01">
+                <span class="ov_txt">검색결과</span>
+                <span class="ov_num" th:text="${#numbers.formatInteger(totalCount, 0, 'COMMA')} + '건'">0건</span>
+            </span>
+        </div>
+
+        <div class="tbl_head01 tbl_wrap">
+            <table>
+                <caption>접속자 로그</caption>
+                <thead>
+                    <tr>
+                        <th scope="col">번호</th>
+                        <th scope="col">IP</th>
+                        <th scope="col">접속일시</th>
+                        <th scope="col">Referer</th>
+                        <th scope="col">User Agent</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:if="${#lists.isEmpty(visitLogs)}">
+                        <td colspan="5" class="empty_table">검색 결과가 없습니다.</td>
+                    </tr>
+                    <tr th:each="log, iterStat : ${visitLogs}">
+                        <td th:text="${log.vi_id}">1</td>
+                        <td th:text="${log.vi_ip}">127.0.0.1</td>
+                        <td th:text="${log.vi_datetime}">2024-01-01 12:00:00</td>
+                        <td>
+                            <div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                                 th:text="${log.vi_referer}">-</div>
+                        </td>
+                        <td>
+                            <div style="max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"
+                                 th:text="${log.vi_agent}">-</div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- 페이징 -->
+        <div th:if="${totalPages > 0}" class="pagination">
+            <a th:if="${currentPage > 1}"
+               th:href="@{/mgmt/visit/search(page=${currentPage - 1}, searchDate=${searchDate}, searchIp=${searchIp})}"
+               class="pg_page pg_prev">이전</a>
+
+            <span th:each="pageNum : ${#numbers.sequence(1, totalPages)}">
+                <a th:if="${pageNum != currentPage}"
+                   th:href="@{/mgmt/visit/search(page=${pageNum}, searchDate=${searchDate}, searchIp=${searchIp})}"
+                   th:text="${pageNum}"
+                   class="pg_page">1</a>
+                <strong th:if="${pageNum == currentPage}"
+                        th:text="${pageNum}"
+                        class="pg_current">1</strong>
+            </span>
+
+            <a th:if="${currentPage < totalPages}"
+               th:href="@{/mgmt/visit/search(page=${currentPage + 1}, searchDate=${searchDate}, searchIp=${searchIp})}"
+               class="pg_page pg_next">다음</a>
+        </div>
+
+    </div>
+</body>
+
+</html>

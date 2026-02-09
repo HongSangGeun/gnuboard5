@@ -1,93 +1,181 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>회원정보 수정</title>
-    <link rel="stylesheet" th:href="@{/css/default.css}">
-    <link rel="stylesheet" th:href="@{/skin/member/basic/style.css}">
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/css/member-edit.css}">
 </head>
-<body>
-<div th:replace="~{fragments/nav :: nav}"></div>
-<div id="wrapper">
-    <div id="container_wr">
-        <div id="container">
-            <h1 id="container_title" th:text="${pageTitle} ?: '회원정보 수정'">회원정보 수정</h1>
 
-            <div class="register">
-                <form id="fregisterform" name="fregisterform" th:action="@{/member/edit}" method="post" th:object="${form}">
-                    <div th:if="${error}" th:text="${error}" class="error" style="color:red; margin: 10px 0;"></div>
-                    <div th:if="${message}" th:text="${message}" class="message" style="color:green; margin: 10px 0;"></div>
+<body class="edit-body">
+    <div class="edit-shell">
+        <section class="edit-card" aria-labelledby="edit-title">
+            <header class="edit-head">
+                <a th:href="@{/}">
+                    <img class="edit-logo" th:src="@{/img/logo_gn.svg}" alt="경남 스마트시티 관리포털">
+                </a>
+                <h1 id="edit-title" class="edit-title">회원정보 수정</h1>
+                <p class="edit-subtitle">회원님의 정보를 안전하게 관리하세요.</p>
+            </header>
 
-                    <div id="register_form" class="form_01">
-                        <div class="register_form_inner">
-                            <h2>사이트 이용정보 입력</h2>
-                            <ul>
-                                <li>
-                                    <label for="reg_mb_id">아이디 (필수)</label>
-                                    <input type="text" id="reg_mb_id" th:field="*{mbId}" class="frm_input full_input" readonly placeholder="아이디">
-                                </li>
-                                <li class="half_input left_input margin_input">
-                                    <label for="reg_mb_password">비밀번호 (필수)</label>
-                                    <input type="password" id="reg_mb_password" th:field="*{password}" class="frm_input full_input" placeholder="변경 시에만 입력">
-                                </li>
-                                <li class="half_input left_input">
-                                    <label for="reg_mb_password_re">비밀번호 확인 (필수)</label>
-                                    <input type="password" id="reg_mb_password_re" th:field="*{passwordConfirm}" class="frm_input full_input" placeholder="변경 시에만 입력">
-                                </li>
-                            </ul>
+            <p th:if="${error}" class="edit-error" th:text="${error}">오류가 발생했습니다.</p>
+            <p th:if="${message}" class="edit-success" th:text="${message}">성공!</p>
+
+            <form th:action="@{/member/edit}" method="post" th:object="${form}">
+                <input type="hidden" name="_csrf" th:value="${csrfToken}">
+
+                <div class="edit-form">
+                    <!-- 사이트 이용정보 -->
+                    <div class="edit-section">
+                        <h2 class="edit-section-title">사이트 이용정보</h2>
+
+                        <div class="edit-field">
+                            <label class="edit-label" for="reg_mb_id">아이디</label>
+                            <div class="edit-input-wrap">
+                                <i class="edit-icon fa fa-user-o" aria-hidden="true"></i>
+                                <input class="edit-input" type="text" name="mbId" id="reg_mb_id"
+                                    th:field="*{mbId}" readonly>
+                            </div>
                         </div>
 
-                        <div class="tbl_frm01 tbl_wrap register_form_inner">
-                            <h2>개인정보 입력</h2>
-                            <ul>
-                                <li>
-                                    <label for="reg_mb_name">이름 (필수)</label>
-                                    <input type="text" id="reg_mb_name" th:field="*{name}" required class="frm_input full_input" placeholder="이름">
-                                </li>
-                                <li>
-                                    <label for="reg_mb_nick">닉네임 (필수)</label>
-                                    <input type="text" id="reg_mb_nick" th:field="*{nick}" required class="frm_input full_input" placeholder="닉네임">
-                                </li>
-                                <li>
-                                    <label for="reg_mb_email">E-mail (필수)</label>
-                                    <input type="email" id="reg_mb_email" th:field="*{email}" required class="frm_input full_input" placeholder="E-mail">
-                                </li>
-                                <li>
-                                    <label for="reg_mb_tel">전화번호</label>
-                                    <input type="text" id="reg_mb_tel" th:field="*{tel}" class="frm_input full_input" placeholder="전화번호">
-                                </li>
-                                <li>
-                                    <label for="reg_mb_hp">휴대폰번호</label>
-                                    <input type="text" id="reg_mb_hp" th:field="*{hp}" class="frm_input full_input" placeholder="휴대폰번호">
-                                </li>
-                                <li>
-                                    <label>주소</label>
-                                    <label for="reg_mb_zip1" class="sound_only">우편번호</label>
-                                    <input type="text" id="reg_mb_zip1" th:field="*{zip1}" class="frm_input twopart_input" maxlength="6" placeholder="우편번호">
-                                    <input type="text" id="reg_mb_zip2" th:field="*{zip2}" class="frm_input twopart_input" maxlength="6" placeholder="우편번호(2)">
-                                    <br>
-                                    <input type="text" id="reg_mb_addr1" th:field="*{addr1}" class="frm_input frm_address full_input" placeholder="기본주소">
-                                    <label for="reg_mb_addr1" class="sound_only">기본주소</label>
-                                    <br>
-                                    <input type="text" id="reg_mb_addr2" th:field="*{addr2}" class="frm_input frm_address full_input" placeholder="상세주소">
-                                    <label for="reg_mb_addr2" class="sound_only">상세주소</label>
-                                    <br>
-                                    <input type="text" id="reg_mb_addr3" th:field="*{addr3}" class="frm_input frm_address full_input" placeholder="참고항목">
-                                    <label for="reg_mb_addr3" class="sound_only">참고항목</label>
-                                </li>
-                            </ul>
+                        <div class="edit-field">
+                            <label class="edit-label" for="reg_mb_password">비밀번호</label>
+                            <div class="edit-input-wrap">
+                                <i class="edit-icon fa fa-lock" aria-hidden="true"></i>
+                                <input class="edit-input" type="password" name="password" id="reg_mb_password"
+                                    th:field="*{password}" placeholder="변경하려면 입력하세요"
+                                    autocomplete="new-password">
+                            </div>
+                        </div>
+
+                        <div class="edit-field">
+                            <label class="edit-label" for="reg_mb_password_re">비밀번호 확인</label>
+                            <div class="edit-input-wrap">
+                                <i class="edit-icon fa fa-lock" aria-hidden="true"></i>
+                                <input class="edit-input" type="password" name="passwordConfirm" id="reg_mb_password_re"
+                                    th:field="*{passwordConfirm}" placeholder="비밀번호 확인"
+                                    autocomplete="new-password">
+                            </div>
                         </div>
                     </div>
 
-                    <div class="btn_confirm" style="text-align:center; margin-top: 12px;">
-                        <button type="submit" class="btn_submit">수정완료</button>
+                    <!-- 개인정보 -->
+                    <div class="edit-section">
+                        <h2 class="edit-section-title">개인정보</h2>
+
+                        <div class="edit-field">
+                            <label class="edit-label edit-label-required" for="reg_mb_name">이름</label>
+                            <div class="edit-input-wrap">
+                                <i class="edit-icon fa fa-id-card-o" aria-hidden="true"></i>
+                                <input class="edit-input" type="text" name="name" id="reg_mb_name"
+                                    th:field="*{name}" placeholder="이름" required>
+                            </div>
+                        </div>
+
+                        <div class="edit-field">
+                            <label class="edit-label edit-label-required" for="reg_mb_nick">닉네임</label>
+                            <div class="edit-input-wrap">
+                                <i class="edit-icon fa fa-commenting-o" aria-hidden="true"></i>
+                                <input class="edit-input" type="text" name="nick" id="reg_mb_nick"
+                                    th:field="*{nick}" placeholder="닉네임" required>
+                            </div>
+                        </div>
+
+                        <div class="edit-field">
+                            <label class="edit-label edit-label-required" for="reg_mb_email">이메일</label>
+                            <div class="edit-input-wrap">
+                                <i class="edit-icon fa fa-envelope-o" aria-hidden="true"></i>
+                                <input class="edit-input" type="email" name="email" id="reg_mb_email"
+                                    th:field="*{email}" placeholder="이메일" required>
+                            </div>
+                        </div>
+
+                        <div class="edit-field-row">
+                            <div class="edit-field">
+                                <label class="edit-label" for="reg_mb_tel">전화번호</label>
+                                <div class="edit-input-wrap">
+                                    <i class="edit-icon fa fa-phone" aria-hidden="true"></i>
+                                    <input class="edit-input" type="text" name="tel" id="reg_mb_tel"
+                                        th:field="*{tel}" placeholder="전화번호">
+                                </div>
+                            </div>
+
+                            <div class="edit-field">
+                                <label class="edit-label" for="reg_mb_hp">휴대폰번호</label>
+                                <div class="edit-input-wrap">
+                                    <i class="edit-icon fa fa-mobile" aria-hidden="true"></i>
+                                    <input class="edit-input" type="text" name="hp" id="reg_mb_hp"
+                                        th:field="*{hp}" placeholder="휴대폰번호">
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </form>
-            </div>
-        </div>
+
+                    <!-- 주소정보 -->
+                    <div class="edit-section">
+                        <h2 class="edit-section-title">주소정보</h2>
+
+                        <div class="edit-field-row">
+                            <div class="edit-field">
+                                <label class="edit-label" for="reg_mb_zip1">우편번호</label>
+                                <input class="edit-input-short" type="text" name="zip1" id="reg_mb_zip1"
+                                    th:field="*{zip1}" placeholder="우편번호" maxlength="6">
+                            </div>
+
+                            <div class="edit-field">
+                                <label class="edit-label" for="reg_mb_zip2">우편번호(2)</label>
+                                <input class="edit-input-short" type="text" name="zip2" id="reg_mb_zip2"
+                                    th:field="*{zip2}" placeholder="우편번호(2)" maxlength="6">
+                            </div>
+                        </div>
+
+                        <div class="edit-field">
+                            <label class="edit-label" for="reg_mb_addr1">기본주소</label>
+                            <div class="edit-input-wrap">
+                                <i class="edit-icon fa fa-map-marker" aria-hidden="true"></i>
+                                <input class="edit-input" type="text" name="addr1" id="reg_mb_addr1"
+                                    th:field="*{addr1}" placeholder="기본주소">
+                            </div>
+                        </div>
+
+                        <div class="edit-field">
+                            <label class="edit-label" for="reg_mb_addr2">상세주소</label>
+                            <div class="edit-input-wrap">
+                                <i class="edit-icon fa fa-map-marker" aria-hidden="true"></i>
+                                <input class="edit-input" type="text" name="addr2" id="reg_mb_addr2"
+                                    th:field="*{addr2}" placeholder="상세주소">
+                            </div>
+                        </div>
+
+                        <div class="edit-field">
+                            <label class="edit-label" for="reg_mb_addr3">참고항목</label>
+                            <div class="edit-input-wrap">
+                                <i class="edit-icon fa fa-map-marker" aria-hidden="true"></i>
+                                <input class="edit-input" type="text" name="addr3" id="reg_mb_addr3"
+                                    th:field="*{addr3}" placeholder="참고항목">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="edit-actions">
+                    <button class="edit-submit" type="submit">수정완료</button>
+                    <button class="edit-cancel" type="button" data-back>취소</button>
+                </div>
+
+                <div class="edit-links">
+                    <a th:href="@{/}">메인으로</a>
+                </div>
+            </form>
+        </section>
     </div>
-</div>
-<div th:replace="~{fragments/nav :: nav_end}"></div>
+    <script th:attr="nonce=${cspNonce}">
+        document.querySelectorAll('[data-back]').forEach(function(el) {
+            el.addEventListener('click', function(e) { e.preventDefault(); history.back(); });
+        });
+    </script>
 </body>
+
 </html>

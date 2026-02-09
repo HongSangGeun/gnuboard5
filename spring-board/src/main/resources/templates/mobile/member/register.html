@@ -147,6 +147,12 @@
         }
 
         document.addEventListener('DOMContentLoaded', function() {
+            // 약관 토글 버튼 바인딩
+            document.querySelectorAll('[data-terms-toggle]').forEach(function(btn) {
+                btn.addEventListener('click', function() {
+                    toggleTerms(this.getAttribute('data-terms-toggle'));
+                });
+            });
             const agreeAll = document.getElementById('agree_all');
             const agreeTerms = document.getElementById('agree_terms');
             const agreePrivacy = document.getElementById('agree_privacy');
@@ -204,7 +210,7 @@
                             <input type="checkbox" name="agreeTerms" id="agree_terms" class="terms-checkbox" required>
                             <span class="terms-text">[필수] 이용약관 동의</span>
                         </label>
-                        <button type="button" class="terms-toggle" onclick="toggleTerms('terms1')">
+                        <button type="button" class="terms-toggle" data-terms-toggle="terms1">
                             <i class="fa fa-chevron-down"></i>
                         </button>
                     </div>
@@ -264,7 +270,7 @@
                             <input type="checkbox" name="agreePrivacy" id="agree_privacy" class="terms-checkbox" required>
                             <span class="terms-text">[필수] 개인정보 수집 및 이용 동의</span>
                         </label>
-                        <button type="button" class="terms-toggle" onclick="toggleTerms('terms2')">
+                        <button type="button" class="terms-toggle" data-terms-toggle="terms2">
                             <i class="fa fa-chevron-down"></i>
                         </button>
                     </div>

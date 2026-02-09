@@ -140,13 +140,13 @@ function uploadSuccess(file, serverData) {
 			url: url,
 			data: params,
 			success : after_upload_success = function(req) {
-					var file = eval('('+req+')');
+					var file = JSON.parse(req);
 					var file_size = (file.bf_filesize / 1024).toFixed(1);
 					var text = file.bf_source + " (" + getfilesize(file.bf_filesize) + ")";
 					var value = file.bf_no + "|" + file.bf_source + "|" + file.bf_file + "|" + file.bf_filesize + "|" + file.bf_width + "|" + file.bf_type;
 					obj.options[bf_position].text = text;
 					obj.options[bf_position].value = value;
-					eval("preview(file.bf_file)");
+					preview(file.bf_file);
 				}
 			});
 		
@@ -247,7 +247,7 @@ function delete_file() {
 					type: 'post',
 					url: url,
 					data: params,
-					success : eval("delete_file_complete")
+					success : delete_file_complete
 					});
 				
 				sum_filesize = sum_filesize - file.bf_filesize;
@@ -274,7 +274,7 @@ function delete_file_complete() {
         	obj.options[obj.options.length-1].selected = true;
 		};
 
-		eval("preview()");
+		preview();
 	} catch (ex) {
 		this.debug(ex);
 	};

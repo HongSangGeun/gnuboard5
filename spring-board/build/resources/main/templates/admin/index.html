@@ -4,11 +4,29 @@
 
 <head>
     <title>관리자 메인</title>
+    <script th:src="'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js'"></script>
 </head>
 
 <body>
 
-    <div layout:fragment="content">
+    <div layout:fragment="content" class="admin-dashboard">
+
+        <!-- 외부 서비스 모니터링 -->
+        <section style="margin-bottom:40px;">
+            <h2>외부 서비스 모니터링 현황</h2>
+            <div class="monitoring-cards" id="monitoringCards">
+                <p style="text-align:center;padding:20px;color:#64748b;">
+                    <i class="fa fa-spinner fa-spin"></i> 로딩 중...
+                </p>
+            </div>
+            <div id="monitoringError" style="display:none;text-align:center;padding:20px;">
+                <p style="color:#ef4444;margin-bottom:10px;">모니터링 데이터를 불러올 수 없습니다.</p>
+                <p style="color:#64748b;font-size:13px;">브라우저 콘솔(F12)에서 오류를 확인하세요.</p>
+                <button id="btnRetryMonitoring" type="button" style="margin-top:10px;padding:8px 16px;background:#3b82f6;color:#fff;border:none;border-radius:4px;cursor:pointer;">
+                    다시 시도
+                </button>
+            </div>
+        </section>
 
         <section>
             <h2>신규가입회원 5건 목록</h2>
@@ -85,6 +103,376 @@
                 <a th:href="@{/mgmt/board}">최근게시물 더보기</a>
             </div>
         </section>
+
+        <!-- 모니터링 차트 스크립트 -->
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+        // 모니터링 데이터 로드 및 차트 생성
+        function loadMonitoringData() {
+            console.log('Loading monitoring data...');
+
+            fetch('/datahub/board/mgmt/api/monitoring-chart-data')
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error('HTTP ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Monitoring data:', data);
+
+                    if (data.success && data.services && data.services.length > 0) {
+                        console.log('Rendering', data.services.length, 'monitoring cards');
+                        renderMonitoringCards(data.services);
+                    } else {
+                        console.log('No monitoring data or not successful:', data);
+                        const container = document.getElementById('monitoringCards');
+                        if (container) {
+                            container.textContent = '';
+                            var noDataMsg = document.createElement('p');
+                            noDataMsg.style.cssText = 'text-align:center;padding:20px;color:#94a3b8;';
+                            noDataMsg.textContent = '모니터링 데이터가 없습니다.';
+                            container.appendChild(noDataMsg);
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error('Error loading monitoring data:', error);
+                    const container = document.getElementById('monitoringCards');
+                    const errorDiv = document.getElementById('monitoringError');
+
+                    if (container) {
+                        container.style.display = 'none';
+                    }
+                    if (errorDiv) {
+                        errorDiv.style.display = 'block';
+                        const errorMsg = errorDiv.querySelector('p');
+                        if (errorMsg) {
+                            errorMsg.textContent = '';
+                            errorMsg.appendChild(document.createTextNode('모니터링 데이터를 불러올 수 없습니다.'));
+                            errorMsg.appendChild(document.createElement('br'));
+                            var small = document.createElement('small');
+                            small.style.color = '#94a3b8';
+                            small.textContent = '오류: ' + error.message;
+                            errorMsg.appendChild(small);
+                        }
+                    }
+                });
+        }
+
+        function escapeHtml(str) {
+            var div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function renderMonitoringCards(services) {
+            const container = document.getElementById('monitoringCards');
+            container.innerHTML = '';
+
+            services.forEach((service, index) => {
+                const card = document.createElement('div');
+                card.className = 'monitoring-card';
+
+                var upRateColor = service.upRate >= 95 ? '#22c55e' : service.upRate >= 80 ? '#f59e0b' : '#ef4444';
+                var detailHref = window.g5_admin_url + '/monitoring/history/' + encodeURIComponent(service.id);
+
+                card.innerHTML =
+                    '<div class="card-header">' +
+                        '<div class="service-info">' +
+                            '<h3>' + escapeHtml(service.name) + '</h3>' +
+                            '<p class="service-url">' + escapeHtml(service.url) + '</p>' +
+                        '</div>' +
+                        '<div class="service-stats">' +
+                            '<div class="stat-item">' +
+                                '<span class="stat-label">가동률</span>' +
+                                '<span class="stat-value" style="color:' + escapeHtml(upRateColor) + '">' +
+                                    escapeHtml(String(service.upRate)) + '%' +
+                                '</span>' +
+                            '</div>' +
+                            '<div class="stat-item">' +
+                                '<span class="stat-label">평균 응답시간</span>' +
+                                '<span class="stat-value">' + escapeHtml(String(service.avgResponseTime)) + 'ms</span>' +
+                            '</div>' +
+                        '</div>' +
+                    '</div>' +
+                    '<div class="card-body">' +
+                        '<canvas id="chart-' + index + '" style="max-height:200px;"></canvas>' +
+                    '</div>' +
+                    '<div class="card-footer">' +
+                        '<span class="check-count">최근 ' + escapeHtml(String(service.totalChecks)) + '회 체크</span>' +
+                        '<a class="view-detail">상세보기 →</a>' +
+                    '</div>';
+
+                // href를 안전하게 설정
+                var detailLink = card.querySelector('.view-detail');
+                if (detailLink) detailLink.href = detailHref;
+
+                container.appendChild(card);
+
+                // 차트 생성
+                createChart(`chart-${index}`, service);
+            });
+        }
+
+        function createChart(canvasId, service) {
+            console.log('Creating chart for:', canvasId, service);
+
+            // Chart.js 로드 확인
+            if (typeof Chart === 'undefined') {
+                console.error('Chart.js is not loaded!');
+                return;
+            }
+
+            const canvas = document.getElementById(canvasId);
+            if (!canvas) {
+                console.error('Canvas not found:', canvasId);
+                return;
+            }
+
+            const ctx = canvas.getContext('2d');
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: service.labels,
+                    datasets: [
+                        {
+                            label: '응답시간 (ms)',
+                            data: service.responseTimes,
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            yAxisID: 'y',
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: '상태 (UP=1)',
+                            data: service.statuses,
+                            borderColor: '#22c55e',
+                            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                            yAxisID: 'y1',
+                            stepped: true,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false
+                    },
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top',
+                            labels: {
+                                boxWidth: 12,
+                                font: { size: 11 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.datasetIndex === 1) {
+                                        label += context.parsed.y === 1 ? 'UP' : 'DOWN';
+                                    } else {
+                                        label += context.parsed.y + 'ms';
+                                    }
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            grid: { display: false },
+                            ticks: { font: { size: 10 } }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: '응답시간 (ms)', font: { size: 11 } },
+                            ticks: { font: { size: 10 } }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            min: 0,
+                            max: 1.2,
+                            title: { display: true, text: '상태', font: { size: 11 } },
+                            grid: { drawOnChartArea: false },
+                            ticks: {
+                                font: { size: 10 },
+                                callback: function(value) {
+                                    return value === 1 ? 'UP' : value === 0 ? 'DOWN' : '';
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // 페이지 로드 시 실행
+        document.addEventListener('DOMContentLoaded', function() {
+            var retryBtn = document.getElementById('btnRetryMonitoring');
+            if (retryBtn) {
+                retryBtn.addEventListener('click', function() { loadMonitoringData(); });
+            }
+            console.log('DOMContentLoaded');
+            const container = document.getElementById('monitoringCards');
+            console.log('Monitoring cards container:', container);
+
+            if (container) {
+                // Chart.js 로드 확인
+                if (typeof Chart === 'undefined') {
+                    console.error('Chart.js is not loaded! Adding fallback script...');
+                    // Chart.js 재로드 시도
+                    const script = document.createElement('script');
+                    script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
+                    script.onload = function() {
+                        console.log('Chart.js loaded successfully');
+                        loadMonitoringData();
+                    };
+                    script.onerror = function() {
+                        console.error('Failed to load Chart.js');
+                        container.textContent = '';
+                        var failMsg = document.createElement('p');
+                        failMsg.style.cssText = 'text-align:center;padding:20px;color:#ef4444;';
+                        failMsg.textContent = 'Chart.js 로드 실패';
+                        container.appendChild(failMsg);
+                    };
+                    document.head.appendChild(script);
+                } else {
+                    console.log('Chart.js is already loaded');
+                    loadMonitoringData();
+                }
+
+                // 5분마다 자동 새로고침
+                setInterval(loadMonitoringData, 5 * 60 * 1000);
+            } else {
+                console.log('No monitoring cards container found - monitoring disabled or no services');
+            }
+        });
+        </script>
+
+        <!-- 모니터링 카드 스타일 -->
+        <style>
+        .monitoring-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .monitoring-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .service-info h3 {
+            margin: 0 0 5px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .service-url {
+            margin: 0;
+            font-size: 12px;
+            color: #64748b;
+            word-break: break-all;
+        }
+
+        .service-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-item {
+            text-align: right;
+        }
+
+        .stat-label {
+            display: block;
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 3px;
+        }
+
+        .stat-value {
+            display: block;
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .card-body {
+            margin-bottom: 15px;
+            height: 200px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #64748b;
+        }
+
+        .check-count {
+            color: #94a3b8;
+        }
+
+        .view-detail {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .view-detail:hover {
+            color: #2563eb;
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            .monitoring-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .card-header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .service-stats {
+                width: 100%;
+                justify-content: space-around;
+            }
+        }
+        </style>
 
     </div>
 
