@@ -102,6 +102,9 @@
                             <div class="view_file_preview" th:if="${vf.viewType == 'text'}">
                                 <iframe th:src="@{'/bbs/' + ${boTable} + '/file/' + ${post.wrId} + '/' + ${vf.file.bfNo}}" title="첨부파일 미리보기" loading="lazy"></iframe>
                             </div>
+                            <div class="view_file_preview" th:if="${vf.viewType == 'hwp'}">
+                                <iframe th:src="@{'/bbs/' + ${boTable} + '/file/' + ${post.wrId} + '/' + ${vf.file.bfNo}}" title="HWP 미리보기" loading="lazy"></iframe>
+                            </div>
                         </li>
                     </ul>
                 </section>

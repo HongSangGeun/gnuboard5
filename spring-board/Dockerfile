@@ -29,6 +29,9 @@ RUN apt-get update && \
     tesseract-ocr-kor \
     libtesseract-dev \
     libleptonica-dev \
+    libreoffice-core \
+    libreoffice-writer \
+    fonts-nanum \
     wget \
     curl \
     && rm -rf /var/lib/apt/lists/*

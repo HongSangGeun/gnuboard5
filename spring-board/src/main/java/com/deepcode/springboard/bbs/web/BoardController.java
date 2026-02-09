@@ -7,6 +7,7 @@ import com.deepcode.springboard.bbs.domain.ViewFile;
 import com.deepcode.springboard.bbs.mapper.BoardFileMapper;
 import com.deepcode.springboard.bbs.service.BoardPermissionDeniedException;
 import com.deepcode.springboard.bbs.service.BoardService;
+import com.deepcode.springboard.bbs.service.DocumentConvertService;
 import com.deepcode.springboard.bbs.service.FileStorageService;
 import com.deepcode.springboard.bbs.util.OcrTextUtil;
 import com.deepcode.springboard.common.PagedResult;
@@ -59,13 +60,16 @@ public class BoardController {
     private static final Pattern BBS_TABLE_PATTERN = Pattern.compile("/bbs/([^/]+)");
     private final BoardService boardService;
     private final FileStorageService fileStorageService;
+    private final DocumentConvertService documentConvertService;
     private final SkinViewResolver skinViewResolver;
     private final BoardFileMapper boardFileMapper;
 
     public BoardController(BoardService boardService, FileStorageService fileStorageService,
+            DocumentConvertService documentConvertService,
             SkinViewResolver skinViewResolver, BoardFileMapper boardFileMapper) {
         this.boardService = boardService;
         this.fileStorageService = fileStorageService;
+        this.documentConvertService = documentConvertService;
         this.skinViewResolver = skinViewResolver;
         this.boardFileMapper = boardFileMapper;
     }
@@ -468,6 +472,26 @@ public class BoardController {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "미리보기를 지원하지 않습니다.");
         }
         Path path = fileStorageService.resolveFile(boTable, file.getBfFile());
+        if (!Files.exists(path)) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "파일이 없습니다.");
+        }
+
+        // HWP → PDF 변환
+        if ("hwp".equals(viewFile.viewType())) {
+            try {
+                Path pdfPath = documentConvertService.convertToPdf(path);
+                Resource pdfResource = new UrlResource(pdfPath.toUri());
+                return ResponseEntity.ok()
+                        .header(HttpHeaders.CONTENT_DISPOSITION, "inline")
+                        .header("X-Content-Type-Options", "nosniff")
+                        .contentType(MediaType.APPLICATION_PDF)
+                        .body(pdfResource);
+            } catch (IOException e) {
+                log.error("HWP 변환 실패: {}", e.getMessage());
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "HWP 파일 변환에 실패했습니다.");
+            }
+        }
+
         Resource resource;
         try {
             resource = new UrlResource(path.toUri());
@@ -511,6 +535,7 @@ public class BoardController {
             case "jpg", "jpeg", "png", "gif", "webp" -> "image";
             case "pdf" -> "pdf";
             case "txt" -> "text";
+            case "hwp" -> "hwp";
             default -> null;
         };
         String viewUrl = viewType != null ? "/bbs/" + boTable + "/file/" + wrId + "/" + file.getBfNo() : null;
