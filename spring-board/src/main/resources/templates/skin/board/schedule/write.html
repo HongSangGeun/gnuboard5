@@ -762,13 +762,13 @@
                                 <div class="partial_range_grid">
                                     <div class="partial_col">
                                         <label for="partial_start_date">시작 일시</label>
-                                        <input type="date" id="partial_start_date" name="partial_start_date">
-                                        <input type="time" id="partial_start_time" name="partial_start_time" step="600">
+                                        <input type="date" id="partial_start_date" name="partial_start_date" disabled>
+                                        <input type="time" id="partial_start_time" name="partial_start_time" step="600" disabled>
                                     </div>
                                     <div class="partial_col">
                                         <label for="partial_end_date">종료 일시</label>
-                                        <input type="date" id="partial_end_date" name="partial_end_date">
-                                        <input type="time" id="partial_end_time" name="partial_end_time" step="600">
+                                        <input type="date" id="partial_end_date" name="partial_end_date" disabled>
+                                        <input type="time" id="partial_end_time" name="partial_end_time" step="600" disabled>
                                     </div>
                                 </div>
                                 <div id="partial_range_error" class="partial_range_error"></div>
@@ -1028,6 +1028,7 @@
                 $end.val(partialBackupEnd);
             }
             $partialPopup.removeClass("is-open");
+            $partialPopup.find("input").prop("disabled", true);
             $partialError.text("");
         }
 
@@ -1041,6 +1042,7 @@
             partialBackupStart = $start.val();
             partialBackupEnd = $end.val();
             setPartialControls(start, end);
+            $partialPopup.find("input").prop("disabled", false);
             $partialPopup.addClass("is-open");
         }
 
