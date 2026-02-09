@@ -535,7 +535,7 @@ public class BoardController {
             case "jpg", "jpeg", "png", "gif", "webp" -> "image";
             case "pdf" -> "pdf";
             case "txt" -> "text";
-            case "hwp" -> "hwp";
+            case "hwp", "hwpx" -> "hwp";
             default -> null;
         };
         String viewUrl = viewType != null ? "/bbs/" + boTable + "/file/" + wrId + "/" + file.getBfNo() : null;

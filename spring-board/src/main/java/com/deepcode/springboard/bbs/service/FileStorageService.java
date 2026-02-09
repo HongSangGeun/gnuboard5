@@ -25,7 +25,7 @@ public class FileStorageService {
             "jpg", "jpeg", "png", "gif", "webp",
             "pdf", "txt", "zip",
             "doc", "docx", "xls", "xlsx", "ppt", "pptx",
-            "hwp"
+            "hwp", "hwpx"
     );
     private static final Map<String, Set<String>> ALLOWED_MIME_TYPES = Map.ofEntries(
             Map.entry("jpg", Set.of("image/jpeg")),
@@ -42,7 +42,8 @@ public class FileStorageService {
             Map.entry("xlsx", Set.of("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")),
             Map.entry("ppt", Set.of("application/vnd.ms-powerpoint")),
             Map.entry("pptx", Set.of("application/vnd.openxmlformats-officedocument.presentationml.presentation")),
-            Map.entry("hwp", Set.of("application/x-hwp", "application/haansofthwp", "application/octet-stream"))
+            Map.entry("hwp", Set.of("application/x-hwp", "application/haansofthwp", "application/octet-stream")),
+            Map.entry("hwpx", Set.of("application/vnd.hancom.hwpx", "application/haansofthwpx", "application/octet-stream"))
     );
 
     public FileStorageService(G5Properties g5Properties) {
@@ -212,6 +213,7 @@ public class FileStorageService {
             case "zip", "docx", "xlsx", "pptx" -> isZip(signature);
             case "doc", "xls", "ppt" -> startsWith(signature, hex("D0 CF 11 E0 A1 B1 1A E1"));
             case "hwp" -> startsWith(signature, hex("D0 CF 11 E0 A1 B1 1A E1")) || isZip(signature);
+            case "hwpx" -> isZip(signature);
             case "txt" -> !containsNullByte(signature);
             default -> false;
         };
