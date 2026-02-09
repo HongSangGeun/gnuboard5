@@ -12,6 +12,8 @@
 
         <form name="fconfigform" id="fconfigform" th:action="@{/mgmt/config}" th:object="${config}" method="post"
             onsubmit="return fconfigform_submit(this);">
+            <input type="hidden" th:field="*{cfId}">
+            <input type="hidden" th:field="*{cfTheme}">
 
             <section id="anc_cf_basic">
                 <h2 class="h2_frm">홈페이지 기본환경 설정</h2>
@@ -43,9 +45,8 @@
                                 <td colspan="3">
                                     <select th:field="*{cfAdmin}" id="cfAdmin" required class="required frm_input">
                                         <option value="">선택하세요</option>
-                                        <option th:each="member : ${adminMemberOptions}"
-                                                th:value="${member.mbId}"
-                                                th:text="${member.mbId + ' (' + (#strings.isEmpty(member.mbNick) ? member.mbName : member.mbNick) + ')'}">
+                                        <option th:each="member : ${adminMemberOptions}" th:value="${member.mbId}"
+                                            th:text="${member.mbId + ' (' + (#strings.isEmpty(member.mbNick) ? member.mbName : member.mbNick) + ')'}">
                                             admin (관리자)
                                         </option>
                                     </select>
@@ -164,18 +165,16 @@
                                             class="sound_only">필수</strong></label></th>
                                 <td>
                                     <select th:field="*{cfNewSkin}" required class="required">
-                                        <option th:each="skin : ${latestSkinOptions}"
-                                                th:value="${skin}"
-                                                th:text="${skin}">basic</option>
+                                        <option th:each="skin : ${latestSkinOptions}" th:value="${skin}"
+                                            th:text="${skin}">basic</option>
                                     </select>
                                 </td>
                                 <th scope="row"><label for="cfMobileNewSkin">모바일<br>최근게시물 스킨<strong
                                             class="sound_only">필수</strong></label></th>
                                 <td>
                                     <select th:field="*{cfMobileNewSkin}" required class="required">
-                                        <option th:each="skin : ${latestSkinOptions}"
-                                                th:value="${skin}"
-                                                th:text="${skin}">basic</option>
+                                        <option th:each="skin : ${latestSkinOptions}" th:value="${skin}"
+                                            th:text="${skin}">basic</option>
                                     </select>
                                 </td>
                             </tr>
@@ -241,7 +240,7 @@
 
         </form>
 
-        <script>
+        <script th:attr="nonce=${cspNonce}">
             function fconfigform_submit(f) {
                 return true;
             }

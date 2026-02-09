@@ -1,325 +1,357 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
 <body>
-<div th:fragment="nav">
-    <script th:if="${isMobileView}" th:inline="javascript">
-        (function () {
-            function hasStylesheet(pathPart) {
-                var links = document.querySelectorAll('link[rel="stylesheet"]');
-                for (var i = 0; i < links.length; i++) {
-                    var href = links[i].getAttribute("href") || "";
-                    if (href.indexOf(pathPart) !== -1) {
-                        return true;
+    <div th:fragment="nav">
+        <script th:if="${isMobileView}" th:inline="javascript" th:attr="nonce=${cspNonce}">
+            (function () {
+                function hasStylesheet(pathPart) {
+                    var links = document.querySelectorAll('link[rel="stylesheet"]');
+                    for (var i = 0; i < links.length; i++) {
+                        var href = links[i].getAttribute("href") || "";
+                        if (href.indexOf(pathPart) !== -1) {
+                            return true;
+                        }
+                    }
+                    return false;
+                }
+                if (!hasStylesheet("/css/mobile.css")) {
+                    var link = document.createElement("link");
+                    link.id = "mobile-css";
+                    link.rel = "stylesheet";
+                    link.href = /*[[@{/css/mobile.css}]]*/ "/css/mobile.css";
+                    document.head.appendChild(link);
+                }
+                if (!hasStylesheet("/css/mobile-layout.css")) {
+                    var layoutLink = document.createElement("link");
+                    layoutLink.id = "mobile-layout-css";
+                    layoutLink.rel = "stylesheet";
+                    layoutLink.href = /*[[@{/css/mobile-layout.css}]]*/ "/css/mobile-layout.css";
+                    document.head.appendChild(layoutLink);
+                }
+                if (!hasStylesheet("/css/mobile-nav.css")) {
+                    // Keep mobile-nav for drawer styles, might need cleanup later
+                    var mobileNav = document.createElement("link");
+                    mobileNav.id = "mobile-nav-css";
+                    mobileNav.rel = "stylesheet";
+                    mobileNav.href = /*[[@{/css/mobile-nav.css}]]*/ "/css/mobile-nav.css";
+                    document.head.appendChild(mobileNav);
+                }
+                document.documentElement.classList.add("is-mobile-view");
+            })();
+        </script>
+        <div id="m_hd" th:if="${isMobileView}">
+            <!-- Top Bar -->
+            <!-- Top Bar -->
+            <header class="m_topbar">
+                <button type="button" id="m_nav_open" class="m_top_icon" aria-label="모바일 메뉴 열기">
+                    <i class="fa fa-bars" aria-hidden="true"></i>
+                </button>
+                <a class="m_top_logo" th:href="@{/}">
+                    <img th:src="@{/img/logo_gn.svg}" alt="로고">
+                </a>
+                <a class="m_top_icon m_top_action" th:href="${loginUser != null} ? @{/member/confirm} : @{/login}"
+                    th:attr="aria-label=${loginUser != null ? '정보수정' : '로그인'}">
+                    <i class="fa" th:classappend="${loginUser != null ? ' fa-user-circle-o' : ' fa-sign-in'}"
+                        aria-hidden="true"></i>
+                </a>
+            </header>
+            <div class="m_search_wrap" th:unless="${hideSearch}">
+                <form name="fsearchbox_mobile" method="get" th:action="@{/bbs/search}"
+                    onsubmit="return fsearchbox_submit(this);">
+                    <input type="hidden" name="sfl" value="wr_subject||wr_content||bf_ocr_text">
+                    <input type="hidden" name="sop" value="and">
+                    <label for="sch_stx_mobile" class="sound_only">검색어 필수</label>
+                    <input type="text" name="stx" id="sch_stx_mobile" maxlength="20" placeholder="검색어를 입력해주세요">
+                    <button type="submit" class="m_search_submit" aria-label="검색">
+                        <i class="fa fa-search" aria-hidden="true"></i>
+                    </button>
+                </form>
+            </div>
+
+
+
+            <div id="m_nav_backdrop" aria-hidden="true"></div>
+            <aside id="m_nav_drawer" aria-hidden="true">
+                <div class="m_nav_head">
+                    <strong>메뉴</strong>
+                    <button type="button" id="m_nav_close" aria-label="모바일 메뉴 닫기">
+                        <i class="fa fa-times" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <ul class="m_nav_auth">
+                    <li th:if="${loginUser != null}">
+                        <a th:href="@{/member/confirm}">
+                            <i class="fa fa-user-circle-o" aria-hidden="true"></i><span>정보수정</span>
+                        </a>
+                    </li>
+                    <li th:if="${loginUser != null}">
+                        <a th:href="@{/logout}">
+                            <i class="fa fa-sign-out" aria-hidden="true"></i><span>로그아웃</span>
+                        </a>
+                    </li>
+                    <li th:if="${loginUser != null && isAdmin}">
+                        <a th:href="@{/mgmt}">
+                            <i class="fa fa-cogs" aria-hidden="true"></i><span>관리자</span>
+                        </a>
+                    </li>
+                    <li th:if="${loginUser == null}">
+                        <a th:href="@{/register}">
+                            <i class="fa fa-user-plus" aria-hidden="true"></i><span>회원가입</span>
+                        </a>
+                    </li>
+                    <li th:if="${loginUser == null}">
+                        <a th:href="@{/login}">
+                            <i class="fa fa-sign-in" aria-hidden="true"></i><span>로그인</span>
+                        </a>
+                    </li>
+                </ul>
+                <ul class="m_nav_list">
+                    <li class="m_nav_empty" th:if="${siteMenus == null || #lists.isEmpty(siteMenus)}">
+                        메뉴 준비 중입니다.
+                        <span th:if="${isAdmin}">관리자에서 설정할 수 있습니다.</span>
+                    </li>
+                    <li class="m_nav_item" th:each="menu : ${siteMenus}">
+                        <div class="m_nav_item_head">
+                            <a th:href="@{${menu.link}}" th:attr="target=${menu.target}" th:text="${menu.name}">메뉴</a>
+                            <button type="button" class="m_nav_sub_toggle" th:if="${!#lists.isEmpty(menu.children)}"
+                                aria-label="하위메뉴 열기">
+                                <i class="fa fa-angle-down" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                        <ul class="m_nav_sub" th:if="${!#lists.isEmpty(menu.children)}">
+                            <li th:each="child : ${menu.children}">
+                                <a th:href="@{${child.link}}" th:attr="target=${child.target}"
+                                    th:text="${child.name}">서브</a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </aside>
+        </div>
+        <script th:if="${isMobileView}" th:attr="nonce=${cspNonce}">
+            (function () {
+                function ready(fn) {
+                    if (document.readyState === "loading") {
+                        document.addEventListener("DOMContentLoaded", fn);
+                    } else {
+                        fn();
                     }
                 }
-                return false;
-            }
-            if (!hasStylesheet("/css/mobile.css")) {
-                var link = document.createElement("link");
-                link.id = "mobile-css";
-                link.rel = "stylesheet";
-                link.href = /*[[@{/css/mobile.css}]]*/ "/css/mobile.css";
-                document.head.appendChild(link);
-            }
-            if (!hasStylesheet("/css/mobile-nav.css")) {
-                var mobileNav = document.createElement("link");
-                mobileNav.id = "mobile-nav-css";
-                mobileNav.rel = "stylesheet";
-                mobileNav.href = /*[[@{/css/mobile-nav.css}]]*/ "/css/mobile-nav.css";
-                document.head.appendChild(mobileNav);
-            }
-            document.documentElement.classList.add("is-mobile-view");
-        })();
-    </script>
-    <div id="m_hd" th:if="${isMobileView}">
-        <header class="m_topbar">
-            <button type="button" id="m_nav_open" class="m_top_icon" aria-label="모바일 메뉴 열기">
-                <i class="fa fa-bars" aria-hidden="true"></i>
-            </button>
-            <a class="m_top_logo" th:href="@{/}">
-                <img th:src="@{/img/logo_gn.svg}" alt="로고">
-            </a>
-            <a class="m_top_icon m_top_action"
-               th:href="${loginUser != null} ? @{/member/confirm} : @{/login}"
-               th:attr="aria-label=${loginUser != null ? '정보수정' : '로그인'}">
-                <i class="fa" th:classappend="${loginUser != null ? ' fa-user-circle-o' : ' fa-sign-in'}" aria-hidden="true"></i>
-            </a>
-        </header>
-        <div class="m_search_wrap">
-            <form name="fsearchbox_mobile" method="get" th:action="@{/bbs/search}" onsubmit="return fsearchbox_submit(this);">
-                <input type="hidden" name="sfl" value="wr_subject||wr_content">
-                <input type="hidden" name="sop" value="and">
-                <label for="sch_stx_mobile" class="sound_only">검색어 필수</label>
-                <input type="text" name="stx" id="sch_stx_mobile" maxlength="20" placeholder="검색어를 입력해주세요">
-                <button type="submit" class="m_search_submit" aria-label="검색">
-                    <i class="fa fa-search" aria-hidden="true"></i>
-                </button>
-            </form>
-        </div>
-        <div id="m_nav_backdrop" aria-hidden="true"></div>
-        <aside id="m_nav_drawer" aria-hidden="true">
-            <div class="m_nav_head">
-                <strong>메뉴</strong>
-                <button type="button" id="m_nav_close" aria-label="모바일 메뉴 닫기">
-                    <i class="fa fa-times" aria-hidden="true"></i>
-                </button>
-            </div>
-            <ul class="m_nav_auth">
-                <li th:if="${loginUser != null}">
-                    <a th:href="@{/member/confirm}">
-                        <i class="fa fa-user-circle-o" aria-hidden="true"></i><span>정보수정</span>
-                    </a>
-                </li>
-                <li th:if="${loginUser != null}">
-                    <a th:href="@{/logout}">
-                        <i class="fa fa-sign-out" aria-hidden="true"></i><span>로그아웃</span>
-                    </a>
-                </li>
-                <li th:if="${loginUser != null && isAdmin}">
-                    <a th:href="@{/mgmt}">
-                        <i class="fa fa-cogs" aria-hidden="true"></i><span>관리자</span>
-                    </a>
-                </li>
-                <li th:if="${loginUser == null}">
-                    <a th:href="@{/register}">
-                        <i class="fa fa-user-plus" aria-hidden="true"></i><span>회원가입</span>
-                    </a>
-                </li>
-                <li th:if="${loginUser == null}">
-                    <a th:href="@{/login}">
-                        <i class="fa fa-sign-in" aria-hidden="true"></i><span>로그인</span>
-                    </a>
-                </li>
-            </ul>
-            <ul class="m_nav_list">
-                <li class="m_nav_empty" th:if="${siteMenus == null || #lists.isEmpty(siteMenus)}">
-                    메뉴 준비 중입니다.
-                    <span th:if="${isAdmin}">관리자에서 설정할 수 있습니다.</span>
-                </li>
-                <li class="m_nav_item" th:each="menu : ${siteMenus}">
-                    <div class="m_nav_item_head">
-                        <a th:href="@{${menu.link}}" th:attr="target=${menu.target}" th:text="${menu.name}">메뉴</a>
-                        <button type="button"
-                                class="m_nav_sub_toggle"
-                                th:if="${!#lists.isEmpty(menu.children)}"
-                                aria-label="하위메뉴 열기">
-                            <i class="fa fa-angle-down" aria-hidden="true"></i>
-                        </button>
-                    </div>
-                    <ul class="m_nav_sub" th:if="${!#lists.isEmpty(menu.children)}">
-                        <li th:each="child : ${menu.children}">
-                            <a th:href="@{${child.link}}" th:attr="target=${child.target}" th:text="${child.name}">서브</a>
-                        </li>
+                ready(function () {
+                    var body = document.body;
+                    var drawer = document.getElementById("m_nav_drawer");
+                    var backdrop = document.getElementById("m_nav_backdrop");
+                    var openBtn = document.getElementById("m_nav_open");
+                    var closeBtn = document.getElementById("m_nav_close");
+                    if (!drawer || !backdrop || !openBtn || !closeBtn) {
+                        return;
+                    }
+                    function openDrawer() {
+                        body.classList.add("m_nav_opened");
+                        drawer.setAttribute("aria-hidden", "false");
+                    }
+                    function closeDrawer() {
+                        body.classList.remove("m_nav_opened");
+                        drawer.setAttribute("aria-hidden", "true");
+                    }
+                    openBtn.addEventListener("click", openDrawer);
+                    closeBtn.addEventListener("click", closeDrawer);
+                    backdrop.addEventListener("click", closeDrawer);
+                    var toggles = drawer.querySelectorAll(".m_nav_sub_toggle");
+                    for (var i = 0; i < toggles.length; i++) {
+                        toggles[i].addEventListener("click", function () {
+                            var item = this.closest(".m_nav_item");
+                            if (item) {
+                                item.classList.toggle("is-open");
+                            }
+                        });
+                    }
+                });
+            })();
+        </script>
+        <div id="hd" th:if="${!isMobileView}">
+            <h1 id="hd_h1" th:text="${pageTitle} ?: 'Gnuboard'">Gnuboard</h1>
+            <div id="skip_to_container"><a href="#container">본문 바로가기</a></div>
+
+            <div id="tnb" style="display:none;">
+                <div class="inner">
+                    <ul id="hd_define">
+                        <li><a th:href="@{/}">커뮤니티</a></li>
                     </ul>
-                </li>
-            </ul>
-        </aside>
-    </div>
-    <script th:if="${isMobileView}">
-        (function () {
-            function ready(fn) {
-                if (document.readyState === "loading") {
-                    document.addEventListener("DOMContentLoaded", fn);
-                } else {
-                    fn();
-                }
-            }
-            ready(function () {
-                var body = document.body;
-                var drawer = document.getElementById("m_nav_drawer");
-                var backdrop = document.getElementById("m_nav_backdrop");
-                var openBtn = document.getElementById("m_nav_open");
-                var closeBtn = document.getElementById("m_nav_close");
-                if (!drawer || !backdrop || !openBtn || !closeBtn) {
-                    return;
-                }
-                function openDrawer() {
-                    body.classList.add("m_nav_opened");
-                    drawer.setAttribute("aria-hidden", "false");
-                }
-                function closeDrawer() {
-                    body.classList.remove("m_nav_opened");
-                    drawer.setAttribute("aria-hidden", "true");
-                }
-                openBtn.addEventListener("click", openDrawer);
-                closeBtn.addEventListener("click", closeDrawer);
-                backdrop.addEventListener("click", closeDrawer);
-                var toggles = drawer.querySelectorAll(".m_nav_sub_toggle");
-                for (var i = 0; i < toggles.length; i++) {
-                    toggles[i].addEventListener("click", function () {
-                        var item = this.closest(".m_nav_item");
-                        if (item) {
-                            item.classList.toggle("is-open");
-                        }
-                    });
-                }
-            });
-        })();
-    </script>
-    <div id="hd" th:if="${!isMobileView}">
-        <h1 id="hd_h1" th:text="${pageTitle} ?: 'Gnuboard'">Gnuboard</h1>
-        <div id="skip_to_container"><a href="#container">본문 바로가기</a></div>
-
-        <div id="tnb" style="display:none;">
-            <div class="inner">
-                <ul id="hd_define">
-                    <li><a th:href="@{/}">커뮤니티</a></li>
-                </ul>
-                <ul id="hd_qnb">
-                    <li><a th:href="@{/bbs}" class="visit">게시판</a></li>
-                </ul>
-            </div>
-        </div>
-
-        <div id="hd_wrapper">
-            <div id="logo">
-                <a th:href="@{/}"><img th:src="@{/img/logo_gn.svg}" alt="로고"></a>
-            </div>
-
-            <div class="hd_sch_wr">
-                <fieldset id="hd_sch">
-                    <legend>사이트 내 전체검색</legend>
-                    <form name="fsearchbox" method="get" th:action="@{/bbs/search}" onsubmit="return fsearchbox_submit(this);">
-                        <input type="hidden" name="sfl" value="wr_subject||wr_content">
-                        <input type="hidden" name="sop" value="and">
-                        <label for="sch_stx" class="sound_only">검색어 필수</label>
-                        <input type="text" name="stx" id="sch_stx" maxlength="20" placeholder="검색어를 입력해주세요">
-                        <button type="submit" id="sch_submit" value="검색"><i class="fa fa-search" aria-hidden="true"></i><span class="sound_only">검색</span></button>
-                    </form>
-                </fieldset>
-            </div>
-
-            <ul class="hd_login">
-                <li th:if="${loginUser != null}">
-                    <a th:href="@{/member/confirm}" class="hd_login_link">
-                        <i class="fa fa-user-circle-o" aria-hidden="true"></i><span>정보수정</span>
-                    </a>
-                </li>
-                <li th:if="${loginUser != null}">
-                    <a th:href="@{/logout}" class="hd_login_link">
-                        <i class="fa fa-sign-out" aria-hidden="true"></i><span>로그아웃</span>
-                    </a>
-                </li>
-                <li th:if="${loginUser != null && isAdmin}">
-                    <a th:href="@{/mgmt}" class="hd_login_link tnb_admin">
-                        <i class="fa fa-cogs" aria-hidden="true"></i><span>관리자</span>
-                    </a>
-                </li>
-                <li th:if="${loginUser == null}">
-                    <a th:href="@{/register}" class="hd_login_link">
-                        <i class="fa fa-user-plus" aria-hidden="true"></i><span>회원가입</span>
-                    </a>
-                </li>
-                <li th:if="${loginUser == null}">
-                    <a th:href="@{/login}" class="hd_login_link">
-                        <i class="fa fa-sign-in" aria-hidden="true"></i><span>로그인</span>
-                    </a>
-                </li>
-            </ul>
-        </div>
-
-        <nav id="gnb">
-            <h2>메인메뉴</h2>
-            <div class="gnb_wrap">
-                <ul id="gnb_1dul">
-                    <li class="gnb_1dli gnb_mnal">
-                        <button type="button" class="gnb_menu_btn" title="전체메뉴"><i class="fa fa-bars" aria-hidden="true"></i><span class="sound_only">전체메뉴열기</span></button>
-                    </li>
-                    <li class="gnb_empty" th:if="${siteMenus == null || #lists.isEmpty(siteMenus)}">
-                        메뉴 준비 중입니다.
-                        <span th:if="${isAdmin}"> 관리자에서 설정할 수 있습니다.</span>
-                    </li>
-                    <li class="gnb_1dli" th:each="menu : ${siteMenus}">
-                        <a th:href="@{${menu.link}}" th:attr="target=${menu.target}" class="gnb_1da" th:text="${menu.name}">메뉴</a>
-                        <span class="bg" th:if="${!#lists.isEmpty(menu.children)}">하위분류</span>
-                        <div class="gnb_2dul" th:if="${!#lists.isEmpty(menu.children)}">
-                            <ul class="gnb_2dul_box">
-                                <li class="gnb_2dli" th:each="child : ${menu.children}">
-                                    <a th:href="@{${child.link}}" th:attr="target=${child.target}" class="gnb_2da" th:text="${child.name}">서브</a>
-                                </li>
-                            </ul>
-                        </div>
-                    </li>
-                </ul>
-
-                <div id="gnb_all">
-                    <h2>전체메뉴</h2>
-                    <ul class="gnb_al_ul">
-                        <li class="gnb_al_li" th:each="menu : ${siteMenus}">
-                            <a th:href="@{${menu.link}}" th:attr="target=${menu.target}" class="gnb_al_a" th:text="${menu.name}">메뉴</a>
-                            <ul th:if="${!#lists.isEmpty(menu.children)}">
-                                <li th:each="child : ${menu.children}">
-                                    <a th:href="@{${child.link}}" th:attr="target=${child.target}" th:text="${child.name}">서브</a>
-                                </li>
-                            </ul>
-                        </li>
+                    <ul id="hd_qnb">
+                        <li><a th:href="@{/bbs}" class="visit">게시판</a></li>
                     </ul>
-                    <button type="button" class="gnb_close_btn"><i class="fa fa-times" aria-hidden="true"></i></button>
                 </div>
-                <div id="gnb_all_bg"></div>
             </div>
-        </nav>
-    </div>
-</div>
 
-<div th:fragment="nav_end">
-    <div id="ft" th:if="${!isMobileView}">
-        <div id="ft_wr">
-            <div id="ft_link" class="ft_cnt_m">
-                <div class="logo"><img th:src="@{/img/logo_gray.svg}" style="width: 190px; height: auto; padding-bottom: 7px" alt="로고"></div>
-                <p class="ft_info">
-                    주민번호, 계좌번호 등 민감 정보는 절대 게시하지 마세요.<br>
-                    ⓒ 경남도청. All Rights Reserved.<br>
-                </p>
+            <div id="hd_wrapper">
+                <div id="logo">
+                    <a th:href="@{/}"><img th:src="@{/img/logo_gn.svg}" alt="로고"></a>
+                </div>
+
+                <div class="hd_sch_wr">
+                    <fieldset id="hd_sch">
+                        <legend>사이트 내 전체검색</legend>
+                        <form name="fsearchbox" method="get" th:action="@{/bbs/search}"
+                            onsubmit="return fsearchbox_submit(this);">
+                            <input type="hidden" name="sfl" value="wr_subject||wr_content||bf_ocr_text">
+                            <input type="hidden" name="sop" value="and">
+                            <label for="sch_stx" class="sound_only">검색어 필수</label>
+                            <input type="text" name="stx" id="sch_stx" maxlength="20" placeholder="검색어를 입력해주세요">
+                            <button type="submit" id="sch_submit" value="검색"><i class="fa fa-search"
+                                    aria-hidden="true"></i><span class="sound_only">검색</span></button>
+                        </form>
+                    </fieldset>
+                </div>
+
+                <ul class="hd_login">
+                    <li th:if="${loginUser != null}">
+                        <a th:href="@{/member/confirm}" class="hd_login_link">
+                            <i class="fa fa-user-circle-o" aria-hidden="true"></i><span>정보수정</span>
+                        </a>
+                    </li>
+                    <li th:if="${loginUser != null}">
+                        <a th:href="@{/logout}" class="hd_login_link">
+                            <i class="fa fa-sign-out" aria-hidden="true"></i><span>로그아웃</span>
+                        </a>
+                    </li>
+                    <li th:if="${loginUser != null && isAdmin}">
+                        <a th:href="@{/mgmt}" class="hd_login_link tnb_admin">
+                            <i class="fa fa-cogs" aria-hidden="true"></i><span>관리자</span>
+                        </a>
+                    </li>
+                    <li th:if="${loginUser == null}">
+                        <a th:href="@{/register}" class="hd_login_link">
+                            <i class="fa fa-user-plus" aria-hidden="true"></i><span>회원가입</span>
+                        </a>
+                    </li>
+                    <li th:if="${loginUser == null}">
+                        <a th:href="@{/login}" class="hd_login_link">
+                            <i class="fa fa-sign-in" aria-hidden="true"></i><span>로그인</span>
+                        </a>
+                    </li>
+                </ul>
             </div>
-            <div id="ft_company" class="ft_cnt"></div>
+
+            <nav id="gnb">
+                <h2>메인메뉴</h2>
+                <div class="gnb_wrap">
+                    <ul id="gnb_1dul">
+                        <li class="gnb_1dli gnb_mnal">
+                            <button type="button" class="gnb_menu_btn" title="전체메뉴"><i class="fa fa-bars"
+                                    aria-hidden="true"></i><span class="sound_only">전체메뉴열기</span></button>
+                        </li>
+                        <li class="gnb_empty" th:if="${siteMenus == null || #lists.isEmpty(siteMenus)}">
+                            메뉴 준비 중입니다.
+                            <span th:if="${isAdmin}"> 관리자에서 설정할 수 있습니다.</span>
+                        </li>
+                        <li class="gnb_1dli" th:each="menu : ${siteMenus}">
+                            <a th:href="@{${menu.link}}" th:attr="target=${menu.target}" class="gnb_1da"
+                                th:text="${menu.name}">메뉴</a>
+                            <span class="bg" th:if="${!#lists.isEmpty(menu.children)}">하위분류</span>
+                            <div class="gnb_2dul" th:if="${!#lists.isEmpty(menu.children)}">
+                                <ul class="gnb_2dul_box">
+                                    <li class="gnb_2dli" th:each="child : ${menu.children}">
+                                        <a th:href="@{${child.link}}" th:attr="target=${child.target}" class="gnb_2da"
+                                            th:text="${child.name}">서브</a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </li>
+                    </ul>
+
+                    <div id="gnb_all">
+                        <h2>전체메뉴</h2>
+                        <ul class="gnb_al_ul">
+                            <li class="gnb_al_li" th:each="menu : ${siteMenus}">
+                                <a th:href="@{${menu.link}}" th:attr="target=${menu.target}" class="gnb_al_a"
+                                    th:text="${menu.name}">메뉴</a>
+                                <ul th:if="${!#lists.isEmpty(menu.children)}">
+                                    <li th:each="child : ${menu.children}">
+                                        <a th:href="@{${child.link}}" th:attr="target=${child.target}"
+                                            th:text="${child.name}">서브</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        </ul>
+                        <button type="button" class="gnb_close_btn"><i class="fa fa-times"
+                                aria-hidden="true"></i></button>
+                    </div>
+                    <div id="gnb_all_bg"></div>
+                </div>
+            </nav>
         </div>
-        <button type="button" id="top_btn">
-            <i class="fa fa-arrow-up" aria-hidden="true"></i><span class="sound_only">상단으로</span>
-        </button>
     </div>
 
-    <script th:inline="javascript">
-        window.APP_CONTEXT = /*[[@{/}]]*/ "/";
-        window.g5_url = /*[[@{/}]]*/ "/";
-        window.g5_bbs_url = /*[[@{/bbs}]]*/ "/bbs";
-        window.g5_shop_url = /*[[@{/shop}]]*/ "/shop";
-        window.g5_admin_url = /*[[@{/mgmt}]]*/ "/mgmt";
-        window.APP_CSRF_TOKEN = /*[[${csrfToken}]]*/ "";
-    </script>
-    <script th:src="@{/js/jquery-1.12.4.min.js}"></script>
-    <script th:src="@{/js/jquery-migrate-1.4.1.min.js}"></script>
-    <script th:src="@{/js/csrf.js}"></script>
-    <script th:src="@{/js/jquery.menu.js}"></script>
-    <script th:src="@{/js/common.js}"></script>
-    <script th:src="@{/js/wrest.js}"></script>
-    <script>
-        function fsearchbox_submit(f) {
-            var stx = f.stx.value.trim();
-            if (stx.length < 2) {
-                alert("검색어는 두글자 이상 입력하십시오.");
-                f.stx.select();
-                f.stx.focus();
-                return false;
+    <div th:fragment="nav_end">
+        <div id="ft" th:if="${!isMobileView}">
+            <div id="ft_wr">
+                <div id="ft_link" class="ft_cnt_m">
+                    <div class="logo"><img th:src="@{/img/logo_gray.svg}"
+                            style="width: 190px; height: auto; padding-bottom: 7px" alt="로고"></div>
+                    <p class="ft_info">
+                        ⓒ 경남도청. All Rights Reserved.<br>
+                    </p>
+                    <div class="ft_visit_stats" style="margin-top: 15px; padding-top: 10px; border-top: 1px solid #e0e0e0;">
+                        <p style="font-size: 12px; color: #666;">
+                            <strong style="color: #2f6df6;">접속자</strong>
+                            현재 <strong th:text="${visitStats.currentCount}">0</strong>명 |
+                            오늘 <strong th:text="${visitStats.todayCount}">0</strong>명 |
+                            어제 <strong th:text="${visitStats.yesterdayCount}">0</strong>명 |
+                            최고 <strong th:text="${visitStats.maxCount}">0</strong>명 |
+                            전체 <strong th:text="${#numbers.formatInteger(visitStats.totalCount, 0, 'COMMA')}">0</strong>명
+                        </p>
+                    </div>
+                </div>
+                <div id="ft_company" class="ft_cnt"></div>
+            </div>
+            <button type="button" id="top_btn">
+                <i class="fa fa-arrow-up" aria-hidden="true"></i><span class="sound_only">상단으로</span>
+            </button>
+        </div>
+
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+            window.APP_CONTEXT = /*[[@{/}]]*/ "/";
+            window.g5_url = /*[[@{/}]]*/ "/";
+            window.g5_bbs_url = /*[[@{/bbs}]]*/ "/bbs";
+            window.g5_shop_url = /*[[@{/shop}]]*/ "/shop";
+            window.g5_admin_url = /*[[@{/mgmt}]]*/ "/mgmt";
+            window.APP_CSRF_TOKEN = /*[[${csrfToken}]]*/ "";
+        </script>
+        <script th:src="@{/js/jquery-3.7.1.min.js}"></script>
+        <script th:src="@{/js/jquery-migrate-3.5.0.min.js}"></script>
+        <script th:src="@{/js/csrf.js}"></script>
+        <script th:src="@{/js/jquery.menu.js}"></script>
+        <script th:src="@{/js/common.js}"></script>
+        <script th:src="@{/js/wrest.js}"></script>
+        <script th:attr="nonce=${cspNonce}">
+            function fsearchbox_submit(f) {
+                var stx = f.stx.value.trim();
+                if (stx.length < 2) {
+                    alert("검색어는 두글자 이상 입력하십시오.");
+                    f.stx.select();
+                    f.stx.focus();
+                    return false;
+                }
+                var cnt = 0;
+                for (var i = 0; i < stx.length; i++) {
+                    if (stx.charAt(i) === ' ') cnt++;
+                }
+                if (cnt > 1) {
+                    alert("빠른 검색을 위하여 검색어에 공백은 한개만 입력할 수 있습니다.");
+                    f.stx.select();
+                    f.stx.focus();
+                    return false;
+                }
+                f.stx.value = stx;
+                return true;
             }
-            var cnt = 0;
-            for (var i = 0; i < stx.length; i++) {
-                if (stx.charAt(i) === ' ') cnt++;
-            }
-            if (cnt > 1) {
-                alert("빠른 검색을 위하여 검색어에 공백은 한개만 입력할 수 있습니다.");
-                f.stx.select();
-                f.stx.focus();
-                return false;
-            }
-            f.stx.value = stx;
-            return true;
-        }
-        $(function () {
-            $("#top_btn").on("click", function () {
-                $("html, body").animate({ scrollTop: 0 }, '500');
-                return false;
+            $(function () {
+                $("#top_btn").on("click", function () {
+                    $("html, body").animate({ scrollTop: 0 }, '500');
+                    return false;
+                });
             });
-        });
-    </script>
-</div>
+        </script>
+    </div>

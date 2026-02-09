@@ -20,6 +20,10 @@
 
             <section id="bo_w">
                 <h2 class="sound_only">글쓰기</h2>
+                <div th:if="${error}"
+                     role="alert"
+                     style="margin:0 0 14px;padding:10px 12px;border:1px solid #f5c2c7;background:#f8d7da;color:#842029;border-radius:8px;"
+                     th:text="${error}">업로드에 실패했습니다.</div>
                 <form name="fwrite" id="fwrite" th:action="@{'/bbs/' + ${boTable} + '/write'}" method="post" enctype="multipart/form-data" autocomplete="off">
                     <div class="bo_w_select write_div" th:if="${board.boUseCategory == 1}">
                         <label for="ca_name" class="sound_only">분류<strong>필수</strong></label>
@@ -86,7 +90,7 @@
 <script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'smarteditor2'}" th:src="@{/plugin/editor/smarteditor2/js/service/HuskyEZCreator.js}"></script>
 <script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'smarteditor2'}" th:src="@{/plugin/editor/smarteditor2/config.js}"></script>
 <script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'cheditor5'}" th:src="@{/plugin/editor/cheditor5/cheditor.js}"></script>
-<script th:inline="javascript">
+<script th:inline="javascript" th:attr="nonce=${cspNonce}">
     /*<![CDATA[*/
     var useEditor = /*[[${board.boUseDhtmlEditor}]]*/ 0;
     var editorType = /*[[${board.boSelectEditor}]]*/ '';

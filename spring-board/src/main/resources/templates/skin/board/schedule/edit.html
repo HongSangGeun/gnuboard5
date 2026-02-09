@@ -64,6 +64,132 @@
             color:#1f2937;
             white-space:nowrap;
         }
+        .btn_color_picker {
+            display:inline-flex;
+            align-items:center;
+            justify-content:flex-start;
+            gap:6px;
+            padding:6px 10px;
+            background:#f3f4f6;
+            border:none;
+            border-radius:8px;
+            vertical-align:middle;
+            margin-left:10px;
+            cursor:pointer;
+            transition:all 0.2s ease;
+        }
+        .btn_color_picker:hover {
+            background:#e5e7eb;
+            transform:translateY(-1px);
+        }
+        .btn_color_picker .color_preview {
+            width:20px;
+            height:20px;
+            border:2px solid #fff;
+            border-radius:50%;
+            box-shadow:0 1px 3px rgba(0,0,0,0.2);
+            flex-shrink:0;
+            pointer-events:none;
+        }
+        .btn_color_picker .color_label {
+            font-size:13px;
+            font-weight:600;
+            color:#1f2937;
+            pointer-events:none;
+        }
+        #color_picker_popup {
+            display:none;
+            position:fixed;
+            inset:0;
+            z-index:10040;
+        }
+        #color_picker_popup.is-open {
+            display:block;
+        }
+        #color_picker_popup .color_picker_backdrop {
+            position:absolute;
+            inset:0;
+            background:rgba(17, 24, 39, 0.42);
+            backdrop-filter:blur(1px);
+        }
+        #color_picker_popup .color_picker_panel {
+            position:relative;
+            width:500px;
+            max-width:calc(100vw - 40px);
+            margin:15vh auto 0;
+            padding:20px 24px;
+            background:#fff;
+            border-radius:14px;
+            box-shadow:0 18px 42px rgba(15, 23, 42, 0.24);
+        }
+        #color_picker_popup .color_picker_head {
+            display:flex;
+            align-items:center;
+            justify-content:space-between;
+            margin-bottom:20px;
+            padding-bottom:12px;
+            border-bottom:1px solid #e7ebf2;
+        }
+        #color_picker_popup .color_picker_head strong {
+            font-size:22px;
+            font-weight:800;
+            color:#0f2a75;
+        }
+        #color_picker_popup .color_picker_close {
+            border:0;
+            background:transparent;
+            font-size:30px;
+            line-height:1;
+            cursor:pointer;
+            color:#6b7280;
+        }
+        #color_picker_popup .color_picker_close:hover {
+            color:#374151;
+        }
+        #color_picker_popup .color_palette_wrap {
+            background:#f8f9fa;
+            border:1px solid #e1e8ed;
+            border-radius:12px;
+            padding:20px;
+        }
+        #color_picker_popup .color_palette {
+            display:grid;
+            grid-template-columns:repeat(6, 1fr);
+            gap:14px;
+        }
+        #color_picker_popup .color_item {
+            width:100%;
+            aspect-ratio:1;
+            max-width:56px;
+            border:3px solid transparent;
+            border-radius:50%;
+            cursor:pointer;
+            transition:all 0.2s ease;
+            position:relative;
+            padding:0;
+            margin:0 auto;
+        }
+        #color_picker_popup .color_item:hover {
+            transform:scale(1.1);
+            box-shadow:0 3px 10px rgba(0,0,0,0.15);
+        }
+        #color_picker_popup .color_item.selected {
+            border-color:#fff;
+            box-shadow:0 0 0 2px #0f2a75, 0 3px 10px rgba(0,0,0,0.2);
+            transform:scale(1.05);
+        }
+        #color_picker_popup .color_item.selected::after {
+            content:'✓';
+            position:absolute;
+            inset:0;
+            display:flex;
+            align-items:center;
+            justify-content:center;
+            color:#fff;
+            font-size:20px;
+            font-weight:700;
+            text-shadow:0 1px 3px rgba(0,0,0,0.4);
+        }
         #partial_range_popup { display:none; position:fixed; inset:0; z-index:10040; }
         #partial_range_popup.is-open { display:block; }
         #partial_range_popup .partial_range_backdrop {
@@ -353,7 +479,7 @@
             line-height:1.2 !important;
             font-weight:700 !important;
             color:#243b87;
-            font-size:18px;
+            font-size:16px;
             padding-bottom:10px !important;
         }
         #all_day_range_picker .ui-datepicker-calendar thead th:first-child {
@@ -507,6 +633,30 @@
                 font-size:24px;
             }
         }
+        @media (max-width: 768px) {
+            #color_picker_popup .color_picker_panel {
+                width:90%;
+                max-width:420px;
+                margin:20vh auto 0;
+                padding:18px;
+            }
+            #color_picker_popup .color_palette {
+                grid-template-columns:repeat(6, 1fr);
+                gap:10px;
+            }
+            #color_picker_popup .color_item {
+                max-width:44px;
+            }
+        }
+        @media (max-width: 480px) {
+            #color_picker_popup .color_palette {
+                grid-template-columns:repeat(4, 1fr);
+                gap:12px;
+            }
+            #color_picker_popup .color_item {
+                max-width:52px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -518,6 +668,10 @@
 
             <section id="bo_w">
                 <h2 class="sound_only">일정 수정</h2>
+                <div th:if="${error}"
+                     role="alert"
+                     style="margin:0 0 14px;padding:10px 12px;border:1px solid #f5c2c7;background:#f8d7da;color:#842029;border-radius:8px;"
+                     th:text="${error}">업로드에 실패했습니다.</div>
                 <form name="fwrite" id="fwrite" th:action="@{'/bbs/' + ${boTable} + '/edit/' + ${post.wrId}}" method="post" enctype="multipart/form-data" autocomplete="off">
 
                     <div class="bo_w_select write_div" th:if="${board.boUseCategory == 1}">
@@ -534,7 +688,7 @@
 
                     <div class="bo_w_info write_div">
                         <label for="wr_name" class="sound_only">이름<strong>필수</strong></label>
-                        <input type="text" name="name" id="wr_name" required class="frm_input half_input required" placeholder="이름" th:value="${writeForm.name}" th:if="${loginUser == null}">
+                        <input type="text" name="name" id="wr_name" required class="frm_input half_input required" placeholder="이름" th:if="${loginUser == null}">
 
                         <label for="wr_password" class="sound_only">비밀번호<strong>필수</strong></label>
                         <input type="password" name="password" id="wr_password" class="frm_input half_input" placeholder="비밀번호" th:if="${loginUser == null}">
@@ -553,9 +707,51 @@
                             </label>
                             <span id="allDayLabel" th:text="${writeForm.wr5 == '1'} ? '종일일정' : '부분일정'">부분일정</span>
                         </span>
-                        <label for="wr_4" class="sound_only">색상</label>
-                        <input type="text" name="wr4" id="wr_4" class="jscolor {hash:true}" th:value="${writeForm.wr4 != null ? writeForm.wr4 : '#3788d8'}" style="margin-left:10px; width:120px;">
-                        <button type="button" id="open_partial_picker" class="btn_b01 btn">시간선택</button>
+                        <span class="all_day_toggle_wrap" style="margin-left:15px;">
+                            <label class="switch" for="is_private">
+                                <input type="checkbox" id="is_private" name="wr6" value="private" th:checked="${writeForm.wr6 == 'private'}">
+                                <span class="slider round"></span>
+                            </label>
+                            <span id="privateLabel" th:text="${writeForm.wr6 == 'private'} ? '개인일정' : '공개일정'">공개일정</span>
+                        </span>
+                        <input type="hidden" name="wr4" id="wr_4" th:value="${writeForm.wr4 != null ? writeForm.wr4 : '#3788d8'}">
+                        <button type="button" id="open_color_picker" class="btn_color_picker">
+                            <div class="color_preview" id="color_preview_btn"></div>
+                            <span class="color_label">색상</span>
+                        </button>
+                    </div>
+
+                    <div class="bo_w_tit write_div">
+                        <label for="wr_subject" class="sound_only">제목<strong>필수</strong></label>
+                        <input type="text" name="subject" id="wr_subject" required class="frm_input full_input required" maxlength="255" placeholder="제목" th:value="${writeForm.subject}">
+                    </div>
+
+                    <div class="write_div">
+                        <div id="color_picker_popup">
+                            <div class="color_picker_backdrop"></div>
+                            <div class="color_picker_panel">
+                                <div class="color_picker_head">
+                                    <strong>일정 색상 선택</strong>
+                                    <button type="button" id="close_color_picker" class="color_picker_close" aria-label="닫기">×</button>
+                                </div>
+                                <div class="color_palette_wrap">
+                                    <div class="color_palette">
+                                        <button type="button" class="color_item" data-color="#e74c3c" style="background:#e74c3c;" title="빨강"></button>
+                                        <button type="button" class="color_item" data-color="#e67e22" style="background:#e67e22;" title="주황"></button>
+                                        <button type="button" class="color_item" data-color="#f39c12" style="background:#f39c12;" title="노랑"></button>
+                                        <button type="button" class="color_item" data-color="#2ecc71" style="background:#2ecc71;" title="초록"></button>
+                                        <button type="button" class="color_item" data-color="#1abc9c" style="background:#1abc9c;" title="청록"></button>
+                                        <button type="button" class="color_item" data-color="#3498db" style="background:#3498db;" title="파랑"></button>
+                                        <button type="button" class="color_item" data-color="#9b59b6" style="background:#9b59b6;" title="보라"></button>
+                                        <button type="button" class="color_item" data-color="#34495e" style="background:#34495e;" title="회색"></button>
+                                        <button type="button" class="color_item" data-color="#e91e63" style="background:#e91e63;" title="핑크"></button>
+                                        <button type="button" class="color_item" data-color="#ff5722" style="background:#ff5722;" title="진한주황"></button>
+                                        <button type="button" class="color_item" data-color="#8bc34a" style="background:#8bc34a;" title="연두"></button>
+                                        <button type="button" class="color_item" data-color="#00bcd4" style="background:#00bcd4;" title="하늘"></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <div id="partial_range_popup">
                             <div class="partial_range_backdrop"></div>
                             <div class="partial_range_panel">
@@ -566,13 +762,13 @@
                                 <div class="partial_range_grid">
                                     <div class="partial_col">
                                         <label for="partial_start_date">시작 일시</label>
-                                        <input type="date" id="partial_start_date">
-                                        <input type="time" id="partial_start_time" step="600">
+                                        <input type="date" id="partial_start_date" name="partial_start_date">
+                                        <input type="time" id="partial_start_time" name="partial_start_time" step="600">
                                     </div>
                                     <div class="partial_col">
                                         <label for="partial_end_date">종료 일시</label>
-                                        <input type="date" id="partial_end_date">
-                                        <input type="time" id="partial_end_time" step="600">
+                                        <input type="date" id="partial_end_date" name="partial_end_date">
+                                        <input type="time" id="partial_end_time" name="partial_end_time" step="600">
                                     </div>
                                 </div>
                                 <div id="partial_range_error" class="partial_range_error"></div>
@@ -582,7 +778,6 @@
                                 </div>
                             </div>
                         </div>
-                        <button type="button" id="open_all_day_picker" class="btn_b01 btn">날짜선택</button>
                         <div id="all_day_range_popup">
                             <div class="all_day_range_backdrop"></div>
                             <div class="all_day_range_panel">
@@ -599,13 +794,6 @@
                                     <button type="button" id="cancel_all_day_picker" class="btn_b01 btn">닫기</button>
                                 </div>
                             </div>
-                        </div>
-                    </div>
-
-                    <div class="bo_w_tit write_div">
-                        <label for="wr_subject" class="sound_only">제목<strong>필수</strong></label>
-                        <div id="autosave_wrapper" class="write_div">
-                            <input type="text" name="subject" id="wr_subject" required class="frm_input full_input required" maxlength="255" placeholder="제목" th:value="${writeForm.subject}">
                         </div>
                     </div>
 
@@ -630,7 +818,7 @@
                     </div>
 
                     <div class="btn_confirm write_div">
-                        <a th:href="@{'/bbs/' + ${boTable} + '/view/' + ${post.wrId}}" class="btn_cancel btn">취소</a>
+                        <a th:href="@{'/bbs/' + ${boTable} + '/list'}" class="btn_cancel btn">취소</a>
                         <button type="submit" id="btn_submit" class="btn_submit btn">수정완료</button>
                     </div>
                 </form>
@@ -640,16 +828,15 @@
 </div>
 <div th:replace="~{fragments/nav :: nav_end}"></div>
 
-<script th:src="@{/js/jquery-1.12.4.min.js}"></script>
+<script th:src="@{/js/jquery-3.7.1.min.js}"></script>
 <script th:src="@{/plugin/jquery-ui/jquery-ui.min.js}"></script>
 <script th:src="@{/plugin/jquery-ui/jquery-ui-timepicker-addon.js}"></script>
-<script th:src="@{/skin/board/schedule/wz.js/jscolor.min.js}"></script>
 <script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'ckeditor4'}" th:src="@{/plugin/editor/ckeditor4/ckeditor.js}"></script>
 <script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'ckeditor4'}" th:src="@{/plugin/editor/ckeditor4/config.js}"></script>
 <script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'smarteditor2'}" th:src="@{/plugin/editor/smarteditor2/js/service/HuskyEZCreator.js}"></script>
 <script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'smarteditor2'}" th:src="@{/plugin/editor/smarteditor2/config.js}"></script>
 <script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'cheditor5'}" th:src="@{/plugin/editor/cheditor5/cheditor.js}"></script>
-<script th:inline="javascript">
+<script th:inline="javascript" th:attr="nonce=${cspNonce}">
     $(function() {
         $.datepicker.regional['ko'] = {
             closeText: "닫기",
@@ -674,7 +861,8 @@
         var $end = $("#wr_2");
         var $allDay = $("#is_all_day");
         var $allDayLabel = $("#allDayLabel");
-        var $openPartialPickerBtn = $("#open_partial_picker");
+        var $isPrivate = $("#is_private");
+        var $privateLabel = $("#privateLabel");
         var $partialPopup = $("#partial_range_popup");
         var $partialStartDate = $("#partial_start_date");
         var $partialStartTime = $("#partial_start_time");
@@ -684,7 +872,6 @@
         var $closePartialPickerBtn = $("#close_partial_picker");
         var $cancelPartialPickerBtn = $("#cancel_partial_picker");
         var $applyPartialPickerBtn = $("#apply_partial_picker");
-        var $openPickerBtn = $("#open_all_day_picker");
         var $rangePopup = $("#all_day_range_popup");
         var $rangeWrap = $("#all_day_range_wrap");
         var $rangePicker = $("#all_day_range_picker");
@@ -755,32 +942,11 @@
                 '&timeMax=' + encodeURIComponent(timeMax) +
                 '&key=' + encodeURIComponent(HOLIDAY_API_KEY);
 
-            $.getJSON(url).done(function(resp){
-                holidayMap = {};
-                (resp.items || []).forEach(function(item){
-                    var dateKey = '';
-                    if (item.start && item.start.date) {
-                        dateKey = item.start.date;
-                    } else if (item.start && item.start.dateTime) {
-                        dateKey = String(item.start.dateTime).substring(0, 10);
-                    }
-                    if (!dateKey) return;
-                    var title = item.summary || '공휴일';
-                    if (!holidayMap[dateKey]) {
-                        holidayMap[dateKey] = title;
-                    } else if (holidayMap[dateKey].indexOf(title) < 0) {
-                        holidayMap[dateKey] += ' / ' + title;
-                    }
-                });
-                if ($rangePicker.data("datepicker")) {
-                    $rangePicker.datepicker("refresh");
-                }
-                            }).fail(function(){
-                    holidayMap = {};
-                    if ($rangePicker.data("datepicker")) {
-                        $rangePicker.datepicker("refresh");
-                    }
-                });
+            // CORS 에러 방지를 위해 공휴일 로딩을 비활성화
+            holidayMap = {};
+            if ($rangePicker.data("datepicker")) {
+                $rangePicker.datepicker("refresh");
+            }
         }
 
         function updateRangeText() {
@@ -883,10 +1049,13 @@
             $allDayLabel.text($allDay.is(":checked") ? "종일일정" : "부분일정");
         }
 
+        function renderPrivateLabel() {
+            if (!$privateLabel.length) return;
+            $privateLabel.text($isPrivate.is(":checked") ? "개인일정" : "공개일정");
+        }
+
         function initDateTime() {
             destroyDatePickers();
-            $openPartialPickerBtn.show();
-            $openPickerBtn.hide();
             $rangePopup.removeClass("is-open");
             $partialPopup.removeClass("is-open");
             var start = parseDateTime($start.val()) || new Date();
@@ -902,10 +1071,8 @@
 
         function initAllDayRange() {
             destroyDatePickers();
-            $openPartialPickerBtn.hide();
             $start.prop("readonly", true);
             $end.prop("readonly", true);
-            $openPickerBtn.show();
             $rangeWrap.show();
 
             allDayStart = parseDate(datePart($start.val()));
@@ -1011,6 +1178,7 @@
             initDateTime();
         }
         renderAllDayLabel();
+        renderPrivateLabel();
 
         $allDay.on("change", function(){
             renderAllDayLabel();
@@ -1021,8 +1189,10 @@
             }
         });
 
-        $openPickerBtn.on("click", openAllDayRangePopup);
-        $openPartialPickerBtn.on("click", openPartialRangePopup);
+        $isPrivate.on("change", function(){
+            renderPrivateLabel();
+        });
+
         $start.add($end).on("click", function() {
             if ($allDay.is(":checked")) {
                 openAllDayRangePopup();
@@ -1073,6 +1243,61 @@
                 $categoryInput.val($(this).data("value"));
             });
         }
+
+        // Color picker functionality
+        var $colorInput = $("#wr_4");
+        var $colorPickerPopup = $("#color_picker_popup");
+        var $colorPreviewBtn = $("#color_preview_btn");
+        var $openColorPickerBtn = $("#open_color_picker");
+        var $closeColorPickerBtn = $("#close_color_picker");
+
+        function updateColorPreview(color) {
+            $colorPreviewBtn.css("background-color", color);
+        }
+
+        function updateColorSelection(color) {
+            $(".color_item").removeClass("selected");
+            $('.color_item[data-color="' + color + '"]').addClass("selected");
+        }
+
+        function openColorPickerPopup() {
+            var currentColor = $colorInput.val();
+            updateColorSelection(currentColor);
+            $colorPickerPopup.addClass("is-open");
+        }
+
+        function closeColorPickerPopup() {
+            $colorPickerPopup.removeClass("is-open");
+        }
+
+        // Initialize with current color
+        var initialColor = $colorInput.val() || "#3498db";
+        $colorInput.val(initialColor);
+        updateColorPreview(initialColor);
+
+        // Color item click handler - 클릭 시 즉시 적용하고 닫기
+        $(document).on("click", ".color_item", function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var color = $(this).attr("data-color");
+            if (color) {
+                $colorInput.val(color);
+                updateColorPreview(color);
+                updateColorSelection(color);
+                closeColorPickerPopup();
+            }
+        });
+
+        // Popup handlers
+        $openColorPickerBtn.on("click", openColorPickerPopup);
+        $closeColorPickerBtn.on("click", closeColorPickerPopup);
+        $colorPickerPopup.find(".color_picker_backdrop").on("click", closeColorPickerPopup);
+
+        $(document).on("keydown", function(e) {
+            if (e.key === "Escape" && $colorPickerPopup.hasClass("is-open")) {
+                closeColorPickerPopup();
+            }
+        });
     });
 
     (function() {

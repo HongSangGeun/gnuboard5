@@ -7,9 +7,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>관리자 페이지</title>
     <link rel="stylesheet" th:href="@{/css/admin.css}">
+    <link rel="stylesheet" th:href="@{/css/admin-modern.css?v=3.4}">
+    <link rel="stylesheet" th:href="@{/css/admin-mobile.css?v=3.4}">
     <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
 
-    <script th:inline="javascript">
+    <script th:inline="javascript" th:attr="nonce=${cspNonce}">
         // Global variables for Gnuboard JS
         var g5_url = /*[[@{/}]]*/ "/";
         var g5_bbs_url = /*[[@{/bbs}]]*/ "/bbs";
@@ -26,14 +28,15 @@
     </script>
 
     <script th:src="@{/js/jquery.min.js}"></script>
-    <script th:src="@{/js/jquery-migrate-1.4.1.min.js}"></script>
+    <script th:src="@{/js/jquery-migrate-3.5.0.min.js}"></script>
     <script th:src="@{/js/csrf.js}"></script>
     <script th:src="@{/js/jquery.menu.js}"></script>
     <script th:src="@{/js/common.js}"></script>
     <script th:src="@{/js/wrest.js}"></script>
+
 </head>
 
-<body>
+<body class="admin-modern">
 
     <header id="hd" th:fragment="header" class="admin-header">
         <h1>Gnuboard Admin</h1>
@@ -43,7 +46,8 @@
 
             <div id="tnb">
                 <ul>
-                    <li class="tnb_li"><a th:href="@{/}" class="tnb_community" target="_blank" title="커뮤니티 바로가기">커뮤니티 바로가기</a>
+                    <li class="tnb_li"><a th:href="@{/}" class="tnb_community" target="_blank" title="커뮤니티 바로가기">커뮤니티
+                            바로가기</a>
                     </li>
                     <li class="tnb_li"><button type="button" class="tnb_mb_btn">관리자<span
                                 class="btn_gnb">메뉴열기</span></button>
@@ -79,7 +83,7 @@
             </ul>
         </nav>
     </header>
-    <script th:fragment="scripts">
+    <script th:fragment="scripts" th:attr="nonce=${cspNonce}">
         // Inline script for menu handling from admin.head.php
         /*
         jQuery(function($) {
@@ -110,6 +114,13 @@
 
             $("#btn_gnb").click(function () {
                 var $this = $(this);
+                // Mobile Sidebar Toggle
+                if (window.innerWidth <= 1024) {
+                    $("#gnb").toggleClass("mobile-open");
+                    $this.toggleClass("btn_gnb_open");
+                    return;
+                }
+
                 try {
                     if (!$this.hasClass("btn_gnb_open")) {
                         set_cookie(menu_cookie_key, 1, 60 * 60 * 24 * 365);
@@ -126,6 +137,14 @@
             $(".gnb_ul li .btn_op").click(function () {
                 $(this).parent().addClass("on").siblings().removeClass("on");
             });
+
+            // Close mobile sidebar when clicking outside (on container)
+            $("#container").click(function () {
+                if (window.innerWidth <= 1024 && $("#gnb").hasClass("mobile-open")) {
+                    $("#gnb").removeClass("mobile-open");
+                    $("#btn_gnb").removeClass("btn_gnb_open");
+                }
+            });
         });
     </script>
 
@@ -139,9 +158,126 @@
     </div>
 
     <footer id="ft">
-        <p>Copyright &copy; <b>Gnuboard</b>. All rights reserved.</p>
     </footer>
 
+    <script th:attr="nonce=${cspNonce}">
+        document.addEventListener("DOMContentLoaded", function () {
+            var style = document.createElement('style');
+            style.type = 'text/css';
+            var css = `
+            /* FontAwesome Icon Replacements (JS Injected) */
+            body.admin-modern #gnb .gnb_li .btn_op {
+                background-image: none !important;
+                position: relative;
+                text-indent: 0 !important;
+                font-size: 0 !important; 
+            }
+            body.admin-modern #gnb .gnb_li .btn_op::before {
+                font-family: 'FontAwesome';
+                font-size: 22px;
+                color: #64748b;
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                text-indent: 0;
+                line-height: normal;
+            }
+            body.admin-modern #gnb .on .btn_op::before, 
+            body.admin-modern #gnb .gnb_li .btn_op:hover::before { 
+                color: #2563eb; 
+            }
+            body.admin-modern #gnb .gnb_li .btn_op.menu-menu100::before { content: "\\f013"; }
+            body.admin-modern #gnb .gnb_li .btn_op.menu-menu200::before { content: "\\f007"; }
+            body.admin-modern #gnb .gnb_li .btn_op.menu-menu300::before { content: "\\f044"; }
+            body.admin-modern #gnb .gnb_li .btn_op.menu-menu400::before { content: "\\f07a"; }
+            body.admin-modern #gnb .gnb_li .btn_op.menu-menu500::before { content: "\\f10b"; font-size: 28px; }
+            body.admin-modern #gnb .gnb_li .btn_op.menu-menu900::before { content: "\\f0e0"; }
+            body.admin-modern #gnb .gnb_li .btn_op:not([class*="menu-menu"])::before { content: "\\f07b"; }
+
+            /* Mobile Layout Fixes (JS Injected) */
+            @media screen and (max-width: 1024px) {
+                /* Ultra-high specificity for tables */
+                html body.admin-modern .tbl_head01 th, html body.admin-modern .tbl_head01 td, 
+                html body.admin-modern .tbl_head02 th, html body.admin-modern .tbl_head02 td, 
+                html body.admin-modern .tbl_wrap th, html body.admin-modern .tbl_wrap td {
+                    white-space: nowrap !important;
+                    word-break: keep-all !important;
+                }
+                
+                /* Ultra-high specificity for search buttons to fix invisible text */
+                html body.admin-modern input[type="submit"], 
+                html body.admin-modern button[type="submit"], 
+                html body.admin-modern .btn_submit, 
+                html body.admin-modern .btn_01, 
+                html body.admin-modern .btn_02, 
+                html body.admin-modern .btn_03 {
+                    width: auto !important;
+                    min-width: 50px !important;
+                html body.admin-modern .btn_submit {
+                    width: auto !important;
+                    min-width: 50px !important;
+                    padding: 0 10px !important;
+                    height: 30px !important;
+                    line-height: 30px !important;
+                    font-size: 13px !important;
+                    text-indent: 0 !important;
+                    background-image: none !important;
+                    color: #fff !important; /* Fix text color */
+                    background-color: #2563eb !important; /* Fix background */
+                }
+            }
+
+            /* General Layout & Pagination Fixes (JS Injected) */
+            /* 1. Pagination Visibility */
+            html body.admin-modern .pg_wrap .pg_current {
+                background: #2563eb !important;
+                color: #fff !important;
+                font-weight: bold !important;
+                border: 1px solid #2563eb !important;
+            }
+            html body.admin-modern .pg_wrap .pg_page {
+                color: #64748b !important;
+                background: #f8fafc !important;
+                border: 1px solid #cbd5e1 !important;
+            }
+
+            /* 2. Button Readability (Global) */
+            html body.admin-modern .btn_02, html body.admin-modern .btn_03 {
+                background: #f1f5f9 !important; /* Slate-100 */
+                color: #334155 !important; /* Slate-700 */
+                border: 1px solid #cbd5e1 !important;
+                font-weight: 500 !important;
+            }
+            html body.admin-modern .btn_02:hover, html body.admin-modern .btn_03:hover {
+                background: #e2e8f0 !important;
+                color: #0f172a !important;
+            }
+
+            /* 3. Table Spacing (PC/Mobile) */
+            html body.admin-modern .tbl_head01 td, html body.admin-modern .tbl_head01 th,
+            html body.admin-modern .tbl_head02 td, html body.admin-modern .tbl_head02 th {
+                padding: 12px 10px !important; /* Increase padding */
+                font-size: 14px !important;
+                white-space: nowrap !important; /* Prevent wrapping */
+                word-break: keep-all !important;
+            }
+            /* Reduce padding slightly for mobile to fit data */
+            @media screen and (max-width: 1024px) {
+                 html body.admin-modern .tbl_head01 td, html body.admin-modern .tbl_head01 th {
+                    padding: 8px 6px !important;
+                    font-size: 13px !important;
+                }
+            }
+        `;
+            if (style.styleSheet) {
+                style.styleSheet.cssText = css;
+            } else {
+                style.appendChild(document.createTextNode(css));
+            }
+            document.head.appendChild(style);
+        });
+    </script>
 </body>
 
 </html>

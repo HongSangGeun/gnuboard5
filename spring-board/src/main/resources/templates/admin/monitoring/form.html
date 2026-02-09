@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>서비스 등록/수정</title>
+</head>
+
+<body>
+<div layout:fragment="content">
+    <form th:action="@{/mgmt/monitoring/save}" method="post">
+        <input type="hidden" name="msId" th:value="${service?.msId}">
+
+        <div class="tbl_frm01 tbl_wrap">
+            <table>
+                <caption>서비스 정보</caption>
+                <colgroup>
+                    <col class="grid_4">
+                    <col>
+                </colgroup>
+                <tbody>
+                <tr>
+                    <th scope="row"><label for="msName">서비스명 <strong class="sound_only">필수</strong></label></th>
+                    <td>
+                        <input type="text" name="msName" id="msName" required class="frm_input required"
+                               th:value="${service?.msName}" placeholder="예: API 서버">
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="msUrl">모니터링 URL <strong class="sound_only">필수</strong></label></th>
+                    <td>
+                        <input type="url" name="msUrl" id="msUrl" required class="frm_input required"
+                               th:value="${service?.msUrl}" style="width:100%;"
+                               placeholder="예: https://api.example.com/health">
+                        <p class="frm_info">헬스체크를 수행할 URL을 입력하세요</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="msMethod">HTTP 메소드</label></th>
+                    <td>
+                        <select name="msMethod" id="msMethod" class="frm_input">
+                            <option value="GET" th:selected="${service?.msMethod == 'GET' or service == null}">GET</option>
+                            <option value="POST" th:selected="${service?.msMethod == 'POST'}">POST</option>
+                            <option value="HEAD" th:selected="${service?.msMethod == 'HEAD'}">HEAD</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="msAuthType">인증 타입</label></th>
+                    <td>
+                        <select name="msAuthType" id="msAuthType" class="frm_input" onchange="toggleAuthFields()">
+                            <option value="NONE" th:selected="${service?.msAuthType == 'NONE' or service?.msAuthType == null}">인증 없음</option>
+                            <option value="BASIC" th:selected="${service?.msAuthType == 'BASIC'}">Basic Auth</option>
+                            <option value="BEARER" th:selected="${service?.msAuthType == 'BEARER'}">Bearer Token</option>
+                            <option value="HEADER" th:selected="${service?.msAuthType == 'HEADER'}">커스텀 헤더</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr id="auth-basic" style="display:none;">
+                    <th scope="row">Basic Auth</th>
+                    <td>
+                        <input type="text" name="msAuthUsername" id="msAuthUsername" class="frm_input"
+                               th:value="${service?.msAuthUsername}" placeholder="사용자명" style="width:48%;margin-right:2%;">
+                        <input type="password" name="msAuthPassword" id="msAuthPassword" class="frm_input"
+                               th:value="${service?.msAuthPassword}" placeholder="비밀번호" style="width:48%;">
+                        <p class="frm_info">HTTP Basic 인증 사용자명과 비밀번호</p>
+                    </td>
+                </tr>
+                <tr id="auth-bearer" style="display:none;">
+                    <th scope="row">Bearer Token</th>
+                    <td>
+                        <textarea name="msAuthToken" id="msAuthToken" class="frm_input" rows="2"
+                                  style="width:100%;" th:text="${service?.msAuthToken}"
+                                  placeholder="API 키 또는 Bearer 토큰"></textarea>
+                        <p class="frm_info">Authorization: Bearer [토큰] 헤더로 전송됩니다</p>
+                    </td>
+                </tr>
+                <tr id="auth-header" style="display:none;">
+                    <th scope="row">커스텀 헤더</th>
+                    <td>
+                        <input type="text" name="msAuthHeaderName" id="msAuthHeaderName" class="frm_input"
+                               th:value="${service?.msAuthHeaderName}" placeholder="헤더명 (예: X-API-Key)" style="width:48%;margin-right:2%;">
+                        <input type="text" name="msAuthHeaderValue" id="msAuthHeaderValue" class="frm_input"
+                               th:value="${service?.msAuthHeaderValue}" placeholder="헤더값" style="width:48%;">
+                        <p class="frm_info">커스텀 HTTP 헤더를 추가합니다</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="msTimeout">타임아웃 (ms)</label></th>
+                    <td>
+                        <input type="number" name="msTimeout" id="msTimeout" class="frm_input"
+                               th:value="${service?.msTimeout ?: 5000}" min="1000" max="60000" step="1000">
+                        <p class="frm_info">1000 ~ 60000 (기본값: 5000ms)</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="msExpectedStatus">예상 상태코드</label></th>
+                    <td>
+                        <input type="number" name="msExpectedStatus" id="msExpectedStatus" class="frm_input"
+                               th:value="${service?.msExpectedStatus ?: 200}" min="100" max="599">
+                        <p class="frm_info">정상으로 판단할 HTTP 상태코드 (기본값: 200)</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="msExpectedResponse">예상 응답 내용</label></th>
+                    <td>
+                        <input type="text" name="msExpectedResponse" id="msExpectedResponse" class="frm_input"
+                               th:value="${service?.msExpectedResponse}" style="width:100%;"
+                               placeholder='예: "status":"ok"'>
+                        <p class="frm_info">응답 본문에 포함되어야 할 문자열 (선택사항)</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="msCheckInterval">체크 주기 (초)</label></th>
+                    <td>
+                        <input type="number" name="msCheckInterval" id="msCheckInterval" class="frm_input"
+                               th:value="${service?.msCheckInterval ?: 60}" min="10" max="3600">
+                        <p class="frm_info">자동 체크 주기 (10 ~ 3600초, 기본값: 60초)</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">활성화</th>
+                    <td>
+                        <input type="checkbox" name="msEnabled" id="msEnabled" value="true"
+                               th:checked="${service?.msEnabled == null or service?.msEnabled}">
+                        <label for="msEnabled">이 서비스를 모니터링합니다</label>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row">알림 설정</th>
+                    <td>
+                        <input type="checkbox" name="msAlertEnabled" id="msAlertEnabled" value="true"
+                               th:checked="${service?.msAlertEnabled}">
+                        <label for="msAlertEnabled">장애 발생 시 알림을 받습니다</label>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="msAlertEmail">알림 이메일</label></th>
+                    <td>
+                        <input type="email" name="msAlertEmail" id="msAlertEmail" class="frm_input"
+                               th:value="${service?.msAlertEmail}" style="width:100%;"
+                               placeholder="admin@example.com">
+                        <p class="frm_info">알림을 받을 이메일 주소</p>
+                    </td>
+                </tr>
+                <tr>
+                    <th scope="row"><label for="msDescription">설명</label></th>
+                    <td>
+                        <textarea name="msDescription" id="msDescription" class="frm_input" rows="3"
+                                  style="width:100%;" th:text="${service?.msDescription}"
+                                  placeholder="서비스에 대한 간단한 설명"></textarea>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="btn_confirm01 btn_confirm">
+            <a th:href="@{/mgmt/monitoring}" class="btn btn_02">목록</a>
+            <button type="submit" class="btn_submit btn">저장</button>
+        </div>
+    </form>
+
+    <script th:attr="nonce=${cspNonce}">
+        function toggleAuthFields() {
+            var authType = document.getElementById('msAuthType').value;
+
+            document.getElementById('auth-basic').style.display = 'none';
+            document.getElementById('auth-bearer').style.display = 'none';
+            document.getElementById('auth-header').style.display = 'none';
+
+            if (authType === 'BASIC') {
+                document.getElementById('auth-basic').style.display = '';
+            } else if (authType === 'BEARER') {
+                document.getElementById('auth-bearer').style.display = '';
+            } else if (authType === 'HEADER') {
+                document.getElementById('auth-header').style.display = '';
+            }
+        }
+
+        // 페이지 로드 시 초기 상태 설정
+        document.addEventListener('DOMContentLoaded', function() {
+            toggleAuthFields();
+        });
+    </script>
+</div>
+</body>
+</html>

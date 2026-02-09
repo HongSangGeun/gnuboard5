@@ -7,6 +7,7 @@
     <link rel="stylesheet" th:href="@{/css/index.css}">
     <title th:text="${board.boSubject} + ' - 글쓰기'">글쓰기</title>
     <link rel="stylesheet" th:href="@{/skin/board/basic/style.css}">
+    <link rel="stylesheet" th:href="@{/css/board-write-modern.css}">
 </head>
 <body>
 <div th:replace="~{fragments/nav :: nav}"></div>
@@ -80,7 +81,7 @@
     </div>
 </div>
 <div th:replace="~{fragments/nav :: nav_end}"></div>
-<script>
+<script th:attr="nonce=${cspNonce}">
     (function() {
         var buttons = document.querySelectorAll(".category-buttons button");
         var input = document.getElementById("ca_name");
@@ -103,7 +104,7 @@
 <script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'smarteditor2'}" th:src="@{/plugin/editor/smarteditor2/js/service/HuskyEZCreator.js}"></script>
 <script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'smarteditor2'}" th:src="@{/plugin/editor/smarteditor2/config.js}"></script>
 <script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'cheditor5'}" th:src="@{/plugin/editor/cheditor5/cheditor.js}"></script>
-<script th:inline="javascript">
+<script th:inline="javascript" th:attr="nonce=${cspNonce}">
     /*<![CDATA[*/
     var useEditor = /*[[${board.boUseDhtmlEditor}]]*/ 0;
     var editorType = /*[[${board.boSelectEditor}]]*/ '';
@@ -146,6 +147,45 @@
         }
         if (textarea) {
             textarea.removeAttribute('required');
+        }
+    })();
+
+    // 폼 중복 제출 방지
+    (function() {
+        var form = document.getElementById('fwrite');
+        var submitBtn = document.getElementById('btn_submit');
+        var isSubmitting = false;
+
+        if (form && submitBtn) {
+            form.addEventListener('submit', function(e) {
+                if (isSubmitting) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                // 필수 입력 검증
+                var subject = document.getElementById('wr_subject');
+                var content = document.getElementById('wr_content');
+
+                if (!subject || !subject.value.trim()) {
+                    alert('제목을 입력해주세요.');
+                    e.preventDefault();
+                    return false;
+                }
+
+                if (!content || !content.value.trim()) {
+                    alert('내용을 입력해주세요.');
+                    e.preventDefault();
+                    return false;
+                }
+
+                // 제출 중 상태로 변경
+                isSubmitting = true;
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.6';
+                submitBtn.style.cursor = 'not-allowed';
+                submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> 저장 중...';
+            });
         }
     })();
 </script>

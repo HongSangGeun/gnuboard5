@@ -192,7 +192,7 @@
     </div>
 </div>
 <div th:replace="~{fragments/nav :: nav_end}"></div>
-<script>
+<script th:attr="nonce=${cspNonce}">
     (function() {
         var btn = document.querySelector('.btn_more_opt.is_view_btn');
         var menu = document.querySelector('.more_opt.is_view_btn');

@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>DB 업그레이드</title>
+</head>
+
+<body>
+<div layout:fragment="content">
+    <div class="local_desc01 local_desc">
+        <p>데이터베이스 스키마를 업그레이드합니다. 기존 테이블은 데이터를 보존하면서 필드가 추가되며, 없는 테이블은 새로 생성됩니다.</p>
+    </div>
+
+    <!-- 오류 메시지 -->
+    <div th:if="${error}" class="alert alert-danger" style="padding:15px;margin:20px 0;background:#fee;border:1px solid #fcc;color:#c00;">
+        <strong>오류:</strong> <span th:text="${error}"></span>
+    </div>
+
+    <!-- DB 상태 -->
+    <div th:if="${status != null}" class="tbl_head01 tbl_wrap" style="margin-bottom:30px;">
+        <h3 style="margin-bottom:15px;">현재 DB 상태</h3>
+        <table>
+            <caption>데이터베이스 상태</caption>
+            <colgroup>
+                <col style="width:30%;">
+                <col style="width:70%;">
+            </colgroup>
+            <tbody>
+            <tr>
+                <th scope="row">시스템 테이블 수</th>
+                <td>
+                    <strong style="font-size:18px;color:#3b82f6;" th:text="${status.systemTableCount}">0</strong>개
+                    <span style="color:#64748b;font-size:14px;margin-left:10px;">
+                        (정의: <strong th:text="${status.totalDefinedTables}">0</strong>개)
+                    </span>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">동적 테이블 수</th>
+                <td>
+                    <strong style="font-size:18px;color:#8b5cf6;" th:text="${status.dynamicTableCount}">0</strong>개
+                    <span style="color:#64748b;font-size:13px;margin-left:10px;">
+                        (게시판별 게시글 테이블: g5_write_*)
+                    </span>
+                    <div th:if="${status.dynamicTableCount > 0}" style="margin-top:8px;">
+                        <span th:each="table : ${status.dynamicTables}"
+                              style="display:inline-block;padding:3px 8px;margin:2px;background:#f3e8ff;border:1px solid #e9d5ff;border-radius:3px;font-size:12px;"
+                              th:text="${table}">g5_write_table</span>
+                    </div>
+                </td>
+            </tr>
+            <tr>
+                <th scope="row">전체 테이블 수</th>
+                <td>
+                    <strong style="font-size:18px;color:#22c55e;" th:text="${status.totalTables}">0</strong>개
+                    <span style="color:#64748b;font-size:13px;margin-left:10px;">
+                        (시스템 + 동적)
+                    </span>
+                </td>
+            </tr>
+            <tr th:if="${status.missingCount > 0}">
+                <th scope="row">누락된 테이블</th>
+                <td>
+                    <strong style="font-size:18px;color:#ef4444;" th:text="${status.missingCount}">0</strong>개
+                    <div style="margin-top:8px;">
+                        <span th:each="table : ${status.missingTables}"
+                              style="display:inline-block;padding:3px 8px;margin:2px;background:#fee;border:1px solid #fcc;border-radius:3px;font-size:12px;"
+                              th:text="${table}">table_name</span>
+                    </div>
+                </td>
+            </tr>
+            <tr th:if="${status.extraCount > 0}">
+                <th scope="row">추가 테이블</th>
+                <td>
+                    <strong style="font-size:18px;color:#f59e0b;" th:text="${status.extraCount}">0</strong>개
+                    <span style="color:#64748b;font-size:13px;margin-left:10px;">
+                        (SQL 파일에 정의되지 않은 시스템 테이블)
+                    </span>
+                    <div style="margin-top:8px;">
+                        <span th:each="table : ${status.extraTables}"
+                              style="display:inline-block;padding:3px 8px;margin:2px;background:#fef3c7;border:1px solid #fde68a;border-radius:3px;font-size:12px;"
+                              th:text="${table}">table_name</span>
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <!-- 업그레이드 실행 버튼 -->
+    <div style="text-align:center;margin:30px 0;">
+        <button type="button" id="btnUpgrade" class="btn btn_01" style="font-size:16px;padding:12px 40px;margin:0 10px;">
+            🔄 DB 업그레이드 실행
+        </button>
+        <button type="button" id="btnUpgradeScripts" class="btn btn_02" style="font-size:16px;padding:12px 40px;margin:0 10px;">
+            ⚡ 스키마 업그레이드 실행
+        </button>
+    </div>
+
+    <div style="text-align:center;margin:10px 0;color:#64748b;font-size:14px;">
+        <p>💡 <strong>DB 업그레이드</strong>: 누락된 테이블/컬럼 추가 (데이터 보존)</p>
+        <p>⚡ <strong>스키마 업그레이드</strong>: 컬럼 타입 변경 등 스키마 수정 (ALTER TABLE)</p>
+    </div>
+
+    <!-- 결과 표시 영역 -->
+    <div id="upgradeResult" style="display:none;margin:30px 0;padding:20px;background:#f8f9fa;border:1px solid #dee2e6;border-radius:5px;">
+        <h3 style="margin-bottom:15px;">업그레이드 결과</h3>
+        <div id="resultContent" style="font-family:monospace;white-space:pre-wrap;font-size:13px;line-height:1.6;"></div>
+    </div>
+
+    <!-- 업그레이드 이력 -->
+    <div th:if="${history != null and !#lists.isEmpty(history)}" class="tbl_head01 tbl_wrap" style="margin-top:40px;">
+        <h3 style="margin-bottom:15px;">최근 업그레이드 이력 (최근 20건)</h3>
+        <table>
+            <caption>업그레이드 이력</caption>
+            <thead>
+            <tr>
+                <th scope="col" style="width:10%;">ID</th>
+                <th scope="col" style="width:15%;">타입</th>
+                <th scope="col" style="width:20%;">테이블명</th>
+                <th scope="col" style="width:35%;">설명</th>
+                <th scope="col" style="width:20%;">실행일시</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="item : ${history}">
+                <td th:text="${item.id}">1</td>
+                <td>
+                    <span th:if="${item.upgrade_type == 'CREATE_TABLE'}"
+                          style="color:#22c55e;" th:text="${item.upgrade_type}">CREATE_TABLE</span>
+                    <span th:if="${item.upgrade_type == 'ADD_COLUMNS'}"
+                          style="color:#3b82f6;" th:text="${item.upgrade_type}">ADD_COLUMNS</span>
+                    <span th:if="${item.upgrade_type == 'ALTER_TABLE'}"
+                          style="color:#f59e0b;" th:text="${item.upgrade_type}">ALTER_TABLE</span>
+                    <span th:if="${item.upgrade_type == 'UPGRADE_SCRIPT'}"
+                          style="color:#8b5cf6;" th:text="${item.upgrade_type}">UPGRADE_SCRIPT</span>
+                    <span th:if="${item.upgrade_type != 'CREATE_TABLE' and item.upgrade_type != 'ADD_COLUMNS' and item.upgrade_type != 'ALTER_TABLE' and item.upgrade_type != 'UPGRADE_SCRIPT'}"
+                          th:text="${item.upgrade_type}">OTHER</span>
+                </td>
+                <td>
+                    <code style="background:#f1f5f9;padding:2px 6px;border-radius:3px;" th:text="${item.table_name}">table_name</code>
+                </td>
+                <td th:text="${item.description}">설명</td>
+                <td th:text="${#temporals.format(item.executed_at, 'yyyy-MM-dd HH:mm:ss')}">2024-01-01 00:00:00</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+        // CSRF 토큰 가져오기
+        function getCsrfToken() {
+            if (typeof window.APP_CSRF_TOKEN === "string") {
+                return window.APP_CSRF_TOKEN;
+            }
+            var metaTag = document.querySelector('meta[name="_csrf"]');
+            return metaTag ? metaTag.getAttribute('content') : '';
+        }
+
+        // DB 업그레이드 실행 (테이블/컬럼 추가)
+        document.getElementById('btnUpgrade').addEventListener('click', function() {
+            if (!confirm('DB 업그레이드를 실행하시겠습니까?\n\n기존 데이터는 보존되며, 누락된 테이블과 컬럼이 추가됩니다.')) {
+                return;
+            }
+
+            executeUpgrade(this, '/datahub/board/mgmt/config/dbupgrade/execute', '🔄 DB 업그레이드 실행');
+        });
+
+        // 스키마 업그레이드 실행 (ALTER TABLE 등)
+        document.getElementById('btnUpgradeScripts').addEventListener('click', function() {
+            if (!confirm('스키마 업그레이드를 실행하시겠습니까?\n\n컬럼 타입 변경 등 스키마 수정 작업이 실행됩니다.\n이미 적용된 변경사항은 자동으로 스킵됩니다.')) {
+                return;
+            }
+
+            executeUpgrade(this, '/datahub/board/mgmt/config/dbupgrade/execute-scripts', '⚡ 스키마 업그레이드 실행');
+        });
+
+        // 공통 업그레이드 실행 함수
+        function executeUpgrade(btn, url, btnText) {
+            btn.disabled = true;
+            btn.textContent = '⏳ 실행 중...';
+
+            const resultDiv = document.getElementById('upgradeResult');
+            const resultContent = document.getElementById('resultContent');
+
+            resultDiv.style.display = 'block';
+            resultContent.textContent = '업그레이드를 실행하고 있습니다...\n';
+
+            var csrfToken = getCsrfToken();
+            var headers = {
+                'Content-Type': 'application/json'
+            };
+
+            // CSRF 토큰이 있으면 헤더에 추가
+            if (csrfToken) {
+                headers['X-CSRF-TOKEN'] = csrfToken;
+            }
+
+            fetch(url, {
+                method: 'POST',
+                headers: headers
+            })
+            .then(response => {
+                // HTTP 상태 코드 확인
+                if (!response.ok) {
+                    return response.text().then(text => {
+                        throw new Error('HTTP ' + response.status + ': ' + (text || response.statusText));
+                    });
+                }
+
+                // Content-Type 확인
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    return response.text().then(text => {
+                        throw new Error('서버가 JSON이 아닌 응답을 반환했습니다:\n' + text.substring(0, 500));
+                    });
+                }
+
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    resultContent.textContent = data.results.join('\n');
+                    resultContent.style.color = '#22c55e';
+
+                    // 3초 후 페이지 새로고침
+                    setTimeout(function() {
+                        location.reload();
+                    }, 3000);
+                } else {
+                    resultContent.textContent = '오류: ' + data.message;
+                    resultContent.style.color = '#ef4444';
+                    btn.disabled = false;
+                    btn.textContent = btnText;
+                }
+            })
+            .catch(error => {
+                resultContent.textContent = '오류: ' + error.message;
+                resultContent.style.color = '#ef4444';
+                btn.disabled = false;
+                btn.textContent = btnText;
+                console.error('Error:', error);
+            });
+        }
+    </script>
+
+    <style>
+        .alert {
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+
+        .alert-danger {
+            background-color: #fee;
+            border: 1px solid #fcc;
+            color: #c00;
+        }
+
+        #upgradeResult {
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        code {
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</div>
+</body>
+</html>

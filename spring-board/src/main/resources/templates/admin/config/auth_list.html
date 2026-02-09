@@ -61,7 +61,10 @@
                                 <th scope="row"><label for="mbId">회원아이디<strong class="sound_only">필수</strong></label>
                                 </th>
                                 <td>
-                                    <input type="text" name="mbId" id="mbId" required class="required frm_input">
+                                    <div style="position: relative;">
+                                        <input type="text" name="mbId" id="mbId" required class="required frm_input" autocomplete="off">
+                                        <div id="autocomplete-list" class="autocomplete-items"></div>
+                                    </div>
                                 </td>
                             </tr>
                             <tr>
@@ -98,6 +101,194 @@
                 </div>
             </form>
         </section>
+
+        <style>
+        .autocomplete-items {
+            position: absolute;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            z-index: 9999;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            max-height: 280px;
+            overflow-y: auto;
+            background-color: #ffffff;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+            margin-top: 2px;
+        }
+
+        .autocomplete-items::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .autocomplete-items::-webkit-scrollbar-track {
+            background: #f1f5f9;
+            border-radius: 4px;
+        }
+
+        .autocomplete-items::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .autocomplete-items::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .autocomplete-item {
+            padding: 12px 16px;
+            cursor: pointer;
+            border-bottom: 1px solid #f1f5f9;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item:hover {
+            background: linear-gradient(90deg, #f8fafc 0%, #ffffff 100%);
+            padding-left: 20px;
+        }
+
+        .autocomplete-item strong {
+            color: #2f6df6;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .autocomplete-item small {
+            color: #64748b;
+            font-size: 13px;
+            margin-left: 4px;
+        }
+
+        .autocomplete-item small:first-of-type {
+            color: #475569;
+            font-weight: 500;
+        }
+
+        .autocomplete-item[style*="color:#999"],
+        .autocomplete-item[style*="color:red"] {
+            justify-content: center;
+            padding: 16px;
+            font-size: 13px;
+        }
+
+        .autocomplete-item-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+    </style>
+
+    <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+        (function() {
+            var input = document.getElementById('mbId');
+            var autocompleteList = document.getElementById('autocomplete-list');
+            var debounceTimer;
+
+            // Context path 가져오기
+            var contextPath = /*[[@{/}]]*/ '/';
+            var searchUrl = contextPath + 'mgmt/config/auth/search-members';
+
+            if (!input || !autocompleteList) {
+                console.error('Input or autocomplete list not found');
+                return;
+            }
+
+            console.log('Autocomplete initialized for mbId');
+            console.log('Context path:', contextPath);
+            console.log('Search URL:', searchUrl);
+
+            input.addEventListener('input', function() {
+                var query = this.value.trim();
+                console.log('Input changed:', query);
+
+                clearTimeout(debounceTimer);
+
+                if (query.length < 1) {
+                    autocompleteList.innerHTML = '';
+                    return;
+                }
+
+                debounceTimer = setTimeout(function() {
+                    console.log('Fetching:', searchUrl + '?query=' + encodeURIComponent(query));
+
+                    fetch(searchUrl + '?query=' + encodeURIComponent(query))
+                        .then(response => {
+                            console.log('Response status:', response.status);
+                            console.log('Response OK:', response.ok);
+                            if (!response.ok) {
+                                throw new Error('HTTP error! status: ' + response.status);
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Data received:', data);
+                            autocompleteList.innerHTML = '';
+
+                            if (data.length === 0) {
+                                autocompleteList.innerHTML = '<div class="autocomplete-item" style="color:#999;">검색 결과가 없습니다.</div>';
+                                return;
+                            }
+
+                            data.forEach(function(member) {
+                                var div = document.createElement('div');
+                                div.className = 'autocomplete-item';
+
+                                // 아이콘 (회원 이름 첫 글자)
+                                var initial = member.name ? member.name.charAt(0).toUpperCase() :
+                                             member.nick ? member.nick.charAt(0).toUpperCase() :
+                                             member.id.charAt(0).toUpperCase();
+
+                                var iconDiv = document.createElement('div');
+                                iconDiv.className = 'autocomplete-item-icon';
+                                iconDiv.textContent = initial;
+
+                                var textSpan = document.createElement('span');
+                                textSpan.innerHTML = '<strong>' + member.id + '</strong>' +
+                                                    (member.nick ? '<small>' + member.nick + '</small>' : '') +
+                                                    (member.name ? '<small>(' + member.name + ')</small>' : '');
+
+                                div.appendChild(iconDiv);
+                                div.appendChild(textSpan);
+
+                                div.addEventListener('click', function() {
+                                    input.value = member.id;
+                                    autocompleteList.innerHTML = '';
+                                });
+
+                                autocompleteList.appendChild(div);
+                            });
+                        })
+                        .catch(error => {
+                            console.error('Fetch error:', error);
+                            autocompleteList.innerHTML = '<div class="autocomplete-item" style="color:red;">오류가 발생했습니다: ' + error.message + '</div>';
+                        });
+                }, 300);
+            });
+
+            // 외부 클릭 시 자동완성 닫기
+            document.addEventListener('click', function(e) {
+                if (e.target !== input) {
+                    autocompleteList.innerHTML = '';
+                }
+            });
+        })();
+        </script>
     </div>
 </body>
 

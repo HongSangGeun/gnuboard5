@@ -72,7 +72,7 @@
         </div>
     </form>
 
-    <script th:inline="javascript">
+    <script th:inline="javascript" th:attr="nonce=${cspNonce}">
         function check_all(f) {
             var chk = f.querySelectorAll("input[name='chk[]']");
             for (var i = 0; i < chk.length; i++) {

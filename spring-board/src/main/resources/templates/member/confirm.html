@@ -1,73 +1,62 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
+    <title>비밀번호 확인</title>
     <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
-    <title>회원 비밀번호 확인</title>
-    <link rel="stylesheet" th:href="@{/css/default.css}">
-    <link rel="stylesheet" th:href="@{/skin/member/basic/style.css}">
+    <link rel="stylesheet" th:href="@{/css/login.css}">
 </head>
-<body>
-<div th:replace="~{fragments/nav :: nav}"></div>
-<div id="wrapper">
-    <div id="container_wr">
-        <div id="container">
-            <h1 id="container_title" th:text="${pageTitle} ?: '회원 비밀번호 확인'">회원 비밀번호 확인</h1>
 
-            <div id="mb_confirm" class="mbskin confirm-skin">
-                <div class="confirm-card">
-                    <div class="confirm-header">
-                        <img class="confirm-logo" th:src="@{/img/logo_gn.svg}" alt="경남 스마트시티 관리포털">
-                        <h1 class="confirm-title" th:text="${pageTitle} ?: '회원 비밀번호 확인'">회원 비밀번호 확인</h1>
-                        <p class="confirm-desc">
-                            <strong>비밀번호를 한 번 더 입력해 주세요.</strong><br>
-                            회원님의 정보를 안전하게 보호하기 위해 비밀번호를 재확인합니다.
-                        </p>
+<body class="login-body">
+    <div class="login-shell">
+        <section class="login-card">
+            <header class="login-head">
+                <a th:href="@{/}">
+                    <img class="login-logo" th:src="@{/img/logo_gn.svg}" alt="경남 스마트시티 관리포털">
+                </a>
+                <h1 class="login-title">비밀번호 확인</h1>
+                <p class="login-subtitle">
+                    회원님의 정보를 안전하게 보호하기 위해<br>비밀번호를 한 번 더 입력해 주세요.
+                </p>
+            </header>
+
+            <p th:if="${error}" class="login-error" th:text="${error}">오류 메시지</p>
+
+            <form class="login-form" th:action="@{/member/confirm}" method="post" th:object="${form}">
+                <input type="hidden" name="_csrf" th:value="${csrfToken}">
+                <input type="hidden" th:field="*{url}">
+
+                <div class="login-field">
+                    <label class="login-label">아이디</label>
+                    <div class="login-input-wrap">
+                        <i class="login-icon fa fa-user-o" aria-hidden="true"></i>
+                        <input class="login-input" type="text" th:value="${loginUser.id}" readonly
+                            style="background-color: #f9fafb; color: #666; cursor: default;" aria-label="아이디 (읽기 전용)">
                     </div>
-
-                    <form name="fmemberconfirm" th:action="@{/member/confirm}" method="post" autocomplete="off" th:object="${form}">
-                        <input type="hidden" th:field="*{url}">
-                        <div class="confirm-body">
-                            <div class="form-row id-row">
-                                <label>회원아이디</label>
-                                <div class="id-box" th:text="${loginUser != null ? loginUser.id : ''}"></div>
-                            </div>
-
-                            <div class="form-row">
-                                <label for="confirm_mb_password">비밀번호 <span class="req">*</span></label>
-                                <input type="password"
-                                       id="confirm_mb_password"
-                                       th:field="*{password}"
-                                       class="frm_input"
-                                       required
-                                       maxlength="50"
-                                       placeholder="비밀번호를 입력하세요"
-                                       autocomplete="current-password">
-                            </div>
-                            <div th:if="${error}" th:text="${error}" class="error" style="color:red; margin-top: 8px;"></div>
-                        </div>
-
-                        <div class="confirm-actions">
-                            <button type="submit" id="btn_submit" class="btn btn-primary">확인</button>
-                            <a href="javascript:history.back();" class="btn btn-ghost">취소</a>
-                        </div>
-                    </form>
                 </div>
-            </div>
 
-        </div>
+                <div class="login-field">
+                    <label class="login-label" for="confirm_mb_password">비밀번호</label>
+                    <div class="login-input-wrap">
+                        <i class="login-icon fa fa-lock" aria-hidden="true"></i>
+                        <input class="login-input" type="password" th:field="*{password}" id="confirm_mb_password"
+                            placeholder="비밀번호" required autocomplete="current-password">
+                    </div>
+                </div>
+
+                <button class="login-submit" type="submit">확인</button>
+
+                <div class="login-links" style="margin-top: 20px;">
+                    <a href="#" onclick="history.back(); return false;"
+                        style="color:#64748b; text-decoration:none; font-weight:normal;">취소</a>
+                </div>
+                <div class="login-links" style="margin-top:8px;">
+                    <a th:href="@{/}" style="color:#999; font-weight:normal;">메인으로 돌아가기</a>
+                </div>
+            </form>
+        </section>
     </div>
-</div>
-<div th:replace="~{fragments/nav :: nav_end}"></div>
-<script>
-    (function () {
-        var btn = document.getElementById('btn_submit');
-        var form = document.forms.fmemberconfirm;
-        if (!form) return;
-        form.addEventListener('submit', function () {
-            if (btn) btn.disabled = true;
-        });
-    })();
-</script>
 </body>
+
 </html>

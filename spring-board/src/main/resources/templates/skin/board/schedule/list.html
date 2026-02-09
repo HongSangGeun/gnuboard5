@@ -1,103 +1,174 @@
 <!DOCTYPE html>
 <html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
     <link rel="stylesheet" th:href="@{/css/default.css}">
     <link rel="stylesheet" th:href="@{/css/index.css}">
     <title th:text="${board.boSubject} + ' - 일정'">일정</title>
-    <link rel="stylesheet" th:href="@{/skin/board/schedule/wzappend.css}">
-    <link rel="stylesheet" th:href="@{/skin/board/schedule/style.css}">
+
 </head>
+
 <body>
-<div th:replace="~{fragments/nav :: nav}"></div>
-<div id="wrapper">
-    <div id="container_wr">
-        <div id="container">
-            <h1 id="container_title" th:text="${pageTitle} ?: (board != null ? board.boSubject : '게시판')">게시판</h1>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <div id="wrapper">
+        <div id="container_wr">
+            <div id="container">
+                <h1 id="container_title" th:text="${pageTitle} ?: (board != null ? board.boSubject : '게시판')">게시판</h1>
 
-            <script th:src="@{/skin/board/schedule/wz.js/jquery.min.js}"></script>
-            <script th:src="@{/skin/board/schedule/wz.js/fullcalendar.js}"></script>
-            <script th:src="@{/skin/board/schedule/wz.js/ko.js}"></script>
+                <!-- FullCalendar v6 CDN -->
+                <script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+                <script
+                    src="https://cdn.jsdelivr.net/npm/@fullcalendar/google-calendar@6.1.15/index.global.min.js"></script>
 
-            <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header"></div>
-                    <div class="card-body">
-                        <div id="calendar"></div>
+                <div class="latest-card calendar-card" data-id="calendar" style="width:100%; max-width:100%;">
+                    <div class="card">
+                        <div class="card-header"> </div>
+                        <div class="card-body">
+                            <div id="calendar"></div>
+
+                            <div class="calendar-legend">
+                                <div class="legend-categories">
+                                    <span class="legend-item" data-category="" style="background:#999;">전체</span>
+                                    <span th:each="cat : ${#strings.arraySplit(board.boCategoryList, '|')}" class="legend-item"
+                                        th:attr="data-category=${cat}" th:text="${cat}">분류</span>
+                                    <span class="legend-item" data-category="__private__" style="background:#9333EA;">
+                                        <i class="fa fa-lock"></i> 개인일정
+                                    </span>
+                                </div>
+                                <div class="legend-actions">
+                                    <a th:if="${(loginUser != null && loginUser.level >= board.boWriteLevel) || (loginUser == null && board.boWriteLevel <= 1)}"
+                                        th:href="@{'/bbs/' + ${boTable} + '/write'}" class="btn-add-event">+ 일정 등록</a>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="calendar-legend" th:if="${board.boUseCategory == 1}">
-                <div class="legend-left">
-                    <span class="legend-item" data-category="" style="background:#999;"></span> 전체
-                    <span th:each="cat : ${#strings.arraySplit(board.boCategoryList, '|')}"
-                          class="legend-item"
-                          th:attr="data-category=${cat}"
-                          th:text="${cat}">분류</span>
-                </div>
-                <div class="legend-right">
-                    <a th:if="${(loginUser != null && loginUser.level >= board.boWriteLevel) || (loginUser == null && board.boWriteLevel <= 1)}"
-                       th:href="@{'/bbs/' + ${boTable} + '/write'}" class="btn-add-event">+ 일정 등록하기</a>
-                </div>
-            </div>
+                <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+                    document.addEventListener('DOMContentLoaded', function () {
+                        var calendarEl = document.getElementById('calendar');
+                        if (!calendarEl || typeof FullCalendar === 'undefined') return;
 
-            <script th:inline="javascript">
-                document.addEventListener('DOMContentLoaded', function () {
-                    if (!window.jQuery || !jQuery.fn.fullCalendar) {
-                        return;
-                    }
-        var boTable = /*[[${boTable}]]*/ '';
-        var appBase = /*[[@{/}]]*/ '/';
-        appBase = appBase.replace(/\/?$/, '/');
-        var categories = /*[[${board.boUseCategory == 1 ? #strings.arraySplit(board.boCategoryList, '|') : null}]]*/ null;
-                    var palette = ['#FF6B6B', '#4ECDC4', '#4A90E2', '#A29BFE', '#FEFB9B', '#7C7C7C', '#1d69b5'];
-                    var categoryColors = {};
-                    if (categories) {
-                        categories.forEach(function (cat, idx) {
-                            categoryColors[cat] = palette[idx % palette.length];
+                        var boTable = /*[[${boTable}]]*/ '';
+                        var appBase = /*[[@{/}]]*/ '/';
+                        appBase = appBase.replace(/\/?$/, '/');
+                        var eventsUrl = appBase + 'bbs/' + boTable + '/events';
+                        var writeUrl = appBase + 'bbs/' + boTable + '/write';
+
+                        var currentCategory = null;
+                        var calendar = new FullCalendar.Calendar(calendarEl, {
+                            initialView: 'dayGridMonth',
+                            locale: 'ko',
+                            slotMinTime: '07:00:00',
+                            slotMaxTime: '20:30:00',
+                            expandRows: false,
+                            contentHeight: 'auto',
+                            googleCalendarApiKey: 'AIzaSyBDLbVPdJoidVskOO7iA7oeaQ5mm5QL7Qk',
+                            height: 600,
+                            headerToolbar: {
+                                left: 'prev,today,next',
+                                center: 'title',
+                                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+                            },
+                            navLinks: false,
+                            eventSources: [
+                                {
+                                    url: eventsUrl,
+                                    color: '#3788d8',
+                                    textColor: '#fff'
+                                },
+                                {
+                                    googleCalendarId: 'ko.south_korea#holiday@group.v.calendar.google.com',
+                                    color: '#FF5C5C',
+                                    textColor: '#fff',
+                                    className: 'holiday-event',
+                                    display: 'list-item',
+                                    eventDataTransform: function (ev) {
+                                        delete ev.url;
+                                        return ev;
+                                    }
+                                }
+                            ],
+                            dateClick: function (info) {
+                                var yyyymmdd = info.dateStr.replace(/-/g, '');
+                                window.location.href = writeUrl + '?wr_1=' + yyyymmdd + '&wr_2=' + yyyymmdd;
+                            },
+                            eventClick: function (info) {
+                                if (info.event.url) {
+                                    window.location.href = info.event.url;
+                                    info.jsEvent.preventDefault();
+                                }
+                            },
+                            eventDidMount: function (info) {
+                                var cat = info.event.extendedProps.category || '';
+                                var isPrivate = info.event.extendedProps.isPrivate || false;
+                                info.el.setAttribute('data-category', cat);
+                                info.el.setAttribute('title', info.event.title || '');
+
+                                if (info.event.extendedProps.commentCount && info.event.extendedProps.commentCount > 0) {
+                                    var icon = document.createElement('span');
+                                    icon.innerHTML = '<i class="fa fa-comment"></i> ' + info.event.extendedProps.commentCount;
+                                    icon.style.marginLeft = '4px';
+                                    var titleEl = info.el.querySelector('.fc-event-title');
+                                    if (titleEl) {
+                                        titleEl.appendChild(icon);
+                                    }
+                                }
+
+                                if (isPrivate) {
+                                    var lockIcon = document.createElement('span');
+                                    lockIcon.innerHTML = '<i class="fa fa-lock"></i>';
+                                    lockIcon.style.marginLeft = '4px';
+                                    lockIcon.style.opacity = '0.7';
+                                    var titleEl = info.el.querySelector('.fc-event-title');
+                                    if (titleEl) {
+                                        titleEl.appendChild(lockIcon);
+                                    }
+                                }
+
+                                // Apply custom color if present
+                                if (info.event.extendedProps.color) {
+                                    info.el.style.backgroundColor = info.event.extendedProps.color;
+                                    info.el.style.borderColor = info.event.extendedProps.color;
+                                }
+
+                                // Filter logic
+                                if (currentCategory) {
+                                    if (currentCategory === '__private__') {
+                                        // Show only private events
+                                        if (!isPrivate) {
+                                            info.el.style.display = 'none';
+                                        }
+                                    } else {
+                                        // Show only events matching the category
+                                        if (cat !== currentCategory) {
+                                            info.el.style.display = 'none';
+                                        }
+                                    }
+                                }
+                            }
                         });
-                    }
-                    var currentCategory = null;
 
-                    function colorFor(cat) {
-                        return (cat && categoryColors[cat]) ? categoryColors[cat] : '#3788d8';
-                    }
+                        calendar.render();
 
-                    var $calendar = jQuery('#calendar');
-                    $calendar.fullCalendar({
-            locale: 'ko',
-            height: 600,
-            header: { left: 'prev,next today', center: 'title', right: 'month,agendaWeek,agendaDay' },
-            events: appBase + 'bbs/' + boTable + '/events',
-            dayClick: function (date) {
-                var ymd = date.format('YYYY-MM-DD');
-                window.location.href = appBase + 'bbs/' + boTable + '/write?wr_1=' + ymd + '&wr_2=' + ymd + '&allday=1';
-            },
-                        eventClick: function (event) {
-                            if (event.url) {
-                                window.location.href = event.url;
-                                return false;
-                            }
-                            return true;
-                        },
-                        eventRender: function (event, element) {
-                            if (currentCategory && event.category !== currentCategory) {
-                                return false;
-                            }
-                            var color = event.color || colorFor(event.category);
-                            element.css('background-color', color);
-                            element.css('border-color', color);
-                            if (event.commentCount && event.commentCount > 0) {
-                                element.find('.fc-title').append(' <span class="cnt_cmt">' + event.commentCount + '</span>');
-                            }
-                            return true;
+                        // Legend filtering
+                        var legendItems = document.querySelectorAll('.calendar-legend .legend-item');
+                        var palette = ['#FF6B6B', '#4ECDC4', '#4A90E2', '#A29BFE', '#FEFB9B', '#7C7C7C', '#1d69b5'];
+                        var categoryColors = {};
+                        var categories = /*[[${board.boUseCategory == 1 ? #strings.arraySplit(board.boCategoryList, '|') : null}]]*/ null;
+
+                        if (categories) {
+                            categories.forEach(function (cat, idx) {
+                                categoryColors[cat] = palette[idx % palette.length];
+                            });
                         }
-                    });
 
-                    var legendItems = document.querySelectorAll('.calendar-legend .legend-item');
-                    if (legendItems.length) {
+                        function colorFor(cat) {
+                            return (cat && categoryColors[cat]) ? categoryColors[cat] : '#999';
+                        }
+
                         legendItems.forEach(function (el) {
                             var cat = el.getAttribute('data-category');
                             if (cat) {
@@ -106,45 +177,194 @@
                                     el.style.color = '#000';
                                 }
                             }
+
                             el.addEventListener('click', function () {
+                                legendItems.forEach(function(item) {
+                                    item.classList.remove('active');
+                                });
+                                el.classList.add('active');
                                 currentCategory = cat || null;
-                                $calendar.fullCalendar('refetchEvents');
+                                calendar.refetchEvents();
                             });
                         });
-                    }
-                });
-            </script>
 
-            <form method="get" th:action="@{'/bbs/' + ${boTable} + '/list'}" style="margin: 12px 0;">
-                <input type="hidden" name="page" value="1" />
-                <input type="hidden" name="size" th:value="${result.size}" />
-                <span th:if="${board.boUseCategory == 1}">
-                    <select name="sca">
-                        <option value="">전체 분류</option>
-                        <option th:each="cat : ${#strings.arraySplit(board.boCategoryList, '|')}"
-                                th:value="${cat}"
-                                th:selected="${sca == cat}"
-                                th:text="${cat}">분류</option>
+                        // 캘린더 자동 갱신 (1분마다)
+                        setInterval(function() {
+                            calendar.refetchEvents();
+                            console.log('Calendar events refreshed');
+                        }, 60000); // 60초 = 1분
+                    });
+                </script>
+
+                <style>
+                    .schedule-search-form {
+                        margin: 20px 0;
+                        padding: 20px;
+                        background: #f8f9fa;
+                        border-radius: 8px;
+                        border: 1px solid #dee2e6;
+                    }
+                    .schedule-search-form select,
+                    .schedule-search-form input[type="text"],
+                    .schedule-search-form input[type="date"] {
+                        padding: 8px 12px;
+                        border: 1px solid #ced4da;
+                        border-radius: 4px;
+                        margin-right: 8px;
+                        font-size: 14px;
+                    }
+                    .schedule-search-form select {
+                        min-width: 120px;
+                    }
+                    .schedule-search-form input[type="text"] {
+                        min-width: 200px;
+                    }
+                    .schedule-search-form input[type="date"] {
+                        min-width: 140px;
+                    }
+                    .schedule-search-form button[type="submit"] {
+                        padding: 8px 20px;
+                        background: #4256e9;
+                        color: white;
+                        border: none;
+                        border-radius: 4px;
+                        cursor: pointer;
+                        font-size: 14px;
+                        font-weight: 600;
+                        transition: background 0.2s;
+                    }
+                    .schedule-search-form button[type="submit"]:hover {
+                        background: #3245d8;
+                    }
+                    @media (max-width: 768px) {
+                        .schedule-search-form {
+                            padding: 15px;
+                        }
+                        .schedule-search-form select,
+                        .schedule-search-form input[type="text"],
+                        .schedule-search-form input[type="date"],
+                        .schedule-search-form button[type="submit"] {
+                            display: block;
+                            width: 100%;
+                            margin-right: 0;
+                            margin-bottom: 10px;
+                        }
+                    }
+
+                    /* 캘린더 범례 스타일 */
+                    .calendar-legend {
+                        margin-top: 20px;
+                        margin-left: 37px;
+                        margin-right: 37px;
+                        padding: 16px 20px;
+                        background: #f8f9fa;
+                        border-radius: 4px;
+                        border: 1px solid #dee2e6;
+                    }
+                    .legend-categories {
+                        display: flex;
+                        flex-wrap: wrap;
+                        gap: 10px;
+                        margin-bottom: 12px;
+                    }
+                    .legend-item {
+                        display: inline-flex;
+                        align-items: center;
+                        padding: 6px 14px;
+                        border-radius: 20px;
+                        font-size: 13px;
+                        font-weight: 600;
+                        color: white;
+                        cursor: pointer;
+                        transition: all 0.2s;
+                        opacity: 0.85;
+                    }
+                    .legend-item:hover {
+                        opacity: 1;
+                        transform: translateY(-1px);
+                        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+                    }
+                    .legend-item.active {
+                        opacity: 1;
+                        box-shadow: 0 0 0 2px white, 0 0 0 4px currentColor;
+                    }
+                    .legend-actions {
+                        display: flex;
+                        justify-content: flex-end;
+                    }
+                    .btn-add-event {
+                        display: inline-flex;
+                        align-items: center;
+                        padding: 8px 16px;
+                        background: #4256e9;
+                        color: white;
+                        text-decoration: none;
+                        border-radius: 6px;
+                        font-size: 14px;
+                        font-weight: 600;
+                        transition: all 0.2s;
+                    }
+                    .btn-add-event:hover {
+                        background: #3245d8;
+                        transform: translateY(-1px);
+                        box-shadow: 0 2px 8px rgba(66, 86, 233, 0.3);
+                    }
+                    @media (max-width: 768px) {
+                        .calendar-legend {
+                            padding: 12px 16px;
+                        }
+                        .legend-categories {
+                            gap: 8px;
+                            margin-bottom: 10px;
+                        }
+                        .legend-item {
+                            font-size: 12px;
+                            padding: 5px 12px;
+                        }
+                        .legend-actions {
+                            justify-content: center;
+                        }
+                        .btn-add-event {
+                            width: 100%;
+                            justify-content: center;
+                        }
+                    }
+                </style>
+                <form method="get" th:action="@{'/bbs/' + ${boTable} + '/list'}" class="schedule-search-form">
+                    <input type="hidden" name="page" value="1" />
+                    <input type="hidden" name="size" th:value="${result.size}" />
+                    <span th:if="${board.boUseCategory == 1}">
+                        <select name="sca">
+                            <option value="">전체 분류</option>
+                            <option th:each="cat : ${#strings.arraySplit(board.boCategoryList, '|')}" th:value="${cat}"
+                                th:selected="${sca == cat}" th:text="${cat}">분류</option>
+                        </select>
+                    </span>
+                    <select name="sfl">
+                        <option value="wr_subject,1" th:selected="${sfl == 'wr_subject' || sfl == 'wr_subject,1'}">제목</option>
+                        <option value="wr_content,1" th:selected="${sfl == 'wr_content' || sfl == 'wr_content,1'}">내용</option>
+                        <option value="wr_subject||wr_content,1" th:selected="${sfl == 'wr_subject||wr_content' || sfl == 'wr_subject||wr_content,1'}">제목+내용
+                        </option>
+                        <option value="wr_subject||wr_content||bf_ocr_text,1" th:selected="${sfl == 'wr_subject||wr_content||bf_ocr_text' || sfl == 'wr_subject||wr_content||bf_ocr_text,1'}">제목+내용+이미지
+                        </option>
+                        <option value="bf_ocr_text,1" th:selected="${sfl == 'bf_ocr_text' || sfl == 'bf_ocr_text,1'}">이미지</option>
+                        <option th:if="${loginUser != null && loginUser.level >= 10}" value="mb_id,1"
+                            th:selected="${sfl == 'mb_id,1'}">회원아이디</option>
+                        <option th:if="${loginUser != null && loginUser.level >= 10}" value="mb_id,0"
+                            th:selected="${sfl == 'mb_id,0'}">회원아이디(코)</option>
+                        <option value="wr_name,1" th:selected="${sfl == 'wr_name,1'}">글쓴이</option>
+                        <option value="wr_name,0" th:selected="${sfl == 'wr_name,0'}">글쓴이(코)</option>
                     </select>
-                </span>
-                <select name="sfl">
-                    <option value="wr_subject" th:selected="${sfl == 'wr_subject'}">제목</option>
-                    <option value="wr_content" th:selected="${sfl == 'wr_content'}">내용</option>
-                    <option value="wr_subject||wr_content" th:selected="${sfl == 'wr_subject||wr_content'}">제목+내용</option>
-                    <option th:if="${loginUser != null && loginUser.level >= 10}" value="mb_id,1" th:selected="${sfl == 'mb_id,1'}">회원아이디</option>
-                    <option th:if="${loginUser != null && loginUser.level >= 10}" value="mb_id,0" th:selected="${sfl == 'mb_id,0'}">회원아이디(코)</option>
-                    <option value="wr_name,1" th:selected="${sfl == 'wr_name,1'}">글쓴이</option>
-                    <option value="wr_name,0" th:selected="${sfl == 'wr_name,0'}">글쓴이(코)</option>
-                </select>
-                <input type="text" name="stx" th:value="${stx}" placeholder="검색어" />
-                <input type="date" name="sdate" th:value="${sdate}" />
-                <input type="date" name="edate" th:value="${edate}" />
-                <input type="hidden" name="sop" th:value="${sop}" />
-                <button type="submit">검색</button>
-            </form>
+                    <input type="text" name="stx" th:value="${stx}" placeholder="검색어" />
+                    <input type="date" name="sdate" th:value="${sdate}" placeholder="시작일" />
+                    <input type="date" name="edate" th:value="${edate}" placeholder="종료일" />
+                    <input type="hidden" name="sop" th:value="${sop}" />
+                    <button type="submit">검색</button>
+                </form>
+            </div>
         </div>
     </div>
-</div>
-<div th:replace="~{fragments/nav :: nav_end}"></div>
+    <div th:replace="~{fragments/nav :: nav_end}"></div>
 </body>
+
 </html>

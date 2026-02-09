@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>회원메일발송</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <div class="local_desc">
+            <p>선택한 회원에게 메일을 발송합니다.</p>
+            <p>메일 내용에 {이름}, {닉네임}, {회원아이디}, {이메일} 을 입력하면 각 회원의 정보로 치환됩니다.</p>
+        </div>
+
+        <!-- 특정 회원에게 보내기 -->
+        <div th:if="${targetMember != null}">
+            <div class="tbl_head01 tbl_wrap">
+                <table>
+                    <caption>받는 사람</caption>
+                    <thead>
+                        <tr>
+                            <th scope="col">회원아이디</th>
+                            <th scope="col">이름</th>
+                            <th scope="col">닉네임</th>
+                            <th scope="col">이메일</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td th:text="${targetMember.mbId}">회원ID</td>
+                            <td th:text="${targetMember.mbName}">이름</td>
+                            <td th:text="${targetMember.mbNick}">닉네임</td>
+                            <td th:text="${targetMember.mbEmail}">이메일</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <form th:action="@{/mgmt/member/mail}" method="post">
+                <input type="hidden" name="_csrf" th:value="${csrfToken}">
+                <input type="hidden" name="mbIds" th:value="${targetMember.mbId}">
+
+                <div class="tbl_frm01 tbl_wrap">
+                    <table>
+                        <caption>메일 작성</caption>
+                        <colgroup>
+                            <col class="grid_4">
+                            <col>
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th scope="row"><label for="subject">제목 <strong class="sound_only">필수</strong></label></th>
+                                <td>
+                                    <input type="text" name="subject" id="subject" required class="required frm_input" style="width:100%;">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="content">내용 <strong class="sound_only">필수</strong></label></th>
+                                <td>
+                                    <textarea name="content" id="content" required class="required" style="width:100%; height:400px;"></textarea>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="btn_fixed_top">
+                    <button type="submit" class="btn btn_submit">메일 발송</button>
+                    <a th:href="@{/mgmt/member}" class="btn btn_02">목록</a>
+                </div>
+            </form>
+        </div>
+
+        <!-- 여러 회원 선택해서 보내기 -->
+        <div th:if="${targetMember == null}">
+            <form id="fmembermail" name="fmembermail" th:action="@{/mgmt/member/mail}" method="post">
+                <input type="hidden" name="_csrf" th:value="${csrfToken}">
+
+                <div class="local_ov01 local_ov">
+                    <span class="btn_ov01">
+                        <span class="ov_txt">메일수신동의 회원수 </span>
+                        <span class="ov_num" th:text="${#numbers.formatInteger(totalCount, 0, 'COMMA')} + '명'">0명</span>
+                    </span>
+                </div>
+
+                <div class="tbl_head01 tbl_wrap">
+                    <table>
+                        <caption>회원 목록</caption>
+                        <thead>
+                            <tr>
+                                <th scope="col">
+                                    <label for="chkall" class="sound_only">회원 전체선택</label>
+                                    <input type="checkbox" name="chkall" id="chkall" onclick="checkAll(this.form)">
+                                </th>
+                                <th scope="col">회원아이디</th>
+                                <th scope="col">이름</th>
+                                <th scope="col">닉네임</th>
+                                <th scope="col">이메일</th>
+                                <th scope="col">메일수신</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${#lists.isEmpty(members)}">
+                                <td colspan="6" class="empty_table">메일 수신 동의한 회원이 없습니다.</td>
+                            </tr>
+                            <tr th:each="member : ${members}">
+                                <td>
+                                    <input type="checkbox" name="mbIds" th:value="${member.mbId}" th:id="'chk_' + ${member.mbId}">
+                                </td>
+                                <td th:text="${member.mbId}">회원ID</td>
+                                <td th:text="${member.mbName}">이름</td>
+                                <td th:text="${member.mbNick}">닉네임</td>
+                                <td th:text="${member.mbEmail}">이메일</td>
+                                <td>
+                                    <span th:if="${member.mbMailling == 1}" class="txt_true">동의</span>
+                                    <span th:unless="${member.mbMailling == 1}" class="txt_false">거부</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="tbl_frm01 tbl_wrap" style="margin-top: 30px;">
+                    <table>
+                        <caption>메일 작성</caption>
+                        <colgroup>
+                            <col class="grid_4">
+                            <col>
+                        </colgroup>
+                        <tbody>
+                            <tr>
+                                <th scope="row"><label for="subject">제목 <strong class="sound_only">필수</strong></label></th>
+                                <td>
+                                    <input type="text" name="subject" id="subject" required class="required frm_input" style="width:100%;">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row"><label for="content">내용 <strong class="sound_only">필수</strong></label></th>
+                                <td>
+                                    <textarea name="content" id="content" required class="required" style="width:100%; height:400px;"></textarea>
+                                    <div class="frm_info">
+                                        사용 가능한 변수: {이름}, {닉네임}, {회원아이디}, {이메일}
+                                    </div>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="btn_fixed_top">
+                    <button type="submit" class="btn btn_submit" onclick="return validateForm()">선택한 회원에게 메일 발송</button>
+                    <a th:href="@{/mgmt/member}" class="btn btn_02">목록</a>
+                </div>
+            </form>
+        </div>
+
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+            function checkAll(form) {
+                const chkall = form.chkall;
+                const checkboxes = form.querySelectorAll('input[name="mbIds"]');
+                checkboxes.forEach(cb => {
+                    cb.checked = chkall.checked;
+                });
+            }
+
+            function validateForm() {
+                const form = document.getElementById('fmembermail');
+                const checked = form.querySelectorAll('input[name="mbIds"]:checked');
+
+                if (checked.length === 0) {
+                    alert('메일을 받을 회원을 하나 이상 선택하세요.');
+                    return false;
+                }
+
+                const subject = form.subject.value.trim();
+                const content = form.content.value.trim();
+
+                if (!subject) {
+                    alert('메일 제목을 입력하세요.');
+                    form.subject.focus();
+                    return false;
+                }
+
+                if (!content) {
+                    alert('메일 내용을 입력하세요.');
+                    form.content.focus();
+                    return false;
+                }
+
+                if (!confirm(checked.length + '명의 회원에게 메일을 발송하시겠습니까?')) {
+                    return false;
+                }
+
+                return true;
+            }
+        </script>
+
+    </div>
+</body>
+
+</html>

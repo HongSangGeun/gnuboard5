@@ -19,6 +19,11 @@
                 <div class="latest-card mypost-card" data-id="my-posts">
                     <div class="card">
                         <div class="card-header"></div>
+                        <div class="card-actions">
+                            <button class="collapse-btn"></button>
+                            <button class="hide-btn" title="카드 숨기기"></button>
+                        </div>
+                        <div class="collapsed-title">내가 작성한 글</div>
                         <div class="card-body">
                             <div class="lat">
                                 <h3 class="lat_title">
@@ -53,6 +58,11 @@
                 <div class="latest-card" th:each="card : ${cards}" th:attr="data-id=${card.board.boTable}">
                     <div class="card">
                         <div class="card-header"></div>
+                        <div class="card-actions">
+                            <button class="collapse-btn"></button>
+                            <button class="hide-btn" title="카드 숨기기"></button>
+                        </div>
+                        <div class="collapsed-title" th:text="${card.board.boSubject}">게시판</div>
                         <div class="card-body">
                             <div class="lat">
                                 <h3 class="lat_title">
@@ -92,27 +102,64 @@
                 <div class="latest-card calendar-card" data-id="calendar" th:if="${scheduleBoard != null}">
                     <div class="card">
                         <div class="card-header"> </div>
-                        <button class="collapse-btn"></button>
+                        <div class="card-actions">
+                            <button class="collapse-btn"></button>
+                            <button class="hide-btn" title="카드 숨기기"></button>
+                        </div>
+                        <div class="collapsed-title">일정 캘린더</div>
                         <div class="card-body">
                             <div id="calendar"></div>
+
+                            <div class="calendar-legend">
+                                <div class="legend-categories">
+                                    <span class="legend-item" data-category="" style="background:#999;">전체</span>
+                                    <span class="legend-item" th:each="cat : ${scheduleCategories}"
+                                          th:attr="data-category=${cat}"
+                                          th:text="${cat}">분류</span>
+                                    <span class="legend-item" data-category="__private__" style="background:#9333EA;">
+                                        <i class="fa fa-lock"></i> 개인일정
+                                    </span>
+                                </div>
+                                <div class="legend-actions">
+                                    <a th:href="@{'/bbs/' + ${scheduleBoard.boTable} + '/write'}" class="btn-add-event">+ 일정 등록</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                </div>
 
-                    <div class="calendar-legend">
-                        <div class="legend-left">
-                            <span class="legend-item" data-category="" style="background:#999;"></span> 전체
-                            <span class="legend-item" th:each="cat : ${scheduleCategories}"
-                                  th:attr="data-category=${cat}"
-                                  th:text="${cat}">분류</span>
+                <!-- 모니터링 차트 카드 -->
+                <div class="latest-card monitoring-card" data-id="monitoring" th:if="${hasMonitoring}">
+                    <div class="card">
+                        <div class="card-header"></div>
+                        <div class="card-actions">
+                            <button class="collapse-btn"></button>
+                            <button class="hide-btn" title="카드 숨기기"></button>
                         </div>
-                        <div class="legend-right">
-                            <a th:href="@{'/bbs/' + ${scheduleBoard.boTable} + '/write'}" class="btn-add-event">+ 일정 등록하기</a>
+                        <div class="collapsed-title">시스템 모니터링</div>
+                        <div class="card-body">
+                            <div class="lat">
+                                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+                                    <h3 class="lat_title" style="margin:0;">
+                                        <a th:href="@{/mgmt/monitoring}">시스템 모니터링</a>
+                                    </h3>
+                                    <select id="monitoringServiceSelector" class="monitoring-selector">
+                                        <option value="">서비스 선택...</option>
+                                    </select>
+                                </div>
+                                <div id="homeMonitoringCharts" style="min-height:200px;">
+                                    <p style="text-align:center;padding:20px;color:#64748b;">
+                                        <i class="fa fa-spinner fa-spin"></i> 로딩 중...
+                                    </p>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="latest-card restore-card" data-id="restore">
                     <div class="card">
+                        <div class="card-header"></div>
                         <div class="card-body restore-flex">
                             <div class="restore-left">
                                 <button id="showRestoreList" class="restore-btn">숨겨진 카드 복원</button>
@@ -141,7 +188,7 @@
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 <script th:src="@{/js/index_card.js}"></script>
 
-<script th:inline="javascript">
+<script th:inline="javascript" th:attr="nonce=${cspNonce}">
     document.addEventListener('DOMContentLoaded', function () {
         var calendarEl = document.getElementById('calendar');
         if (!calendarEl || typeof FullCalendar === 'undefined') return;
@@ -194,8 +241,10 @@
             },
             eventDidMount: function (info) {
                 var cat = info.event.extendedProps.category || '';
+                var isPrivate = info.event.extendedProps.isPrivate || false;
                 info.el.setAttribute('data-category', cat);
                 info.el.setAttribute('title', info.event.title || '');
+
                 if (info.event.extendedProps.commentCount > 0) {
                     var icon = document.createElement('span');
                     icon.innerHTML = '<i class="fa fa-comment"></i> ' + info.event.extendedProps.commentCount;
@@ -205,21 +254,767 @@
                         titleEl.appendChild(icon);
                     }
                 }
-                if (currentCategory && cat !== currentCategory) {
-                    info.el.style.display = 'none';
+
+                if (isPrivate) {
+                    var lockIcon = document.createElement('span');
+                    lockIcon.innerHTML = '<i class="fa fa-lock"></i>';
+                    lockIcon.style.marginLeft = '4px';
+                    lockIcon.style.opacity = '0.7';
+                    var titleEl = info.el.querySelector('.fc-event-title');
+                    if (titleEl) {
+                        titleEl.appendChild(lockIcon);
+                    }
+                }
+
+                // Apply custom color if present
+                if (info.event.extendedProps.color) {
+                    info.el.style.backgroundColor = info.event.extendedProps.color;
+                    info.el.style.borderColor = info.event.extendedProps.color;
+                }
+
+                // Filter logic
+                if (currentCategory) {
+                    if (currentCategory === '__private__') {
+                        // Show only private events
+                        if (!isPrivate) {
+                            info.el.style.display = 'none';
+                        }
+                    } else {
+                        // Show only events matching the category
+                        if (cat !== currentCategory) {
+                            info.el.style.display = 'none';
+                        }
+                    }
                 }
             }
         });
 
         calendar.render();
 
-        document.querySelectorAll('.calendar-legend .legend-item').forEach(function (el) {
+        // Legend filtering
+        var legendItems = document.querySelectorAll('.calendar-legend .legend-item');
+        var palette = ['#FF6B6B', '#4ECDC4', '#4A90E2', '#A29BFE', '#FEFB9B', '#7C7C7C', '#1d69b5'];
+        var categoryColors = {};
+        var categories = /*[[${scheduleCategories}]]*/ null;
+
+        if (categories) {
+            categories.forEach(function (cat, idx) {
+                categoryColors[cat] = palette[idx % palette.length];
+            });
+        }
+
+        function colorFor(cat) {
+            return (cat && categoryColors[cat]) ? categoryColors[cat] : '#999';
+        }
+
+        legendItems.forEach(function (el) {
+            var cat = el.getAttribute('data-category');
+            if (cat) {
+                el.style.background = colorFor(cat);
+                if (colorFor(cat) === '#FEFB9B') {
+                    el.style.color = '#000';
+                }
+            }
+
             el.addEventListener('click', function () {
-                currentCategory = el.dataset.category || null;
+                legendItems.forEach(function(item) {
+                    item.classList.remove('active');
+                });
+                el.classList.add('active');
+                currentCategory = cat || null;
                 calendar.refetchEvents();
             });
         });
+
+        // 캘린더 자동 갱신 (1분마다)
+        setInterval(function() {
+            calendar.refetchEvents();
+            console.log('Calendar events refreshed');
+        }, 60000); // 60초 = 1분
     });
+
+    // 모니터링 차트 로드
+    /*[# th:if="${hasMonitoring}" ]*/
+    (function() {
+        let allServices = [];
+        let currentChart = null;
+
+        function loadHomeMonitoringChart() {
+            console.log('Loading home monitoring chart...');
+
+            fetch('/datahub/board/api/monitoring/chart-data')
+                .then(response => {
+                    console.log('Response status:', response.status);
+                    if (!response.ok) {
+                        throw new Error('HTTP ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Monitoring data:', data);
+
+                    if (data.success && data.services && data.services.length > 0) {
+                        console.log('Found', data.services.length, 'services');
+                        allServices = data.services;
+                        populateServiceSelector(data.services);
+
+                        // localStorage에서 저장된 선택 불러오기
+                        const savedServiceId = localStorage.getItem('selectedMonitoringServiceId');
+                        let selectedService = null;
+
+                        if (savedServiceId) {
+                            selectedService = data.services.find(s => s.id == savedServiceId);
+                            console.log('Restored saved service:', savedServiceId, selectedService);
+                        }
+
+                        // 저장된 서비스가 없거나 찾을 수 없으면 첫 번째 서비스
+                        if (!selectedService) {
+                            selectedService = data.services[0];
+                            console.log('Using first service:', selectedService.name);
+                        }
+
+                        // 셀렉터에 선택 표시
+                        const selector = document.getElementById('monitoringServiceSelector');
+                        if (selector) {
+                            selector.value = selectedService.id;
+                        }
+
+                        renderHomeMonitoringChart(selectedService);
+                    } else {
+                        console.warn('No services data:', data);
+                        document.getElementById('homeMonitoringCharts').innerHTML =
+                            '<p style="text-align:center;padding:20px;color:#94a3b8;">모니터링 데이터가 없습니다.</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Monitoring chart error:', error);
+                    document.getElementById('homeMonitoringCharts').innerHTML =
+                        '<p style="text-align:center;padding:20px;color:#ef4444;">데이터 로드 실패: ' + error.message + '</p>';
+                });
+        }
+
+        function populateServiceSelector(services) {
+            console.log('Populating service selector with', services.length, 'services');
+            const selector = document.getElementById('monitoringServiceSelector');
+
+            if (!selector) {
+                console.error('Service selector not found!');
+                return;
+            }
+
+            console.log('Selector found:', selector);
+
+            // 기존 옵션 제거 (첫 번째 "서비스 선택..." 제외)
+            while (selector.options.length > 1) {
+                selector.remove(1);
+            }
+
+            // 서비스 옵션 추가
+            services.forEach((service, index) => {
+                console.log('Adding service option:', index, service.name, service.id);
+                const option = document.createElement('option');
+                option.value = service.id;
+                option.textContent = service.name;
+                selector.appendChild(option);
+            });
+
+            console.log('Total options after populate:', selector.options.length);
+
+            // 선택 이벤트 핸들러 (중복 등록 방지)
+            selector.removeEventListener('change', handleServiceChange);
+            selector.addEventListener('change', handleServiceChange);
+        }
+
+        function handleServiceChange(event) {
+            const serviceId = event.target.value;
+            console.log('Service changed to:', serviceId);
+
+            if (!serviceId) return;
+
+            // localStorage에 선택 저장
+            localStorage.setItem('selectedMonitoringServiceId', serviceId);
+
+            // 선택한 서비스 찾기
+            const selectedService = allServices.find(s => s.id == serviceId);
+            if (selectedService) {
+                console.log('Rendering chart for:', selectedService.name);
+                renderHomeMonitoringChart(selectedService);
+            } else {
+                console.error('Service not found:', serviceId);
+            }
+        }
+
+        function renderHomeMonitoringChart(service) {
+            const container = document.getElementById('homeMonitoringCharts');
+            container.innerHTML = `
+                <div class="home-monitoring-header">
+                    <div class="service-url" style="font-size:11px;color:#64748b;margin-bottom:8px;">${service.url}</div>
+                    <div class="service-stats">
+                        <span class="stat-badge ${service.upRate >= 95 ? 'success' : service.upRate >= 80 ? 'warning' : 'danger'}">
+                            <i class="fa fa-check-circle"></i> 가동률 ${service.upRate}%
+                        </span>
+                        <span class="stat-badge">
+                            <i class="fa fa-clock-o"></i> 평균 ${service.avgResponseTime}ms
+                        </span>
+                    </div>
+                </div>
+                <canvas id="homeMonitoringCanvas" style="max-height:180px;margin-top:15px;"></canvas>
+                <div class="home-monitoring-footer">
+                    <span><i class="fa fa-history"></i> 최근 ${service.totalChecks}회 체크</span>
+                    <a href="/datahub/board/monitoring/history/${service.id}" class="more-link">상세보기 →</a>
+                </div>
+            `;
+
+            // 기존 차트 제거
+            if (currentChart) {
+                currentChart.destroy();
+                currentChart = null;
+            }
+
+            // Chart.js 로드 확인
+            if (typeof Chart === 'undefined') {
+                const script = document.createElement('script');
+                script.src = 'https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js';
+                script.onload = function() {
+                    createHomeMonitoringChart(service);
+                };
+                document.head.appendChild(script);
+            } else {
+                createHomeMonitoringChart(service);
+            }
+        }
+
+        function createHomeMonitoringChart(service) {
+            const ctx = document.getElementById('homeMonitoringCanvas');
+            if (!ctx) return;
+
+            currentChart = new Chart(ctx.getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: service.labels,
+                    datasets: [{
+                        label: '응답시간 (ms)',
+                        data: service.responseTimes,
+                        borderColor: '#3b82f6',
+                        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                        tension: 0.3,
+                        fill: true,
+                        yAxisID: 'y'
+                    }, {
+                        label: 'CPU 사용량 (%)',
+                        data: service.cpuUsages,
+                        borderColor: '#f59e0b',
+                        backgroundColor: 'rgba(245, 158, 11, 0.1)',
+                        tension: 0.3,
+                        fill: true,
+                        yAxisID: 'y1'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'bottom',
+                            labels: {
+                                font: { size: 11 },
+                                padding: 10,
+                                usePointStyle: true
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            display: true,
+                            grid: { display: false },
+                            ticks: { font: { size: 10 }, maxTicksLimit: 8 }
+                        },
+                        y: {
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
+                            title: { display: true, text: '응답시간 (ms)', font: { size: 11 }, color: '#3b82f6' },
+                            ticks: { font: { size: 10 }, color: '#3b82f6' }
+                        },
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
+                            title: { display: true, text: 'CPU (%)', font: { size: 11 }, color: '#f59e0b' },
+                            ticks: { font: { size: 10 }, color: '#f59e0b' },
+                            grid: { drawOnChartArea: false },
+                            min: 0,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        // 페이지 로드 시 실행
+        const monitoringContainer = document.getElementById('homeMonitoringCharts');
+        console.log('Monitoring container:', monitoringContainer);
+
+        if (monitoringContainer) {
+            console.log('Starting monitoring chart load');
+            loadHomeMonitoringChart();
+
+            // 5분마다 자동 새로고침
+            setInterval(function() {
+                console.log('Auto-refreshing monitoring chart...');
+                loadHomeMonitoringChart();
+            }, 5 * 60 * 1000);
+        } else {
+            console.warn('Monitoring container not found - monitoring card may be hidden');
+        }
+    })();
+    /*[/]*/
+</script>
+
+<style>
+    .monitoring-selector {
+        padding: 6px 12px;
+        font-size: 13px;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        background: #fff;
+        color: #1e293b;
+        cursor: pointer;
+        outline: none;
+        transition: border-color 0.2s;
+    }
+
+    .monitoring-selector:hover {
+        border-color: #3b82f6;
+    }
+
+    .monitoring-selector:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+
+    .home-monitoring-header {
+        margin-bottom: 10px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .service-url {
+        font-size: 11px;
+        color: #64748b;
+        margin-bottom: 8px;
+        word-break: break-all;
+    }
+
+    .service-stats {
+        display: flex;
+        gap: 8px;
+    }
+
+    .stat-badge {
+        padding: 4px 10px;
+        font-size: 12px;
+        font-weight: 500;
+        border-radius: 12px;
+        background: #f1f5f9;
+        color: #64748b;
+    }
+
+    .stat-badge.success {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .stat-badge.warning {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .stat-badge.danger {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .home-monitoring-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: 15px;
+        padding-top: 10px;
+        border-top: 1px solid #f1f5f9;
+        font-size: 12px;
+        color: #64748b;
+    }
+
+    .more-link {
+        color: #3b82f6;
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .more-link:hover {
+        text-decoration: underline;
+    }
+
+    .monitoring-card .card {
+        min-height: 300px;
+    }
+
+    /* 캘린더 범례 스타일 */
+    .calendar-legend {
+        margin-top: 20px;
+        margin-left: 37px;
+        margin-right: 37px;
+        padding: 16px 20px;
+        background: #f8f9fa;
+        border-radius: 4px;
+        border: 1px solid #dee2e6;
+    }
+    .legend-categories {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        margin-bottom: 12px;
+    }
+    .legend-item {
+        display: inline-flex;
+        align-items: center;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 13px;
+        font-weight: 600;
+        color: white;
+        cursor: pointer;
+        transition: all 0.2s;
+        opacity: 0.85;
+    }
+    .legend-item:hover {
+        opacity: 1;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+    }
+    .legend-item.active {
+        opacity: 1;
+        box-shadow: 0 0 0 2px white, 0 0 0 4px currentColor;
+    }
+    .legend-actions {
+        display: flex;
+        justify-content: flex-end;
+    }
+    .btn-add-event {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 16px;
+        background: #4256e9;
+        color: white;
+        text-decoration: none;
+        border-radius: 6px;
+        font-size: 14px;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    .btn-add-event:hover {
+        background: #3245d8;
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(66, 86, 233, 0.3);
+    }
+    @media (max-width: 768px) {
+        .calendar-legend {
+            padding: 12px 16px;
+        }
+        .legend-categories {
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+        .legend-item {
+            font-size: 12px;
+            padding: 5px 12px;
+        }
+        .legend-actions {
+            justify-content: center;
+        }
+        .btn-add-event {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    /* 새 글 애니메이션 */
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .new-post-item {
+        animation: slideIn 0.3s ease-out;
+        background: #fffbea;
+        transition: background 2s ease;
+    }
+
+    .new-post-item.fade-in {
+        background: transparent;
+    }
+</style>
+
+<script th:inline="javascript" th:attr="nonce=${cspNonce}">
+// 최신글 자동 갱신 기능
+(function() {
+    const AUTO_REFRESH_INTERVAL = 30000; // 30초
+    const latestPostIds = new Map(); // 각 게시판의 최신 글 ID 저장
+
+    console.log('=== Auto Refresh Script Loaded ===');
+
+    // 초기 최신 글 ID 수집
+    function initializeLatestPosts() {
+        console.log('Initializing latest posts...');
+        let boardCount = 0;
+
+        document.querySelectorAll('.latest-card[data-id]').forEach(card => {
+            const boardId = card.getAttribute('data-id');
+            console.log('Found card:', boardId);
+
+            if (boardId === 'calendar' || boardId === 'monitoring' || boardId === 'restore' || boardId === 'my-posts') {
+                console.log('Skipping special card:', boardId);
+                return; // 캘린더, 모니터링, 복원, 내 글은 제외
+            }
+
+            const firstPost = card.querySelector('.basic_li a[href*="/view/"]');
+            if (firstPost) {
+                const href = firstPost.getAttribute('href');
+                const wrIdMatch = href.match(/\/view\/(\d+)/);
+                if (wrIdMatch) {
+                    const wrId = parseInt(wrIdMatch[1]);
+                    latestPostIds.set(boardId, wrId);
+                    boardCount++;
+                    console.log(`Board ${boardId}: Latest post ID = ${wrId}`);
+                } else {
+                    console.log(`Board ${boardId}: No wrId match in href: ${href}`);
+                }
+            } else {
+                console.log(`Board ${boardId}: No posts found`);
+            }
+        });
+
+        console.log(`Initialized ${boardCount} boards for auto-refresh`);
+        console.log('Latest post IDs:', Array.from(latestPostIds.entries()));
+    }
+
+    // 새 글 확인 및 추가
+    async function checkAndAddNewPosts() {
+        for (const [boardId, lastWrId] of latestPostIds.entries()) {
+            try {
+                const contextPath = /*[[@{/}]]*/ '/';
+                const apiUrl = contextPath + `bbs/${boardId}/api/latest?since=${lastWrId}`;
+                console.log('Checking new posts:', apiUrl);
+
+                const response = await fetch(apiUrl, {
+                    headers: {
+                        'Accept': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const newPosts = await response.json();
+                    console.log('New posts received:', newPosts.length);
+                    if (newPosts && newPosts.length > 0) {
+                        addNewPostsToCard(boardId, newPosts);
+                        // 최신 글 ID 업데이트
+                        latestPostIds.set(boardId, newPosts[0].wrId);
+                    }
+                } else {
+                    console.error('API response error:', response.status);
+                }
+            } catch (error) {
+                console.error(`Failed to check new posts for ${boardId}:`, error);
+            }
+        }
+    }
+
+    // 카드에 새 글 추가
+    function addNewPostsToCard(boardId, posts) {
+        const card = document.querySelector(`.latest-card[data-id="${boardId}"]`);
+        if (!card) return;
+
+        const ul = card.querySelector('ul');
+        if (!ul) return;
+
+        // 빈 목록 메시지 제거
+        const emptyLi = ul.querySelector('.empty_li');
+        if (emptyLi) {
+            emptyLi.remove();
+        }
+
+        posts.forEach(post => {
+            const li = createPostElement(boardId, post);
+            ul.insertBefore(li, ul.firstChild);
+
+            // 애니메이션 효과
+            setTimeout(() => {
+                li.classList.add('fade-in');
+            }, 2000);
+        });
+
+        // 최대 표시 개수 유지 (10개)
+        const items = ul.querySelectorAll('.basic_li');
+        if (items.length > 10) {
+            for (let i = 10; i < items.length; i++) {
+                items[i].remove();
+            }
+        }
+    }
+
+    // 게시글 요소 생성
+    function createPostElement(boardId, post) {
+        const li = document.createElement('li');
+        li.className = 'basic_li new-post-item';
+
+        const ltTitle = document.createElement('div');
+        ltTitle.className = 'lt_title';
+
+        const ltRow = document.createElement('div');
+        ltRow.className = 'lt_row';
+
+        const ltLeft = document.createElement('div');
+        ltLeft.className = 'lt_left';
+
+        // 비밀글 아이콘
+        if (post.wrOption && post.wrOption.includes('secret')) {
+            const lockIcon = document.createElement('i');
+            lockIcon.className = 'fa fa-lock';
+            lockIcon.setAttribute('aria-hidden', 'true');
+            ltLeft.appendChild(lockIcon);
+        }
+
+        // 제목 링크
+        const titleLink = document.createElement('a');
+        titleLink.href = `/bbs/${boardId}/view/${post.wrId}`;
+        titleLink.textContent = post.wrSubject;
+        ltLeft.appendChild(titleLink);
+
+        // 새글 아이콘
+        const newIcon = document.createElement('span');
+        newIcon.className = 'new_icon';
+        newIcon.innerHTML = '<span class="sound_only">새글</span>';
+        ltLeft.appendChild(newIcon);
+
+        // 첨부파일 아이콘
+        if (post.wrFile > 0) {
+            const fileIcon = document.createElement('i');
+            fileIcon.className = 'fa fa-download';
+            fileIcon.setAttribute('aria-hidden', 'true');
+            ltLeft.appendChild(fileIcon);
+        }
+
+        // 댓글 수
+        if (post.wrComment > 0) {
+            const commentSpan = document.createElement('span');
+            commentSpan.className = 'lt_cmt';
+            commentSpan.textContent = post.wrComment;
+            ltLeft.appendChild(commentSpan);
+        }
+
+        ltRow.appendChild(ltLeft);
+
+        // 작성자 및 날짜
+        const ltInfo = document.createElement('div');
+        ltInfo.className = 'lt_info';
+
+        const nameSpan = document.createElement('span');
+        nameSpan.className = 'lt_name';
+        nameSpan.textContent = post.wrName;
+        ltInfo.appendChild(nameSpan);
+
+        const dateSpan = document.createElement('span');
+        dateSpan.className = 'lt_date';
+        dateSpan.textContent = post.wrDatetime ? post.wrDatetime.substring(5, 10) : '';
+        ltInfo.appendChild(dateSpan);
+
+        ltRow.appendChild(ltInfo);
+        ltTitle.appendChild(ltRow);
+        li.appendChild(ltTitle);
+
+        return li;
+    }
+
+    // 초기화 및 시작
+    initializeLatestPosts();
+
+    if (latestPostIds.size > 0) {
+        console.log(`Starting auto-refresh for ${latestPostIds.size} boards (interval: ${AUTO_REFRESH_INTERVAL}ms)`);
+        setInterval(checkAndAddNewPosts, AUTO_REFRESH_INTERVAL);
+
+        // 10초 후 첫 테스트 실행
+        setTimeout(function() {
+            console.log('Running first test check...');
+            checkAndAddNewPosts();
+        }, 10000);
+    } else {
+        console.warn('No boards to monitor - auto-refresh disabled');
+    }
+})();
+
+// 카드 접기/펼치기 기능
+(function() {
+    console.log('Initializing collapse buttons...');
+
+    // DOM이 완전히 로드된 후 실행
+    function initCollapseButtons() {
+        const collapseButtons = document.querySelectorAll('.collapse-btn');
+        console.log('Found', collapseButtons.length, 'collapse buttons');
+
+        collapseButtons.forEach(function(btn, index) {
+            // 기존 이벤트 리스너 제거 (중복 방지)
+            btn.replaceWith(btn.cloneNode(true));
+        });
+
+        // 새로 생성된 버튼들에 이벤트 리스너 추가
+        document.querySelectorAll('.collapse-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // 버튼의 부모 카드 찾기
+                const card = btn.closest('.latest-card');
+                if (card) {
+                    const isCollapsed = card.classList.contains('collapsed');
+                    card.classList.toggle('collapsed');
+                    console.log('Card toggled:', isCollapsed ? 'expanded' : 'collapsed');
+                }
+            });
+        });
+
+        // 숨기기 버튼 이벤트 리스너
+        document.querySelectorAll('.hide-btn').forEach(function(btn) {
+            btn.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+
+                // 버튼의 부모 카드 찾기
+                const card = btn.closest('.latest-card');
+                if (card) {
+                    // 더블클릭과 동일한 동작 (카드 숨기기)
+                    const dblClickEvent = new Event('dblclick', { bubbles: true });
+                    card.dispatchEvent(dblClickEvent);
+                    console.log('Card hidden via hide button');
+                }
+            });
+        });
+    }
+
+    // 페이지 로드 후 실행
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initCollapseButtons);
+    } else {
+        initCollapseButtons();
+    }
+})();
 </script>
 </body>
 </html>

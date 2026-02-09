@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>SMS 테스트 발송</title>
+</head>
+
+<body>
+    <div layout:fragment="content">
+
+        <div class="local_desc">
+            <p>SMS 발송 기능을 테스트합니다.</p>
+            <p>실제 문자가 발송되므로 주의해주세요.</p>
+        </div>
+
+        <div th:if="${message}" class="local_desc">
+            <p th:class="${success ? 'success' : 'error'}" th:text="${message}"></p>
+        </div>
+
+        <form th:action="@{/mgmt/sms/test}" method="post">
+            <input type="hidden" name="_csrf" th:value="${csrfToken}">
+
+            <div class="tbl_frm01 tbl_wrap">
+                <table>
+                    <caption>SMS 테스트 발송</caption>
+                    <colgroup>
+                        <col class="grid_4">
+                        <col>
+                    </colgroup>
+                    <tbody>
+                        <tr>
+                            <th scope="row">발신번호</th>
+                            <td>
+                                <input type="text" name="fromNumber" th:value="${fromNumber}"
+                                       class="frm_input" style="width:300px;" readonly>
+                                <span class="frm_info">SMS 환경설정에서 설정한 발신번호입니다</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="to_number">수신번호 <strong class="sound_only">필수</strong></label></th>
+                            <td>
+                                <input type="text" name="toNumber" id="to_number"
+                                       required class="required frm_input" style="width:300px;"
+                                       placeholder="예: 010-1234-5678">
+                                <span class="frm_info">하이픈(-)을 포함하여 입력하세요</span>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row"><label for="message">메시지 내용 <strong class="sound_only">필수</strong></label></th>
+                            <td>
+                                <textarea name="message" id="message"
+                                          required class="required"
+                                          style="width:100%; height:150px;"
+                                          placeholder="테스트 메시지를 입력하세요 (최대 90자)"></textarea>
+                                <div class="frm_info">
+                                    <span id="char_count">0</span> / 90자
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">SMS 설정 상태</th>
+                            <td>
+                                <span th:if="${smsEnabled}" class="txt_true">활성화</span>
+                                <span th:unless="${smsEnabled}" class="txt_false">비활성화</span>
+                                <span th:unless="${smsEnabled}" class="frm_info"> - SMS 환경설정에서 활성화해주세요</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="btn_fixed_top">
+                <button type="submit" class="btn btn_submit" th:disabled="${!smsEnabled}">테스트 발송</button>
+                <a th:href="@{/mgmt/sms/config}" class="btn btn_02">환경설정</a>
+                <a th:href="@{/mgmt/sms/history}" class="btn btn_02">발송 이력</a>
+            </div>
+        </form>
+
+        <script th:inline="javascript" th:attr="nonce=${cspNonce}">
+            document.getElementById('message').addEventListener('input', function() {
+                const count = this.value.length;
+                document.getElementById('char_count').textContent = count;
+
+                if (count > 90) {
+                    this.value = this.value.substring(0, 90);
+                    document.getElementById('char_count').textContent = 90;
+                }
+            });
+        </script>
+
+    </div>
+</body>
+
+</html>

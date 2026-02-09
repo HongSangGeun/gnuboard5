@@ -180,7 +180,7 @@
     </div>
 </div>
 <div th:replace="~{fragments/nav :: nav_end}"></div>
-<script>
+<script th:attr="nonce=${cspNonce}">
     (function() {
         var btn = document.querySelector('.btn_bo_sch');
         var wrap = document.querySelector('.bo_sch_wrap');

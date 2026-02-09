@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>외부 서비스 모니터링</title>
+</head>
+
+<body>
+<div layout:fragment="content">
+    <div class="local_desc01 local_desc">
+        <p>외부 서비스의 상태를 모니터링하고 관리합니다.</p>
+    </div>
+
+    <div class="local_ov01 local_ov">
+        <a th:href="@{/mgmt/monitoring/create}" class="btn btn_01">서비스 등록</a>
+    </div>
+
+    <div class="tbl_head01 tbl_wrap">
+        <table>
+            <caption>외부 서비스 목록</caption>
+            <thead>
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">서비스명</th>
+                <th scope="col">URL</th>
+                <th scope="col">상태</th>
+                <th scope="col">체크주기</th>
+                <th scope="col">활성화</th>
+                <th scope="col">알림</th>
+                <th scope="col">관리</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="service : ${services}">
+                <td th:text="${service.msId}">1</td>
+                <td>
+                    <strong th:text="${service.msName}">서비스명</strong>
+                    <div th:if="${service.msDescription}" style="font-size:12px;color:#777;margin-top:4px;"
+                         th:text="${service.msDescription}">설명</div>
+                </td>
+                <td>
+                    <div style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"
+                         th:text="${service.msUrl}" th:title="${service.msUrl}">URL</div>
+                    <div style="font-size:11px;color:#999;margin-top:2px;">
+                        <span th:text="${service.msMethod}">GET</span>
+                        <span th:if="${service.msAuthType != null and service.msAuthType != 'NONE'}">
+                            | 🔒 <span th:text="${service.msAuthType}">AUTH</span>
+                        </span>
+                        | 타임아웃: <span th:text="${service.msTimeout}">5000</span>ms
+                    </div>
+                </td>
+                <td>
+                    <button type="button" class="btn btn_02 check-service"
+                            th:attr="data-id=${service.msId}">상태확인</button>
+                    <div class="status-result" th:id="'status-' + ${service.msId}"
+                         style="margin-top:4px;font-size:12px;"></div>
+                </td>
+                <td th:text="${service.msCheckInterval} + '초'">60초</td>
+                <td>
+                    <span th:if="${service.msEnabled}" style="color:#22c55e;">✓ 활성</span>
+                    <span th:unless="${service.msEnabled}" style="color:#94a3b8;">✗ 비활성</span>
+                </td>
+                <td>
+                    <span th:if="${service.msAlertEnabled}" style="color:#3b82f6;">✓ ON</span>
+                    <span th:unless="${service.msAlertEnabled}" style="color:#94a3b8;">✗ OFF</span>
+                </td>
+                <td>
+                    <a th:href="@{'/mgmt/monitoring/edit/' + ${service.msId}}" class="btn btn_03">수정</a>
+                    <a th:href="@{'/mgmt/monitoring/history/' + ${service.msId}}" class="btn btn_03">이력</a>
+                    <form th:action="@{'/mgmt/monitoring/delete/' + ${service.msId}}" method="post"
+                          style="display:inline;" onsubmit="return confirm('정말 삭제하시겠습니까?');">
+                        <button type="submit" class="btn btn_02">삭제</button>
+                    </form>
+                </td>
+            </tr>
+            <tr th:if="${#lists.isEmpty(services)}">
+                <td colspan="8" class="empty_table">등록된 서비스가 없습니다.</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script th:attr="nonce=${cspNonce}">
+        // CSRF 토큰 가져오기
+        function getCsrfToken() {
+            if (typeof window.APP_CSRF_TOKEN === "string") {
+                return window.APP_CSRF_TOKEN;
+            }
+            var metaTag = document.querySelector('meta[name="_csrf"]');
+            return metaTag ? metaTag.getAttribute('content') : '';
+        }
+
+        document.querySelectorAll('.check-service').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var serviceId = this.getAttribute('data-id');
+                var statusDiv = document.getElementById('status-' + serviceId);
+                statusDiv.innerHTML = '<span style="color:#3b82f6;">확인중...</span>';
+
+                var csrfToken = getCsrfToken();
+                var headers = {
+                    'Content-Type': 'application/json'
+                };
+
+                // CSRF 토큰이 있으면 헤더에 추가
+                if (csrfToken) {
+                    headers['X-CSRF-TOKEN'] = csrfToken;
+                }
+
+                fetch('/datahub/board/mgmt/monitoring/check/' + serviceId, {
+                    method: 'POST',
+                    headers: headers
+                })
+                .then(response => {
+                    // HTTP 상태 코드 확인
+                    if (!response.ok) {
+                        return response.text().then(text => {
+                            throw new Error('HTTP ' + response.status + ': ' + text);
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    var color = data.healthy ? '#22c55e' : '#ef4444';
+                    var status = data.status || 'ERROR';
+                    var msg = '<span style="color:' + color + ';">' + status + '</span>';
+
+                    if (data.responseTime) {
+                        msg += ' (' + data.responseTime + ')';
+                    }
+                    if (data.error) {
+                        msg += '<br><span style="color:#ef4444;font-size:11px;">' + data.error + '</span>';
+                    }
+
+                    statusDiv.innerHTML = msg;
+                })
+                .catch(error => {
+                    var errorMsg = error.message || error.toString();
+                    statusDiv.innerHTML = '<span style="color:#ef4444;">체크 실패</span>' +
+                        '<br><span style="color:#ef4444;font-size:11px;">' + errorMsg + '</span>';
+                    console.error('Error:', error);
+                });
+            });
+        });
+    </script>
+
+    <style>
+        .empty_table {
+            text-align: center;
+            padding: 40px;
+            color: #94a3b8;
+        }
+
+        .check-service {
+            cursor: pointer;
+            min-width: 80px;
+        }
+
+        .status-result {
+            min-height: 20px;
+        }
+    </style>
+</div>
+</body>
+</html>

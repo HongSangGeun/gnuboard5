@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{admin/layout/layout}">
+
+<head>
+    <title>시스템 헬스 모니터링</title>
+</head>
+
+<body>
+<div layout:fragment="content">
+    <div class="local_desc01 local_desc">
+        <p>시스템 상태를 실시간으로 모니터링합니다.</p>
+    </div>
+
+    <div class="health-dashboard">
+        <!-- 전체 시스템 상태 -->
+        <div class="health-card system-status">
+            <h3><i class="fa fa-heartbeat"></i> 시스템 상태</h3>
+            <div class="status-badge" id="systemStatus">
+                <span class="status-indicator"></span>
+                <span class="status-text">확인중...</span>
+            </div>
+            <div class="last-update">마지막 업데이트: <span id="lastUpdate">-</span></div>
+        </div>
+
+        <!-- 데이터베이스 상태 -->
+        <div class="health-card">
+            <h3><i class="fa fa-database"></i> 데이터베이스</h3>
+            <div id="databaseHealth">
+                <div class="loading">로딩중...</div>
+            </div>
+        </div>
+
+        <!-- 외부 API 상태 -->
+        <div class="health-card">
+            <h3><i class="fa fa-cloud"></i> 외부 API</h3>
+            <div id="externalApiHealth">
+                <div class="loading">로딩중...</div>
+            </div>
+        </div>
+
+        <!-- 시스템 리소스 -->
+        <div class="health-card">
+            <h3><i class="fa fa-server"></i> 시스템 리소스</h3>
+            <div id="systemResources">
+                <div class="loading">로딩중...</div>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .health-dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .health-card {
+            background: #fff;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .health-card h3 {
+            margin: 0 0 16px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .health-card h3 .fa {
+            color: #3b82f6;
+        }
+
+        .system-status {
+            grid-column: 1 / -1;
+            text-align: center;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            padding: 16px 32px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            margin: 16px 0;
+        }
+
+        .status-indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .status-badge.up {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-badge.up .status-indicator {
+            background: #22c55e;
+        }
+
+        .status-badge.down {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status-badge.down .status-indicator {
+            background: #ef4444;
+        }
+
+        .status-badge.warning {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .status-badge.warning .status-indicator {
+            background: #f59e0b;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .last-update {
+            color: #64748b;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+
+        .health-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .health-item:last-child {
+            border-bottom: none;
+        }
+
+        .health-label {
+            color: #64748b;
+            font-size: 14px;
+        }
+
+        .health-value {
+            font-weight: 600;
+            color: #1e293b;
+            font-size: 14px;
+        }
+
+        .health-value.success {
+            color: #22c55e;
+        }
+
+        .health-value.error {
+            color: #ef4444;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #f1f5f9;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #3b82f6;
+            transition: width 0.3s;
+        }
+
+        .progress-fill.warning {
+            background: #f59e0b;
+        }
+
+        .progress-fill.danger {
+            background: #ef4444;
+        }
+
+        .loading {
+            text-align: center;
+            color: #94a3b8;
+            padding: 20px;
+        }
+
+        .error-message {
+            color: #ef4444;
+            font-size: 13px;
+            padding: 8px 12px;
+            background: #fef2f2;
+            border-radius: 6px;
+            margin-top: 8px;
+        }
+    </style>
+
+    <script th:attr="nonce=${cspNonce}">
+        (function() {
+            function updateHealthInfo() {
+                fetch('/datahub/board/mgmt/health/api')
+                    .then(response => response.json())
+                    .then(data => {
+                        updateSystemStatus(data.system);
+                        updateDatabaseHealth(data.database);
+                        updateExternalApiHealth(); // 독립적으로 외부 API 상태 조회
+                        updateSystemResources(data.resources);
+                        updateLastUpdate();
+                    })
+                    .catch(error => {
+                        console.error('Health check error:', error);
+                        document.getElementById('systemStatus').innerHTML =
+                            '<span class="status-indicator"></span><span class="status-text">오류</span>';
+                        document.getElementById('systemStatus').className = 'status-badge down';
+                    });
+            }
+
+            function updateSystemStatus(system) {
+                const statusBadge = document.getElementById('systemStatus');
+                const status = system.status.toLowerCase();
+
+                statusBadge.className = 'status-badge ' + status;
+                statusBadge.innerHTML =
+                    '<span class="status-indicator"></span>' +
+                    '<span class="status-text">' + (status === 'up' ? '정상' : '비정상') + '</span>';
+            }
+
+            function updateDatabaseHealth(db) {
+                const container = document.getElementById('databaseHealth');
+                const status = db.status;
+
+                let html = '<div class="health-item">';
+                html += '<span class="health-label">상태</span>';
+                html += '<span class="health-value ' + (status === 'UP' ? 'success' : 'error') + '">';
+                html += status === 'UP' ? '정상' : '비정상';
+                html += '</span></div>';
+
+                if (db.responseTime) {
+                    html += '<div class="health-item">';
+                    html += '<span class="health-label">응답시간</span>';
+                    html += '<span class="health-value">' + db.responseTime + '</span>';
+                    html += '</div>';
+                }
+
+                if (db.database) {
+                    html += '<div class="health-item">';
+                    html += '<span class="health-label">데이터베이스</span>';
+                    html += '<span class="health-value">' + db.database + '</span>';
+                    html += '</div>';
+                }
+
+                if (db.error) {
+                    html += '<div class="error-message">' + db.error + '</div>';
+                }
+
+                container.innerHTML = html;
+            }
+
+            function updateExternalApiHealth(components) {
+                const container = document.getElementById('externalApiHealth');
+
+                // 실제 외부 서비스 모니터링 데이터 가져오기
+                fetch('/datahub/board/mgmt/monitoring/api/status')
+                    .then(response => response.json())
+                    .then(data => {
+                        let html = '';
+
+                        if (!data || Object.keys(data).length === 0) {
+                            html = '<div class="health-item"><span class="health-label">설정된 외부 서비스가 없습니다</span></div>';
+                        } else {
+                            for (const [name, info] of Object.entries(data)) {
+                                html += '<div class="health-item">';
+                                html += '<span class="health-label">' + name + '</span>';
+                                html += '<span class="health-value ' + (info.healthy ? 'success' : 'error') + '">';
+                                html += info.status || 'ERROR';
+                                if (info.responseTime) html += ' (' + info.responseTime + ')';
+                                html += '</span></div>';
+
+                                if (info.error) {
+                                    html += '<div class="error-message" style="margin-left: 0; font-size: 11px;">' + info.error + '</div>';
+                                }
+                            }
+                        }
+
+                        container.innerHTML = html;
+                    })
+                    .catch(error => {
+                        console.error('External API health check error:', error);
+                        container.innerHTML = '<div class="error-message">외부 API 상태 확인 실패</div>';
+                    });
+            }
+
+            function updateSystemResources(resources) {
+                const container = document.getElementById('systemResources');
+
+                let html = '<div class="health-item">';
+                html += '<span class="health-label">사용 메모리</span>';
+                html += '<span class="health-value">' + resources.usedMemory + ' / ' + resources.totalMemory + '</span>';
+                html += '</div>';
+
+                const memoryPercent = resources.memoryUsagePercent || 0;
+                html += '<div class="progress-bar">';
+                html += '<div class="progress-fill ' + (memoryPercent > 80 ? 'danger' : memoryPercent > 60 ? 'warning' : '') + '" ';
+                html += 'style="width: ' + memoryPercent + '%"></div>';
+                html += '</div>';
+
+                html += '<div class="health-item">';
+                html += '<span class="health-label">사용 가능한 프로세서</span>';
+                html += '<span class="health-value">' + resources.availableProcessors + ' cores</span>';
+                html += '</div>';
+
+                html += '<div class="health-item">';
+                html += '<span class="health-label">최대 메모리</span>';
+                html += '<span class="health-value">' + resources.maxMemory + '</span>';
+                html += '</div>';
+
+                container.innerHTML = html;
+            }
+
+            function updateLastUpdate() {
+                const now = new Date();
+                const timeStr = now.getHours().toString().padStart(2, '0') + ':' +
+                               now.getMinutes().toString().padStart(2, '0') + ':' +
+                               now.getSeconds().toString().padStart(2, '0');
+                document.getElementById('lastUpdate').textContent = timeStr;
+            }
+
+            // 초기 로드
+            updateHealthInfo();
+
+            // 30초마다 자동 갱신
+            setInterval(updateHealthInfo, 30000);
+        })();
+    </script>
+</div>
+</body>
+</html>

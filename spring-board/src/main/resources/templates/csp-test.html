@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>CSP 테스트 페이지</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .success {
+            color: #22c55e;
+        }
+        .warning {
+            color: #f59e0b;
+        }
+        h1 {
+            color: #1f2937;
+        }
+        h2 {
+            color: #4b5563;
+            font-size: 1.2em;
+            margin-top: 0;
+        }
+        pre {
+            background: #1f2937;
+            color: #f3f4f6;
+            padding: 15px;
+            border-radius: 4px;
+            overflow-x: auto;
+        }
+        .instruction {
+            background: #fef3c7;
+            padding: 15px;
+            border-left: 4px solid #f59e0b;
+            margin: 15px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🛡️ CSP (Content Security Policy) 테스트</h1>
+
+    <div class="instruction">
+        <strong>📌 사용 방법:</strong><br>
+        1. <kbd>F12</kbd> 키를 눌러 개발자 도구를 엽니다<br>
+        2. <strong>Console</strong> 탭을 클릭합니다<br>
+        3. 아래 경고 메시지를 확인합니다
+    </div>
+
+    <div class="test-section">
+        <h2>✅ 테스트 1: 허용된 스크립트</h2>
+        <p class="success">이 스크립트는 정상 실행됩니다 (같은 도메인)</p>
+        <pre>결과: <span id="test1">테스트 중...</span></pre>
+        <script th:attr="nonce=${cspNonce}">
+            document.getElementById('test1').textContent = '✓ 성공! (CSP 통과)';
+        </script>
+    </div>
+
+    <div class="test-section">
+        <h2>⚠️ 테스트 2: 외부 CDN (허용됨)</h2>
+        <p class="success">신뢰할 수 있는 CDN은 허용됩니다</p>
+        <pre>결과: <span id="test2">로딩 중...</span></pre>
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+        <script th:attr="nonce=${cspNonce}">
+            if (typeof jQuery !== 'undefined') {
+                document.getElementById('test2').textContent = '✓ jQuery 로드 성공! (CDN 허용됨)';
+            } else {
+                document.getElementById('test2').textContent = '✗ 실패';
+            }
+        </script>
+    </div>
+
+    <div class="test-section">
+        <h2>🚫 테스트 3: 차단될 스크립트 (Report-Only)</h2>
+        <p class="warning">이 스크립트는 CSP 경고를 발생시킵니다 (현재는 차단되지 않음)</p>
+        <p><small>⚠️ Console에서 경고 메시지를 확인하세요</small></p>
+        <pre>예상 경고:
+[Report Only] Refused to load the script
+'https://evil-example.com/script.js'
+because it violates the CSP directive</pre>
+        <pre>결과: <span id="test3-result">테스트 중...</span></pre>
+        <script th:attr="nonce=${cspNonce}">
+            // 허용되지 않은 도메인에서 스크립트 로드 시도
+            var script = document.createElement('script');
+            script.src = 'https://example.com/nonexistent.js';
+            document.head.appendChild(script);
+            // CSP Report-Only 경고가 발생
+            document.getElementById('test3-result').textContent = '⚠️ Console 탭에서 CSP 경고를 확인하세요';
+        </script>
+    </div>
+
+    <div class="test-section">
+        <h2>📊 현재 CSP 정책</h2>
+        <pre id="csp-policy">로딩 중...</pre>
+        <script th:attr="nonce=${cspNonce}">
+            // 현재 페이지의 CSP 정책 표시
+            var cspMeta = document.querySelector('meta[http-equiv="Content-Security-Policy"]');
+            if (cspMeta) {
+                document.getElementById('csp-policy').textContent = cspMeta.content;
+            } else {
+                document.getElementById('csp-policy').textContent =
+                    'HTTP 헤더로 설정됨 (F12 > Network > 응답 헤더 확인)';
+            }
+        </script>
+    </div>
+
+    <div class="test-section">
+        <h2>🔍 CSP 경고 확인 방법</h2>
+        <ol>
+            <li><strong>브라우저 콘솔:</strong> F12 > Console 탭</li>
+            <li><strong>네트워크 헤더:</strong> F12 > Network > 응답 헤더에서 "Content-Security-Policy-Report-Only" 확인</li>
+            <li><strong>서버 로그:</strong>
+                <pre>docker logs spring-board -f | grep "CSP Violation"</pre>
+            </li>
+        </ol>
+    </div>
+
+    <div class="test-section">
+        <h2>💡 경고 예시</h2>
+        <p>Console에서 다음과 같은 메시지를 볼 수 있습니다:</p>
+        <pre style="color: #f59e0b; background: #fffbeb;">
+[Report Only] Refused to load the script
+'https://example.com/script.js' because it
+violates the following Content Security Policy
+directive: "script-src 'self' 'unsafe-inline'
+https://cdn.jsdelivr.net https://t1.daumcdn.net".</pre>
+    </div>
+
+    <div style="margin-top: 40px; padding: 20px; background: #e0f2fe; border-radius: 8px;">
+        <h3>✅ 정상 작동 확인</h3>
+        <p>만약 Console에 CSP 경고가 <strong>없다면</strong>:</p>
+        <ul>
+            <li>✓ 모든 리소스가 허용된 범위 내에 있습니다</li>
+            <li>✓ CSP가 올바르게 구성되었습니다</li>
+            <li>✓ 실제 차단 모드로 전환해도 안전합니다</li>
+        </ul>
+    </div>
+
+    <div style="margin-top: 20px; text-align: center;">
+        <a href="/datahub/board/" style="display: inline-block; padding: 10px 20px;
+           background: #3b82f6; color: white; text-decoration: none;
+           border-radius: 4px;">← 메인으로 돌아가기</a>
+    </div>
+</body>
+</html>

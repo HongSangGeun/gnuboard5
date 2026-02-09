@@ -37,7 +37,7 @@
 <script th:src="@{/skin/board/schedule/wz.js/jquery.min.js}"></script>
 <script th:src="@{/skin/board/schedule/wz.js/fullcalendar.js}"></script>
 <script th:src="@{/skin/board/schedule/wz.js/ko.js}"></script>
-<script th:inline="javascript">
+<script th:inline="javascript" th:attr="nonce=${cspNonce}">
     document.addEventListener('DOMContentLoaded', function () {
         if (!window.jQuery || !jQuery.fn.fullCalendar) {
             return;
