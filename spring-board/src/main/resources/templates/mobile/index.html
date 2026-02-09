@@ -142,7 +142,11 @@
                 })
                 .catch(error => {
                     console.error('Error loading monitoring data:', error);
-                    monitoringContainer.innerHTML = '<p class="m_monitoring_error">데이터 로드 실패: ' + error.message + '</p>';
+                    monitoringContainer.innerHTML = '';
+                    var errP = document.createElement('p');
+                    errP.className = 'm_monitoring_error';
+                    errP.textContent = '데이터 로드 실패: ' + error.message;
+                    monitoringContainer.appendChild(errP);
                 });
         }
 
@@ -176,33 +180,25 @@
                 ? (service.cpuUsages.reduce((a, b) => a + b, 0) / service.cpuUsages.length).toFixed(1)
                 : 0;
 
-            monitoringContainer.innerHTML = `
-                <div class="m_monitoring_info">
-                    <div class="m_monitoring_stats">
-                        <div class="m_stat">
-                            <span class="m_stat_label">가동률</span>
-                            <span class="m_stat_value" style="color: ${service.upRate >= 95 ? '#22c55e' : service.upRate >= 80 ? '#f59e0b' : '#ef4444'}">
-                                ${service.upRate}%
-                            </span>
-                        </div>
-                        <div class="m_stat">
-                            <span class="m_stat_label">응답시간</span>
-                            <span class="m_stat_value">${service.avgResponseTime}ms</span>
-                        </div>
-                        <div class="m_stat">
-                            <span class="m_stat_label">평균 CPU</span>
-                            <span class="m_stat_value">${avgCpu}%</span>
-                        </div>
-                    </div>
-                </div>
-                <div class="m_chart_container">
-                    <canvas id="mobileMonitoringChart"></canvas>
-                </div>
-                <div class="m_monitoring_footer">
-                    <span><i class="fa fa-history"></i> 최근 ${service.totalChecks}회 체크</span>
-                    <a href="/datahub/board/monitoring/history/${service.id}" class="m_more_link">상세보기 →</a>
-                </div>
-            `;
+            var safeUpRate = parseFloat(service.upRate) || 0;
+            var safeAvgTime = parseInt(service.avgResponseTime) || 0;
+            var safeTotalChecks = parseInt(service.totalChecks) || 0;
+            var safeId = parseInt(service.id) || 0;
+            var rateColor = safeUpRate >= 95 ? '#22c55e' : safeUpRate >= 80 ? '#f59e0b' : '#ef4444';
+
+            monitoringContainer.innerHTML = '<div class="m_monitoring_info"><div class="m_monitoring_stats">'
+                + '<div class="m_stat"><span class="m_stat_label">가동률</span>'
+                + '<span class="m_stat_value" style="color:' + rateColor + '">' + safeUpRate + '%</span></div>'
+                + '<div class="m_stat"><span class="m_stat_label">응답시간</span>'
+                + '<span class="m_stat_value">' + safeAvgTime + 'ms</span></div>'
+                + '<div class="m_stat"><span class="m_stat_label">평균 CPU</span>'
+                + '<span class="m_stat_value">' + avgCpu + '%</span></div>'
+                + '</div></div>'
+                + '<div class="m_chart_container"><canvas id="mobileMonitoringChart"></canvas></div>'
+                + '<div class="m_monitoring_footer">'
+                + '<span><i class="fa fa-history"></i> 최근 ' + safeTotalChecks + '회 체크</span>'
+                + '<a href="/datahub/board/monitoring/history/' + safeId + '" class="m_more_link">상세보기 →</a>'
+                + '</div>';
 
             const canvas = document.getElementById('mobileMonitoringChart');
             const ctx = canvas.getContext('2d');

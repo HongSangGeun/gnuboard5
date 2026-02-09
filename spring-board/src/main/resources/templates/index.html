@@ -247,7 +247,10 @@
 
                 if (info.event.extendedProps.commentCount > 0) {
                     var icon = document.createElement('span');
-                    icon.innerHTML = '<i class="fa fa-comment"></i> ' + info.event.extendedProps.commentCount;
+                    var commentI = document.createElement('i');
+                    commentI.className = 'fa fa-comment';
+                    icon.appendChild(commentI);
+                    icon.appendChild(document.createTextNode(' ' + info.event.extendedProps.commentCount));
                     icon.style.marginLeft = '4px';
                     var titleEl = info.el.querySelector('.fc-event-title');
                     if (titleEl) {
@@ -257,7 +260,9 @@
 
                 if (isPrivate) {
                     var lockIcon = document.createElement('span');
-                    lockIcon.innerHTML = '<i class="fa fa-lock"></i>';
+                    var lockI = document.createElement('i');
+                    lockI.className = 'fa fa-lock';
+                    lockIcon.appendChild(lockI);
                     lockIcon.style.marginLeft = '4px';
                     lockIcon.style.opacity = '0.7';
                     var titleEl = info.el.querySelector('.fc-event-title');
@@ -388,8 +393,12 @@
                 })
                 .catch(error => {
                     console.error('Monitoring chart error:', error);
-                    document.getElementById('homeMonitoringCharts').innerHTML =
-                        '<p style="text-align:center;padding:20px;color:#ef4444;">데이터 로드 실패: ' + error.message + '</p>';
+                    var errEl = document.createElement('p');
+                    errEl.style.cssText = 'text-align:center;padding:20px;color:#ef4444;';
+                    errEl.textContent = '데이터 로드 실패: ' + error.message;
+                    var chartEl = document.getElementById('homeMonitoringCharts');
+                    chartEl.innerHTML = '';
+                    chartEl.appendChild(errEl);
                 });
         }
 
@@ -444,26 +453,36 @@
             }
         }
 
+        function escapeHtml(str) {
+            var div = document.createElement('div');
+            div.appendChild(document.createTextNode(str));
+            return div.innerHTML;
+        }
+
         function renderHomeMonitoringChart(service) {
+            var safeUrl = escapeHtml(String(service.url || ''));
+            var safeUpRate = parseFloat(service.upRate) || 0;
+            var safeAvgTime = parseInt(service.avgResponseTime) || 0;
+            var safeTotalChecks = parseInt(service.totalChecks) || 0;
+            var safeId = parseInt(service.id) || 0;
+            var rateClass = safeUpRate >= 95 ? 'success' : safeUpRate >= 80 ? 'warning' : 'danger';
+
             const container = document.getElementById('homeMonitoringCharts');
-            container.innerHTML = `
-                <div class="home-monitoring-header">
-                    <div class="service-url" style="font-size:11px;color:#64748b;margin-bottom:8px;">${service.url}</div>
-                    <div class="service-stats">
-                        <span class="stat-badge ${service.upRate >= 95 ? 'success' : service.upRate >= 80 ? 'warning' : 'danger'}">
-                            <i class="fa fa-check-circle"></i> 가동률 ${service.upRate}%
-                        </span>
-                        <span class="stat-badge">
-                            <i class="fa fa-clock-o"></i> 평균 ${service.avgResponseTime}ms
-                        </span>
-                    </div>
-                </div>
-                <canvas id="homeMonitoringCanvas" style="max-height:180px;margin-top:15px;"></canvas>
-                <div class="home-monitoring-footer">
-                    <span><i class="fa fa-history"></i> 최근 ${service.totalChecks}회 체크</span>
-                    <a href="/datahub/board/monitoring/history/${service.id}" class="more-link">상세보기 →</a>
-                </div>
-            `;
+            container.innerHTML = '<div class="home-monitoring-header">'
+                + '<div class="service-url" style="font-size:11px;color:#64748b;margin-bottom:8px;"></div>'
+                + '<div class="service-stats">'
+                + '<span class="stat-badge ' + rateClass + '">'
+                + '<i class="fa fa-check-circle"></i> 가동률 ' + safeUpRate + '%'
+                + '</span>'
+                + '<span class="stat-badge">'
+                + '<i class="fa fa-clock-o"></i> 평균 ' + safeAvgTime + 'ms'
+                + '</span></div></div>'
+                + '<canvas id="homeMonitoringCanvas" style="max-height:180px;margin-top:15px;"></canvas>'
+                + '<div class="home-monitoring-footer">'
+                + '<span><i class="fa fa-history"></i> 최근 ' + safeTotalChecks + '회 체크</span>'
+                + '<a href="/datahub/board/monitoring/history/' + safeId + '" class="more-link">상세보기 →</a>'
+                + '</div>';
+            container.querySelector('.service-url').textContent = service.url || '';
 
             // 기존 차트 제거
             if (currentChart) {
@@ -901,7 +920,10 @@
         // 새글 아이콘
         const newIcon = document.createElement('span');
         newIcon.className = 'new_icon';
-        newIcon.innerHTML = '<span class="sound_only">새글</span>';
+        var newSpan = document.createElement('span');
+        newSpan.className = 'sound_only';
+        newSpan.textContent = '새글';
+        newIcon.appendChild(newSpan);
         ltLeft.appendChild(newIcon);
 
         // 첨부파일 아이콘

@@ -130,9 +130,23 @@ function no_comma(data)
     return tmp;
 }
 
+// URL이 같은 도메인(상대 경로 또는 같은 origin)인지 검증
+function isSafeUrl(url) {
+    if (!url) return false;
+    // 상대 경로는 안전
+    if (url.charAt(0) === '/' && url.charAt(1) !== '/') return true;
+    try {
+        var parsed = new URL(url, window.location.origin);
+        return parsed.origin === window.location.origin;
+    } catch(e) {
+        return false;
+    }
+}
+
 // 삭제 검사 확인
 function del(href)
 {
+    if (!isSafeUrl(href)) return;
     if(confirm("한번 삭제한 자료는 복구할 방법이 없습니다.\n\n정말 삭제하시겠습니까?")) {
         window.location.href = href;
     }
@@ -274,9 +288,19 @@ function obj_movie(src, ids, width, height, autostart)
     return "<embed src='"+src+"' "+wh+" autostart='"+autostart+"'></embed>";
 }
 
+/**
+ * @deprecated document.write는 보안상 위험하므로 사용 자제.
+ * 레거시 호환성을 위해 유지하되, 페이지 로드 완료 후에는 DOM 삽입으로 대체.
+ */
 function doc_write(cont)
 {
-    document.write(cont);
+    if (document.readyState === 'loading') {
+        document.write(cont);
+    } else {
+        var wrapper = document.createElement('div');
+        wrapper.innerHTML = cont;
+        document.body.appendChild(wrapper);
+    }
 }
 
 var win_password_lost = function(href) {
@@ -714,7 +738,7 @@ function get_write_token(bo_table)
         success: function(data) {
             if(data.error) {
                 alert(data.error);
-                if(data.url)
+                if(data.url && isSafeUrl(data.url))
                     document.location.href = data.url;
 
                 return false;
