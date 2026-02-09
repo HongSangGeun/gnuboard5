@@ -86,6 +86,11 @@
                         </a>
                     </li>
                     <li th:if="${loginUser != null}">
+                        <a th:href="@{/bbs/memo}">
+                            <i class="fa fa-envelope-o" aria-hidden="true"></i><span>쪽지</span><span class="hd_memo_badge" th:if="${memoUnreadCount != null && memoUnreadCount > 0}" th:text="${memoUnreadCount}">0</span>
+                        </a>
+                    </li>
+                    <li th:if="${loginUser != null}">
                         <a th:href="@{/logout}">
                             <i class="fa fa-sign-out" aria-hidden="true"></i><span>로그아웃</span>
                         </a>
@@ -213,6 +218,11 @@
                     <li th:if="${loginUser != null}">
                         <a th:href="@{/member/confirm}" class="hd_login_link">
                             <i class="fa fa-user-circle-o" aria-hidden="true"></i><span>정보수정</span>
+                        </a>
+                    </li>
+                    <li th:if="${loginUser != null}">
+                        <a th:href="@{/bbs/memo}" class="hd_login_link hd_memo_link">
+                            <i class="fa fa-envelope-o" aria-hidden="true"></i><span>쪽지</span><span class="hd_memo_badge" th:if="${memoUnreadCount != null && memoUnreadCount > 0}" th:text="${memoUnreadCount}">0</span>
                         </a>
                     </li>
                     <li th:if="${loginUser != null}">
@@ -399,6 +409,74 @@
                     $("html, body").animate({ scrollTop: 0 }, '500');
                     return false;
                 });
+
+                // 쪽지 뱃지 AJAX 업데이트 + 새 쪽지 팝업
+                (function() {
+                    var memoLinks = document.querySelectorAll('.hd_memo_link, .m_nav_auth a[href*="memo"]');
+                    if (memoLinks.length === 0) return; // 비로그인
+
+                    // 현재 뱃지 숫자를 초기값으로
+                    var prevCount = 0;
+                    var initBadge = document.querySelector('.hd_memo_badge');
+                    if (initBadge) prevCount = parseInt(initBadge.textContent, 10) || 0;
+
+                    function setBadge(count) {
+                        document.querySelectorAll('.hd_memo_badge').forEach(function(el) { el.remove(); });
+                        if (count > 0) {
+                            document.querySelectorAll('a[href*="bbs/memo"]').forEach(function(link) {
+                                if (link.closest('#container')) return;
+                                var badge = document.createElement('span');
+                                badge.className = 'hd_memo_badge';
+                                badge.textContent = count;
+                                link.appendChild(badge);
+                            });
+                        }
+                    }
+
+                    function showMemoPopup(newCount) {
+                        // 기존 팝업 제거
+                        var old = document.getElementById('memo_popup');
+                        if (old) old.remove();
+
+                        var popup = document.createElement('div');
+                        popup.id = 'memo_popup';
+                        popup.innerHTML = '<div class="memo_popup_icon"><i class="fa fa-envelope"></i></div>'
+                            + '<div class="memo_popup_text"><strong>새 쪽지가 도착했습니다</strong><br>'
+                            + '<span>읽지 않은 쪽지 ' + newCount + '건</span></div>'
+                            + '<button class="memo_popup_close" type="button">&times;</button>';
+                        document.body.appendChild(popup);
+
+                        // 클릭 시 쪽지함 이동
+                        popup.addEventListener('click', function(e) {
+                            if (e.target.classList.contains('memo_popup_close')) {
+                                popup.remove();
+                                return;
+                            }
+                            location.href = window.APP_CONTEXT + 'bbs/memo';
+                        });
+
+                        // 5초 후 자동 닫기
+                        setTimeout(function() { if (popup.parentNode) popup.remove(); }, 5000);
+                    }
+
+                    function updateMemoBadge(silent) {
+                        $.getJSON(window.APP_CONTEXT + 'bbs/memo/unread-count', function(data) {
+                            var count = data.count || 0;
+                            // 새 쪽지 도착 감지 (폴링 시에만 팝업)
+                            if (!silent && count > prevCount) {
+                                showMemoPopup(count);
+                            }
+                            prevCount = count;
+                            setBadge(count);
+                        });
+                    }
+
+                    // 30초마다 폴링
+                    setInterval(function() { updateMemoBadge(false); }, 30000);
+
+                    // 전역 함수 (읽음 시 즉시 호출 - 팝업 없이)
+                    window.updateMemoBadge = function() { updateMemoBadge(true); };
+                })();
             });
         </script>
     </div>

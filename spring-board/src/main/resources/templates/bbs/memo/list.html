@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/css/default.css}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/memo.css}">
+    <title th:text="${pageTitle} + ' - 쪽지'">쪽지</title>
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div id="wrapper">
+    <div id="container_wr">
+        <div id="container">
+            <h1 id="container_title" th:text="${pageTitle}">쪽지</h1>
+
+            <div class="memo_wrap">
+                <!-- 알림 -->
+                <div class="memo_alert success" th:if="${message}" th:text="${message}"></div>
+                <div class="memo_alert error" th:if="${error}" th:text="${error}"></div>
+                <div class="memo_alert warning" th:if="${warning}" th:text="${warning}"></div>
+
+                <!-- 탭 -->
+                <div class="memo_tab">
+                    <a th:href="@{/bbs/memo(kind='recv')}" th:classappend="${kind == 'recv'} ? 'active' : ''">받은쪽지</a>
+                    <a th:href="@{/bbs/memo(kind='send')}" th:classappend="${kind == 'send'} ? 'active' : ''">보낸쪽지</a>
+                </div>
+
+                <form th:action="@{/bbs/memo/delete}" method="post">
+                    <input type="hidden" name="kind" th:value="${kind}">
+                    <input type="hidden" name="_csrf_token" th:value="${csrfToken}">
+
+                    <div class="memo_list_actions">
+                        <a th:href="@{/bbs/memo/form}" class="btn_memo_write"><i class="fa fa-pencil"></i> 쪽지 쓰기</a>
+                        <button type="submit" class="btn_memo_del" data-confirm="선택한 쪽지를 삭제하시겠습니까?"><i class="fa fa-trash-o"></i> 선택삭제</button>
+                    </div>
+
+                    <table class="memo_tbl">
+                        <thead>
+                            <tr>
+                                <th class="td_chk"><input type="checkbox" data-check-all="meId"></th>
+                                <th class="td_num">번호</th>
+                                <th class="td_subject" th:text="${kind == 'recv'} ? '내용' : '내용'">내용</th>
+                                <th class="td_name" th:text="${kind == 'recv'} ? '보낸사람' : '받는사람'">상대</th>
+                                <th class="td_date">날짜</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr th:if="${#lists.isEmpty(memos)}">
+                                <td colspan="5" class="td_empty">쪽지가 없습니다.</td>
+                            </tr>
+                            <tr th:each="memo, stat : ${memos}" th:classappend="${kind == 'recv' && !memo.isRead} ? 'unread' : ''">
+                                <td class="td_chk"><input type="checkbox" name="meId" th:value="${memo.meId}"></td>
+                                <td class="td_num" th:text="${totalCount - ((page - 1) * 15) - stat.index}">1</td>
+                                <td class="td_subject">
+                                    <a th:href="@{/bbs/memo/view/{id}(id=${memo.meId}, kind=${kind})}">
+                                        <span th:text="${#strings.length(memo.meMemo) > 40 ? #strings.substring(memo.meMemo, 0, 40) + '...' : memo.meMemo}">내용</span>
+                                    </a>
+                                </td>
+                                <td class="td_name" th:text="${memo.mbNick} ?: (${kind == 'recv'} ? memo.meSendMbId : memo.meRecvMbId)">닉네임</td>
+                                <td class="td_date" th:text="${#strings.length(memo.meSendDatetime) >= 10 ? #strings.substring(memo.meSendDatetime, 0, 10) : memo.meSendDatetime}">날짜</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+
+                <!-- 페이징 -->
+                <div class="memo_paging" th:if="${totalPages > 1}">
+                    <a th:if="${page > 1}" th:href="@{/bbs/memo(kind=${kind}, page=1)}"><i class="fa fa-angle-double-left"></i></a>
+                    <a th:if="${page > 1}" th:href="@{/bbs/memo(kind=${kind}, page=${page - 1})}"><i class="fa fa-angle-left"></i></a>
+                    <th:block th:with="startPage=${((page - 1) / 10) * 10 + 1}, endPage=${#numbers.min(startPage + 9, totalPages)}">
+                        <th:block th:each="i : ${#numbers.sequence(startPage, endPage)}">
+                            <strong th:if="${i == page}" th:text="${i}">1</strong>
+                            <a th:unless="${i == page}" th:href="@{/bbs/memo(kind=${kind}, page=${i})}" th:text="${i}">1</a>
+                        </th:block>
+                    </th:block>
+                    <a th:if="${page < totalPages}" th:href="@{/bbs/memo(kind=${kind}, page=${page + 1})}"><i class="fa fa-angle-right"></i></a>
+                    <a th:if="${page < totalPages}" th:href="@{/bbs/memo(kind=${kind}, page=${totalPages})}"><i class="fa fa-angle-double-right"></i></a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/nav :: nav_end}"></div>
+</body>
+</html>

@@ -514,5 +514,96 @@ box-shadow:2px 2px 3px 0px rgba(0,0,0,0.2)}
 box-sizing:content-box;
 }
 
+/* SmartEditor2 iframe 폭 100% */
+.wr_content > iframe {
+display:block;
+width:100% !important;
+border:0;
+}
+
 /* Mobile화면으로 */
 #device_change {display:block;margin:0.3em;padding:0.5em 0;border:1px solid #eee;border-radius:2em;background:#fff;color:#000;font-size:2em;text-decoration:none;text-align:center}
+
+/* 헤더 쪽지 뱃지 */
+.hd_memo_link {
+    position: relative;
+}
+.hd_memo_badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    background: #ff3b30;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
+    text-align: center;
+    border-radius: 10px;
+    position: absolute;
+    top: -8px;
+    right: -10px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    border: 2px solid #fff;
+    letter-spacing: -0.3px;
+    line-height: 1;
+    z-index: 1;
+}
+/* 모바일 사이드메뉴 내 뱃지 */
+.m_nav_auth .hd_memo_badge {
+    position: static;
+    margin-left: 6px;
+    vertical-align: middle;
+    border: none;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+}
+/* 새 쪽지 팝업 */
+#memo_popup {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 99999;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 18px;
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+    border-left: 4px solid #2f6df6;
+    cursor: pointer;
+    animation: memoPopupIn .3s ease;
+    max-width: 340px;
+}
+#memo_popup .memo_popup_icon {
+    width: 40px; height: 40px;
+    background: #2f6df6;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+}
+#memo_popup .memo_popup_icon i {
+    color: #fff; font-size: 18px;
+}
+#memo_popup .memo_popup_text {
+    font-size: 13px; color: #333; line-height: 1.5;
+}
+#memo_popup .memo_popup_text strong {
+    font-size: 14px;
+}
+#memo_popup .memo_popup_text span {
+    color: #888; font-size: 12px;
+}
+#memo_popup .memo_popup_close {
+    position: absolute; top: 6px; right: 10px;
+    background: none; border: none;
+    font-size: 18px; color: #999; cursor: pointer;
+    line-height: 1;
+}
+#memo_popup .memo_popup_close:hover { color: #333; }
+@keyframes memoPopupIn {
+    from { opacity: 0; transform: translateX(40px); }
+    to   { opacity: 1; transform: translateX(0); }
+}

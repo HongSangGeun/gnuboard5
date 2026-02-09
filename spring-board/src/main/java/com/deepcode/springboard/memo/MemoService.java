@@ -2,6 +2,7 @@ package com.deepcode.springboard.memo;
 
 import com.deepcode.springboard.member.Member;
 import com.deepcode.springboard.member.MemberMapper;
+import com.deepcode.springboard.sms.SmsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -17,6 +18,7 @@ public class MemoService {
 
     private final MemoMapper memoMapper;
     private final MemberMapper memberMapper;
+    private final SmsService smsService;
 
     /**
      * 쪽지 발송
@@ -29,8 +31,8 @@ public class MemoService {
             throw new IllegalArgumentException("받는 회원을 찾을 수 없습니다.");
         }
 
-        // 발신 ID 생성
-        String sendId = UUID.randomUUID().toString().replace("-", "");
+        // 발신 ID 생성 (int 컬럼에 맞게 timestamp 기반)
+        String sendId = String.valueOf((int) (System.currentTimeMillis() / 1000));
 
         // 받는 사람 쪽지함에 저장 (recv)
         Memo recvMemo = new Memo();
@@ -52,6 +54,33 @@ public class MemoService {
 
         log.info("쪽지 발송: from={}, to={}", fromMbId, toMbId);
         return recvMemo;
+    }
+
+    /**
+     * 쪽지 발송 + SMS 동시 발송
+     * @return SMS 에러 문자열 (null이면 성공 또는 SMS 미발송)
+     */
+    @Transactional
+    public String sendMemoWithSms(String fromMbId, String toMbId, String content, boolean sendSms) {
+        sendMemo(fromMbId, toMbId, content);
+
+        if (sendSms) {
+            Member receiver = memberMapper.findById(toMbId);
+            if (receiver == null || receiver.getMbHp() == null || receiver.getMbHp().isBlank()) {
+                return "수신자의 휴대폰 번호가 등록되어 있지 않습니다.";
+            }
+            String smsText = "[쪽지알림] " + fromMbId + "님이 쪽지를 보냈습니다.";
+            String result = smsService.sendSms(
+                    smsService.getConfig() != null ? smsService.getConfig().getCfPhone() : "",
+                    receiver.getMbHp(),
+                    smsText
+            );
+            if (result != null) {
+                log.warn("쪽지 SMS 발송 실패: from={}, to={}, error={}", fromMbId, toMbId, result);
+            }
+            return result;
+        }
+        return null;
     }
 
     /**

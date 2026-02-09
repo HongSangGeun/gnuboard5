@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/css/default.css}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/memo.css}">
+    <title>쪽지 보기</title>
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div id="wrapper">
+    <div id="container_wr">
+        <div id="container">
+            <h1 id="container_title">쪽지 보기</h1>
+
+            <div class="memo_wrap">
+                <div class="memo_view">
+                    <div class="memo_view_head">
+                        <span class="mv_from">
+                            <th:block th:if="${memo.meType == 'recv'}">보낸사람: </th:block>
+                            <th:block th:if="${memo.meType == 'send'}">받는사람: </th:block>
+                            <strong th:text="${memo.mbNick} ?: (${memo.meType == 'recv'} ? memo.meSendMbId : memo.meRecvMbId)">닉네임</strong>
+                        </span>
+                        <span class="mv_date" th:text="${memo.meSendDatetime}">2024-01-01 00:00:00</span>
+                    </div>
+                    <div class="memo_view_content" th:text="${memo.meMemo}">내용</div>
+                </div>
+
+                <div class="memo_view_btns">
+                    <a th:if="${memo.meType == 'recv'}" th:href="@{/bbs/memo/form(me_recv_mb_id=${memo.meSendMbId})}" class="btn_reply">
+                        <i class="fa fa-reply"></i> 답장
+                    </a>
+                    <form th:action="@{/bbs/memo/delete}" method="post" style="display:inline">
+                        <input type="hidden" name="meId" th:value="${memo.meId}">
+                        <input type="hidden" name="kind" th:value="${kind}">
+                        <input type="hidden" name="_csrf_token" th:value="${csrfToken}">
+                        <button type="submit" class="btn_del" data-confirm="이 쪽지를 삭제하시겠습니까?">
+                            <i class="fa fa-trash-o"></i> 삭제
+                        </button>
+                    </form>
+                    <a th:href="@{/bbs/memo(kind=${kind})}"><i class="fa fa-list"></i> 목록</a>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/nav :: nav_end}"></div>
+<script th:if="${memo.meType == 'recv'}" th:attr="nonce=${cspNonce}">
+    $(function(){ if(window.updateMemoBadge) updateMemoBadge(); });
+</script>
+</body>
+</html>

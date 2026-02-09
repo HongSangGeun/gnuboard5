@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/css/default.css}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <link rel="stylesheet" th:href="@{/css/memo.css}">
+    <title>쪽지 보내기</title>
+    <style>
+        .memo_ac_wrap { position: relative; flex: 1; }
+        .memo_tags {
+            display: flex; flex-wrap: wrap; gap: 5px; padding: 6px 8px;
+            border: 1px solid #ddd; border-radius: 4px; min-height: 38px;
+            align-items: center; cursor: text; background: #fff;
+        }
+        .memo_tags:focus-within { border-color: #2f6df6; box-shadow: 0 0 0 2px rgba(47,109,246,0.15); }
+        .memo_tag {
+            display: inline-flex; align-items: center; gap: 4px;
+            background: #e8f0fe; color: #1a56d6; padding: 3px 8px;
+            border-radius: 12px; font-size: 12px; font-weight: 500;
+        }
+        .memo_tag .tag_remove {
+            cursor: pointer; font-size: 14px; line-height: 1;
+            color: #5a8dee; font-weight: bold;
+        }
+        .memo_tag .tag_remove:hover { color: #dc3545; }
+        .memo_tag_input {
+            border: none !important; outline: none; flex: 1; min-width: 80px;
+            padding: 2px 4px; font-size: 13px; background: transparent;
+        }
+        .autocomplete-items {
+            position: absolute; border: 1px solid #e2e8f0; border-radius: 8px;
+            z-index: 9999; top: calc(100% + 4px); left: 0; right: 0;
+            max-height: 280px; overflow-y: auto; background-color: #fff;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.12); margin-top: 2px;
+        }
+        .autocomplete-items:empty { display: none; }
+        .autocomplete-item {
+            padding: 10px 14px; cursor: pointer; border-bottom: 1px solid #f1f5f9;
+            transition: all 0.15s; display: flex; align-items: center; gap: 8px;
+        }
+        .autocomplete-item:last-child { border-bottom: none; }
+        .autocomplete-item:hover, .autocomplete-item.active {
+            background: #f0f6ff; padding-left: 18px;
+        }
+        .autocomplete-item-icon {
+            width: 28px; height: 28px; border-radius: 50%;
+            background: #2f6df6; color: #fff; display: flex;
+            align-items: center; justify-content: center;
+            font-weight: 600; font-size: 12px; flex-shrink: 0;
+        }
+        .autocomplete-item strong { font-size: 13px; }
+        .autocomplete-item small { color: #888; font-size: 12px; margin-left: 4px; }
+    </style>
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div id="wrapper">
+    <div id="container_wr">
+        <div id="container">
+            <h1 id="container_title">쪽지 보내기</h1>
+
+            <div class="memo_wrap">
+                <div class="memo_alert error" th:if="${error}" th:text="${error}"></div>
+
+                <form th:action="@{/bbs/memo/form}" method="post" id="fmemo">
+                    <input type="hidden" name="_csrf_token" th:value="${csrfToken}">
+                    <input type="hidden" id="me_recv_mb_id" name="me_recv_mb_id" th:value="${meRecvMbId}">
+                    <div class="memo_form">
+                        <div class="memo_form_row">
+                            <label>받는사람</label>
+                            <div class="memo_ac_wrap">
+                                <div class="memo_tags" id="memo_tags">
+                                    <input type="text" class="memo_tag_input" id="tag_input"
+                                           placeholder="회원 아이디를 입력하세요" autocomplete="off">
+                                </div>
+                                <div id="autocomplete-list" class="autocomplete-items"></div>
+                            </div>
+                        </div>
+                        <div class="memo_form_row">
+                            <label for="me_memo">내용</label>
+                            <textarea id="me_memo" name="me_memo" placeholder="쪽지 내용을 입력하세요" required></textarea>
+                        </div>
+                        <div class="memo_byte_counter">
+                            <span id="memoByte">0</span> bytes
+                        </div>
+                        <div class="memo_form_row">
+                            <label>&nbsp;</label>
+                            <div class="sms_option">
+                                <input type="checkbox" id="sendSms" name="sendSms" value="on">
+                                <label for="sendSms">SMS 동시 발송 (수신자 휴대폰 번호가 등록된 경우)</label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="memo_form_btns">
+                        <button type="submit" class="btn_submit"><i class="fa fa-send"></i> 보내기</button>
+                        <a th:href="@{/bbs/memo}"><i class="fa fa-list"></i> 목록</a>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/nav :: nav_end}"></div>
+<script th:inline="javascript" th:attr="nonce=${cspNonce}">
+    (function() {
+        // byte 카운터
+        var textarea = document.getElementById('me_memo');
+        var counter = document.getElementById('memoByte');
+        if (textarea && counter) {
+            textarea.addEventListener('input', function() {
+                var bytes = 0;
+                for (var i = 0; i < this.value.length; i++) {
+                    bytes += (this.value.charCodeAt(i) > 127) ? 3 : 1;
+                }
+                counter.textContent = bytes;
+            });
+        }
+
+        // 다중 수신자 태그 + 자동완성
+        var hiddenInput = document.getElementById('me_recv_mb_id');
+        var tagContainer = document.getElementById('memo_tags');
+        var tagInput = document.getElementById('tag_input');
+        var autocompleteList = document.getElementById('autocomplete-list');
+        var debounceTimer, acIdx = -1;
+        var recipients = [];
+
+        var contextPath = /*[[@{/}]]*/ '/';
+        var searchUrl = contextPath + 'bbs/memo/search-members';
+
+        if (!tagInput || !autocompleteList || !hiddenInput) return;
+
+        // 초기값 (답장 등)
+        var initVal = hiddenInput.value.trim();
+        if (initVal) {
+            initVal.split(',').forEach(function(id) {
+                var t = id.trim();
+                if (t) addTag(t);
+            });
+        }
+
+        tagContainer.addEventListener('click', function() { tagInput.focus(); });
+
+        function addTag(id) {
+            if (recipients.indexOf(id) !== -1) return; // 중복 방지
+            recipients.push(id);
+            syncHidden();
+
+            var tag = document.createElement('span');
+            tag.className = 'memo_tag';
+            tag.setAttribute('data-id', id);
+            tag.innerHTML = id + ' <span class="tag_remove">&times;</span>';
+            tag.querySelector('.tag_remove').addEventListener('click', function() {
+                removeTag(id);
+                tag.remove();
+            });
+            tagContainer.insertBefore(tag, tagInput);
+        }
+
+        function removeTag(id) {
+            var idx = recipients.indexOf(id);
+            if (idx !== -1) recipients.splice(idx, 1);
+            syncHidden();
+        }
+
+        function syncHidden() {
+            hiddenInput.value = recipients.join(',');
+        }
+
+        // 자동완성
+        tagInput.addEventListener('input', function() {
+            var query = this.value.trim();
+            clearTimeout(debounceTimer);
+            if (query.length < 1) { autocompleteList.innerHTML = ''; return; }
+
+            debounceTimer = setTimeout(function() {
+                fetch(searchUrl + '?query=' + encodeURIComponent(query))
+                    .then(function(r) { return r.ok ? r.json() : []; })
+                    .then(function(data) {
+                        acIdx = -1;
+                        autocompleteList.innerHTML = '';
+                        if (!data.length) {
+                            autocompleteList.innerHTML = '<div class="autocomplete-item" style="color:#999;">검색 결과가 없습니다.</div>';
+                            return;
+                        }
+                        data.forEach(function(member) {
+                            var div = document.createElement('div');
+                            div.className = 'autocomplete-item';
+
+                            var initial = member.nick ? member.nick.charAt(0).toUpperCase() : member.id.charAt(0).toUpperCase();
+                            var iconDiv = document.createElement('div');
+                            iconDiv.className = 'autocomplete-item-icon';
+                            iconDiv.textContent = initial;
+
+                            var textSpan = document.createElement('span');
+                            textSpan.innerHTML = '<strong>' + member.id + '</strong>' +
+                                (member.nick ? '<small>(' + member.nick + ')</small>' : '');
+
+                            div.appendChild(iconDiv);
+                            div.appendChild(textSpan);
+                            div.addEventListener('click', function() {
+                                addTag(member.id);
+                                tagInput.value = '';
+                                autocompleteList.innerHTML = '';
+                                tagInput.focus();
+                            });
+                            autocompleteList.appendChild(div);
+                        });
+                    })
+                    .catch(function() { autocompleteList.innerHTML = ''; });
+            }, 300);
+        });
+
+        tagInput.addEventListener('keydown', function(e) {
+            var allItems = autocompleteList.querySelectorAll('.autocomplete-item');
+            // Backspace로 마지막 태그 삭제
+            if (e.key === 'Backspace' && this.value === '' && recipients.length > 0) {
+                var last = recipients[recipients.length - 1];
+                removeTag(last);
+                var tags = tagContainer.querySelectorAll('.memo_tag');
+                if (tags.length) tags[tags.length - 1].remove();
+                return;
+            }
+            // Enter로 직접 입력 추가
+            if (e.key === 'Enter' && acIdx < 0 && this.value.trim()) {
+                e.preventDefault();
+                addTag(this.value.trim());
+                this.value = '';
+                autocompleteList.innerHTML = '';
+                return;
+            }
+            if (!allItems.length) return;
+            if (e.key === 'ArrowDown') { e.preventDefault(); acIdx = Math.min(acIdx + 1, allItems.length - 1); hlAc(allItems); }
+            else if (e.key === 'ArrowUp') { e.preventDefault(); acIdx = Math.max(acIdx - 1, 0); hlAc(allItems); }
+            else if (e.key === 'Enter' && acIdx >= 0) { e.preventDefault(); allItems[acIdx].click(); }
+            else if (e.key === 'Escape') { autocompleteList.innerHTML = ''; }
+        });
+
+        function hlAc(items) {
+            for (var i = 0; i < items.length; i++) items[i].classList.toggle('active', i === acIdx);
+        }
+
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.memo_ac_wrap')) autocompleteList.innerHTML = '';
+        });
+
+        // 폼 제출 시 검증
+        document.getElementById('fmemo').addEventListener('submit', function(e) {
+            if (!recipients.length) {
+                e.preventDefault();
+                alert('받는 사람을 입력해주세요.');
+                tagInput.focus();
+            }
+        });
+    })();
+</script>
+</body>
+</html>

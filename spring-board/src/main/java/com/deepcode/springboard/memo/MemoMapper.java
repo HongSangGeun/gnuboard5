@@ -45,7 +45,7 @@ public interface MemoMapper {
     // 읽지 않은 쪽지 개수
     @Select("SELECT COUNT(*) FROM g5_memo " +
             "WHERE me_recv_mb_id = #{mbId} AND me_type = 'recv' " +
-            "AND (me_read_datetime IS NULL OR me_read_datetime = '')")
+            "AND (me_read_datetime IS NULL OR YEAR(me_read_datetime) = 0)")
     int countUnreadMemos(String mbId);
 
     // 쪽지 상세 조회
