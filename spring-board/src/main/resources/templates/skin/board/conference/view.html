@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/css/default.css(v=20260210)}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <title th:text="${post.wrSubject} + ' - 보기'">게시글 보기</title>
+    <link rel="stylesheet" th:href="@{/skin/board/conference/style.css}">
+    <link rel="stylesheet" th:href="@{/css/board-view-modern.css}">
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div id="wrapper">
+    <div id="container_wr">
+        <div id="container">
+            <h1 id="container_title" th:text="${pageTitle} ?: (board != null ? board.boSubject : '게시판')">게시판</h1>
+
+            <article id="bo_v">
+                <!-- ===== Info Layout 테이블 ===== -->
+                <ul class="info_layout">
+                    <!-- 제목 -->
+                    <li>
+                        <div class="info_title">제목</div>
+                        <div class="info_content">
+                            <span class="bo_v_cate" th:if="${post.caName != null && post.caName != ''}" th:text="${post.caName}">분류</span>
+                            <span th:text="${post.wrSubject}">제목</span>
+                        </div>
+                    </li>
+                    <!-- 작성자 -->
+                    <li>
+                        <div class="info_title">작성자</div>
+                        <div class="info_content" th:text="${post.wrName}">작성자</div>
+                    </li>
+                    <!-- 등록일 / 조회수 -->
+                    <li class="half_row">
+                        <div class="info_title">등록일</div>
+                        <div class="info_content" th:text="${post.wrDatetime}">작성일</div>
+                        <div class="info_title">조회수</div>
+                        <div class="info_content" th:text="${post.wrHit}">0</div>
+                    </li>
+                    <!-- 내용 -->
+                    <li class="content_row">
+                        <div class="info_title">내용</div>
+                        <div class="info_content">
+                            <div id="bo_v_con" th:utext="${post.wrContent}">내용</div>
+                        </div>
+                    </li>
+                    <!-- 첨부파일 -->
+                    <li th:if="${!#lists.isEmpty(viewFiles)}">
+                        <div class="info_title">첨부파일</div>
+                        <div class="info_content">
+                            <div class="file_list">
+                                <div class="file_item" th:each="vf : ${viewFiles}">
+                                    <div class="file_info">
+                                        <i class="fa fa-file-o" aria-hidden="true"></i>
+                                        <a th:href="@{'/bbs/' + ${boTable} + '/download/' + ${post.wrId} + '/' + ${vf.file.bfNo}}" class="view_file_download">
+                                            <span th:text="${vf.file.bfSource}">파일</span>
+                                        </a>
+                                        <span class="file_size" th:text="${vf.file.bfContent}"></span>
+                                        <span class="file_meta" th:text="'(' + ${vf.file.bfDownload} + '회 다운로드)'">0회</span>
+                                        <a th:if="${vf.viewType != null and vf.viewType != 'hwp-locked'}"
+                                           th:href="@{'/bbs/' + ${boTable} + '/file/' + ${post.wrId} + '/' + ${vf.file.bfNo}}"
+                                           class="view_file_open" target="_blank" rel="noopener">바로보기</a>
+                                        <span th:if="${vf.viewType == 'hwp-locked'}" class="view_file_locked" title="비밀번호가 설정된 문서입니다">&#x1F512; 암호문서</span>
+                                    </div>
+                                    <div class="view_file_preview" th:if="${vf.viewType == 'image'}">
+                                        <img th:src="@{'/bbs/' + ${boTable} + '/file/' + ${post.wrId} + '/' + ${vf.file.bfNo}}" alt="" loading="lazy">
+                                    </div>
+                                    <div class="view_file_preview" th:if="${vf.viewType == 'pdf'}">
+                                        <iframe th:src="@{'/bbs/' + ${boTable} + '/file/' + ${post.wrId} + '/' + ${vf.file.bfNo}}" title="첨부파일 미리보기" loading="lazy"></iframe>
+                                    </div>
+                                    <div class="view_file_preview" th:if="${vf.viewType == 'text'}">
+                                        <iframe th:src="@{'/bbs/' + ${boTable} + '/file/' + ${post.wrId} + '/' + ${vf.file.bfNo}}" title="첨부파일 미리보기" loading="lazy"></iframe>
+                                    </div>
+                                    <div class="view_file_preview" th:if="${vf.viewType == 'hwp'}">
+                                        <iframe th:src="@{'/bbs/' + ${boTable} + '/file/' + ${post.wrId} + '/' + ${vf.file.bfNo}}" title="HWP 미리보기" loading="lazy"></iframe>
+                                    </div>
+                                    <div class="view_file_preview" th:if="${vf.viewType == 'office'}">
+                                        <iframe th:src="@{'/bbs/' + ${boTable} + '/file/' + ${post.wrId} + '/' + ${vf.file.bfNo}}" title="문서 미리보기" loading="lazy"></iframe>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+
+                <!-- 추천/비추천 -->
+                <div id="bo_v_act" th:if="${board.boUseGood == 1 || board.boUseNogood == 1}">
+                    <span class="bo_v_good" th:if="${board.boUseGood == 1}"><i class="fa fa-thumbs-o-up" aria-hidden="true"></i><span class="sound_only">추천</span><strong th:text="${post.wrGood}">0</strong></span>
+                    <span class="bo_v_nogood" th:if="${board.boUseNogood == 1}"><i class="fa fa-thumbs-o-down" aria-hidden="true"></i><span class="sound_only">비추천</span><strong th:text="${post.wrNogood}">0</strong></span>
+                </div>
+
+                <!-- 버튼 영역 -->
+                <div class="bo_v_btn_area">
+                    <a th:href="@{'/bbs/' + ${boTable} + '/list'}" class="btn_dh btn_outline">목록</a>
+                    <div class="bo_v_btn_right">
+                        <a th:if="${(loginUser != null && loginUser.level >= board.boWriteLevel) || (loginUser == null && board.boWriteLevel <= 1)}"
+                           th:href="@{'/bbs/' + ${boTable} + '/write'}" class="btn_dh btn_outline">글쓰기</a>
+                        <a th:if="${loginUser != null && (loginUser.id == post.mbId || loginUser.level >= 10)}"
+                           th:href="@{'/bbs/' + ${boTable} + '/edit/' + ${post.wrId}}" class="btn_dh btn_outline">수정</a>
+                        <form th:if="${loginUser != null && (loginUser.id == post.mbId || loginUser.level >= 10)}"
+                              th:action="@{'/bbs/' + ${boTable} + '/delete/' + ${post.wrId}}" method="post" style="display:inline;">
+                            <input type="hidden" name="_csrf" th:value="${csrfToken}">
+                            <input type="hidden" name="password" value="" />
+                            <button type="submit" class="btn_dh btn_outline btn_del" data-confirm="정말 삭제하시겠습니까?">삭제</button>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- 댓글 -->
+                <div class="bo_v_comment_wrap">
+                    <h3 class="cmt_title"><b>댓글</b> <span th:text="${post.wrComment}">0</span></h3>
+
+                    <div class="cmt_list" id="bo_vc">
+                        <article th:each="comment : ${comments}"
+                                 th:id="${'c_' + comment.wrId}"
+                                 th:with="displayName=${#strings.isEmpty(comment.wrName) ? (!#strings.isEmpty(comment.mbId) ? comment.mbId : '익명') : comment.wrName},
+                                          guestComment=${comment.mbId == null || comment.mbId == ''},
+                                          canManage=${(loginUser != null && (loginUser.level >= 10 || (comment.mbId != null && comment.mbId != '' && comment.mbId == loginUser.id))) || (loginUser == null && (comment.mbId == null || comment.mbId == ''))}"
+                                 th:attr="data-comment-id=${comment.wrId},data-comment-name=${displayName}"
+                                 th:style="${comment.wrCommentReply != null && #strings.length(comment.wrCommentReply) > 1} ? 'margin-left:' + ((${#strings.length(comment.wrCommentReply)} - 1) * 26) + 'px;' : ''">
+                            <div class="cmt_item">
+                                <div class="cmt_left">
+                                    <span class="cmt_reply_icon" th:if="${comment.wrCommentReply != null && #strings.length(comment.wrCommentReply) > 1}">&#8627;</span>
+                                    <span class="cmt_user" th:text="${displayName}">작성자</span>
+                                    <span class="cmt_date" th:text="${comment.wrDatetime}">작성일</span>
+                                    <div class="cmt_text" th:utext="${comment.wrContent}">댓글</div>
+                                </div>
+                                <div class="cmt_btns">
+                                    <button type="button" class="btn_comment_reply btn_cmt_sm"
+                                            th:attr="data-reply-id=${comment.wrId},data-reply-name=${displayName}">답글</button>
+                                    <button type="button" class="btn_comment_edit_toggle btn_cmt_sm"
+                                            th:if="${canManage}">수정</button>
+                                    <form th:if="${canManage}"
+                                          th:action="@{'/bbs/' + ${boTable} + '/comment/' + ${post.wrId} + '/delete/' + ${comment.wrId}}"
+                                          method="post"
+                                          class="comment_delete_form"
+                                          th:attr="data-guest-comment=${guestComment}"
+                                          style="display:inline;">
+                                        <input type="hidden" name="_csrf" th:value="${csrfToken}">
+                                        <input type="hidden" name="password" class="comment_password_input">
+                                        <button type="submit" class="btn_cmt_sm btn_cmt_del">삭제</button>
+                                    </form>
+                                </div>
+                            </div>
+                            <!-- 댓글 수정 폼 -->
+                            <form th:if="${canManage}"
+                                  th:action="@{'/bbs/' + ${boTable} + '/comment/' + ${post.wrId} + '/edit/' + ${comment.wrId}}"
+                                  method="post"
+                                  class="comment_edit_form"
+                                  th:attr="data-guest-comment=${guestComment}"
+                                  style="display:none;">
+                                <input type="hidden" name="_csrf" th:value="${csrfToken}">
+                                <textarea name="content" required maxlength="10000" class="cmt_textarea" th:text="${comment.wrContent}"></textarea>
+                                <div class="cmt_edit_btns">
+                                    <input th:if="${guestComment}" type="password" name="password" class="cmt_input comment_password_input" placeholder="댓글 비밀번호">
+                                    <button type="submit" class="btn_dh btn_purple btn_sm">저장</button>
+                                    <button type="button" class="btn_comment_edit_cancel btn_dh btn_outline btn_sm">취소</button>
+                                </div>
+                            </form>
+                        </article>
+                        <p class="cmt_empty" th:if="${#lists.isEmpty(comments)}">등록된 댓글이 없습니다.</p>
+                    </div>
+
+                    <!-- 댓글 작성 -->
+                    <div class="cmt_write" id="bo_vc_w" th:if="${(loginUser != null && loginUser.level >= board.boCommentLevel) || (loginUser == null && board.boCommentLevel <= 1)}">
+                        <form th:action="@{'/bbs/' + ${boTable} + '/comment/' + ${post.wrId}}" method="post" autocomplete="off">
+                            <input type="hidden" name="_csrf" th:value="${csrfToken}">
+                            <input type="hidden" name="replyTo" id="reply_to_id">
+                            <div id="reply_target_box" style="display:none;">
+                                <span id="reply_target_text"></span>
+                                <button type="button" id="reply_cancel_btn">취소</button>
+                            </div>
+                            <div class="cmt_form_area">
+                                <textarea id="wr_content" name="content" maxlength="10000" required class="cmt_textarea" placeholder="댓글내용을 입력해주세요"></textarea>
+                                <div class="cmt_form_bottom">
+                                    <div class="cmt_form_info" th:if="${loginUser == null}">
+                                        <input type="text" name="name" id="wr_name" required class="cmt_input" placeholder="이름">
+                                        <input type="password" name="password" id="wr_password" required class="cmt_input" placeholder="비밀번호">
+                                    </div>
+                                    <button type="submit" id="btn_submit" class="btn_dh btn_purple">댓글등록</button>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/nav :: nav_end}"></div>
+<script th:attr="nonce=${cspNonce}">
+    (function() {
+        var form = document.querySelector('.cmt_write form');
+        var writeBox = document.querySelector('.cmt_write');
+        var originalParent = writeBox ? writeBox.parentNode : null;
+        var originalNext = writeBox ? writeBox.nextSibling : null;
+        if (!form) return;
+        var replyInput = form.querySelector('#reply_to_id');
+        var replyBox = form.querySelector('#reply_target_box');
+        var replyText = form.querySelector('#reply_target_text');
+        var replyCancel = form.querySelector('#reply_cancel_btn');
+        var textarea = form.querySelector('textarea[name="content"]');
+        var defaultPlaceholder = textarea ? textarea.getAttribute('placeholder') : '';
+        var buttons = document.querySelectorAll('.btn_comment_reply');
+
+        function moveWriteBoxAfter(article) {
+            if (!writeBox || !article) return;
+            article.insertAdjacentElement('afterend', writeBox);
+        }
+
+        function restoreWriteBoxPosition() {
+            if (!writeBox || !originalParent) return;
+            if (originalNext && originalNext.parentNode === originalParent) {
+                originalParent.insertBefore(writeBox, originalNext);
+            } else {
+                originalParent.appendChild(writeBox);
+            }
+        }
+
+        function clearReplyTarget() {
+            if (replyInput) replyInput.value = '';
+            if (replyBox) replyBox.style.display = 'none';
+            if (replyText) replyText.textContent = '';
+            if (textarea) textarea.setAttribute('placeholder', defaultPlaceholder || '댓글내용을 입력해주세요');
+            restoreWriteBoxPosition();
+        }
+
+        buttons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                var replyId = this.getAttribute('data-reply-id');
+                var replyName = this.getAttribute('data-reply-name') || '작성자';
+                var article = this.closest('article');
+                if (!replyId || !replyInput) return;
+                replyInput.value = replyId;
+                if (replyText) replyText.textContent = replyName + '님에게 답글 작성 중';
+                if (replyBox) replyBox.style.display = 'flex';
+                moveWriteBoxAfter(article);
+                if (textarea) {
+                    textarea.setAttribute('placeholder', replyName + '님에게 답글을 입력해주세요');
+                    textarea.focus();
+                }
+            });
+        });
+        if (replyCancel) {
+            replyCancel.addEventListener('click', clearReplyTarget);
+        }
+    })();
+    (function() {
+        var editButtons = document.querySelectorAll('.btn_comment_edit_toggle');
+        editButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                var article = this.closest('article');
+                if (!article) return;
+                var form = article.querySelector('.comment_edit_form');
+                if (!form) return;
+                form.style.display = form.style.display === 'none' || form.style.display === '' ? 'block' : 'none';
+            });
+        });
+
+        var editCancelButtons = document.querySelectorAll('.btn_comment_edit_cancel');
+        editCancelButtons.forEach(function(button) {
+            button.addEventListener('click', function() {
+                var form = this.closest('.comment_edit_form');
+                if (!form) return;
+                form.style.display = 'none';
+            });
+        });
+
+        var editForms = document.querySelectorAll('.comment_edit_form');
+        editForms.forEach(function(form) {
+            form.addEventListener('submit', function(e) {
+                if (form.getAttribute('data-guest-comment') !== 'true') return;
+                var input = form.querySelector('.comment_password_input');
+                if (!input) return;
+                if (input.value && input.value.trim() !== '') return;
+                var password = window.prompt('댓글 비밀번호를 입력해주세요.');
+                if (!password) {
+                    e.preventDefault();
+                    return;
+                }
+                input.value = password;
+            });
+        });
+
+        var deleteForms = document.querySelectorAll('.comment_delete_form');
+        deleteForms.forEach(function(form) {
+            form.addEventListener('submit', function(e) {
+                if (!window.confirm('댓글을 삭제하시겠습니까?')) {
+                    e.preventDefault();
+                    return;
+                }
+                if (form.getAttribute('data-guest-comment') !== 'true') return;
+                var input = form.querySelector('.comment_password_input');
+                if (!input) return;
+                if (input.value && input.value.trim() !== '') return;
+                var password = window.prompt('댓글 비밀번호를 입력해주세요.');
+                if (!password) {
+                    e.preventDefault();
+                    return;
+                }
+                input.value = password;
+            });
+        });
+    })();
+</script>
+</body>
+</html>

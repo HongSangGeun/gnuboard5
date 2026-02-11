@@ -4,12 +4,75 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
     <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
-    <link rel="stylesheet" th:href="@{/css/default.css}">
+    <link rel="stylesheet" th:href="@{/css/default.css(v=20260210)}">
     <link rel="stylesheet" th:href="@{/css/mobile.css}">
     <link rel="stylesheet" th:href="@{/css/mobile-board-skin.css}">
     <link rel="stylesheet" th:href="@{/css/index.css}">
     <title th:text="${board.boSubject} + ' - 글쓰기'">글쓰기</title>
-    <link rel="stylesheet" th:href="@{/skin/board/gallery/style.css}">
+    <link rel="stylesheet" th:href="@{/skin/board/gallery/style.css(v=20260211d)}">
+    <style>
+    .gw_photo_section{margin:12px 0;padding:0}
+    .gw_photo_btns{display:flex;gap:10px;margin-bottom:12px}
+    .gw_camera_btn,.gw_album_btn{
+        flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+        gap:6px;padding:18px 10px;border-radius:12px;
+        border:2px dashed #ddd0e8;background:#faf8fc;
+        color:#5b2a8c;font-size:14px;font-weight:600;
+        cursor:pointer;transition:all .2s;
+    }
+    .gw_camera_btn i,.gw_album_btn i{font-size:24px}
+    .gw_camera_btn:active,.gw_album_btn:active{background:#f3eef8;border-color:#5b2a8c}
+    .gw_photo_preview{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .gw_photo_preview:empty{display:none}
+    .gw_thumb{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:#f0ecf5}
+    .gw_thumb img{width:100%;height:100%;object-fit:cover;display:block}
+    .gw_thumb_remove{
+        position:absolute;top:4px;right:4px;
+        width:24px;height:24px;border-radius:50%;
+        background:rgba(0,0,0,.6);color:#fff;
+        border:0;font-size:14px;line-height:24px;text-align:center;
+        cursor:pointer;
+    }
+    .gw_thumb_info{
+        position:absolute;bottom:0;left:0;right:0;
+        padding:4px 6px;background:linear-gradient(transparent,rgba(0,0,0,.7));
+        color:#fff;font-size:10px;
+    }
+    .gw_thumb_name{
+        display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-weight:600;
+    }
+    .gw_thumb_meta{
+        display:flex;gap:6px;margin-top:2px;color:rgba(255,255,255,.8);font-size:9px;
+    }
+    .gw_photo_hint{margin:10px 0 0;font-size:12px;color:#999;display:flex;align-items:center;gap:4px}
+    /* 업로드 프로그레스 오버레이 */
+    .gw_upload_overlay{
+        display:none;position:fixed;inset:0;z-index:99999;
+        background:rgba(0,0,0,.65);backdrop-filter:blur(4px);
+        flex-direction:column;align-items:center;justify-content:center;gap:16px;
+    }
+    .gw_upload_overlay.active{display:flex}
+    .gw_upload_box{
+        width:85%;max-width:320px;background:#fff;border-radius:16px;
+        padding:28px 24px;text-align:center;
+        box-shadow:0 8px 32px rgba(0,0,0,.2);
+    }
+    .gw_upload_icon{font-size:36px;color:#5b2a8c;margin-bottom:12px}
+    .gw_upload_title{font-size:16px;font-weight:700;color:#1a1a2e;margin-bottom:4px}
+    .gw_upload_sub{font-size:12px;color:#999;margin-bottom:18px}
+    .gw_progress_track{
+        width:100%;height:8px;background:#eee;border-radius:4px;overflow:hidden;
+    }
+    .gw_progress_fill{
+        height:100%;width:0%;background:linear-gradient(90deg,#5b2a8c,#7b4dab);
+        border-radius:4px;transition:width .15s ease;
+    }
+    .gw_progress_text{
+        display:flex;justify-content:space-between;align-items:center;
+        margin-top:10px;font-size:12px;color:#888;
+    }
+    .gw_progress_pct{font-weight:700;color:#5b2a8c;font-size:14px}
+    </style>
 </head>
 <body>
 <div th:replace="~{fragments/nav :: nav}"></div>
@@ -25,6 +88,7 @@
                      style="margin:0 0 14px;padding:10px 12px;border:1px solid #f5c2c7;background:#f8d7da;color:#842029;border-radius:8px;"
                      th:text="${error}">업로드에 실패했습니다.</div>
                 <form name="fwrite" id="fwrite" th:action="@{'/bbs/' + ${boTable} + '/write'}" method="post" enctype="multipart/form-data" autocomplete="off">
+                    <input type="hidden" name="_csrf" th:value="${csrfToken}">
                     <div class="bo_w_select write_div" th:if="${board.boUseCategory == 1}">
                         <label for="ca_name" class="sound_only">분류<strong>필수</strong></label>
                         <select name="caName" id="ca_name" required>
@@ -41,11 +105,6 @@
                         <label for="wr_password" class="sound_only">비밀번호<strong>필수</strong></label>
                         <input type="password" name="password" id="wr_password" class="frm_input half_input" placeholder="비밀번호" th:if="${loginUser == null}">
 
-                        <label for="wr_email" class="sound_only">이메일</label>
-                        <input type="text" name="email" id="wr_email" class="frm_input half_input email" placeholder="이메일">
-
-                        <label for="wr_homepage" class="sound_only">홈페이지</label>
-                        <input type="text" name="homepage" id="wr_homepage" class="frm_input half_input" placeholder="홈페이지">
                     </div>
 
                     <div class="bo_w_tit write_div">
@@ -58,21 +117,26 @@
                     <div class="write_div">
                         <label for="wr_content" class="sound_only">내용<strong>필수</strong></label>
                         <div class="wr_content">
-                            <textarea id="wr_content" name="content" required class="frm_input" style="height:220px;"></textarea>
+                            <textarea id="wr_content" name="content" required class="frm_input"></textarea>
                         </div>
                     </div>
 
-                    <div class="bo_w_flie write_div" th:if="${board.boUploadCount > 0}">
-                        <div class="file_wr write_div" th:each="idx : ${#numbers.sequence(1, board.boUploadCount)}">
-                            <label th:for="${'bf_file_' + idx}" class="lb_icon">
-                                <i class="fa fa-folder-open" aria-hidden="true"></i>
-                                <span class="sound_only" th:text="${'파일 첨부 #' + idx}">파일 첨부 #1</span>
-                            </label>
-                            <input type="file"
-                                   name="files"
-                                   th:id="${'bf_file_' + idx}"
-                                   class="frm_file">
+                    <div class="gw_photo_section write_div" th:if="${board.boUploadCount > 0}">
+                        <div class="gw_photo_btns">
+                            <button type="button" class="gw_camera_btn" id="btn_camera">
+                                <i class="fa fa-camera" aria-hidden="true"></i> 사진 촬영
+                            </button>
+                            <button type="button" class="gw_album_btn" id="btn_album">
+                                <i class="fa fa-image" aria-hidden="true"></i> 앨범에서 선택
+                            </button>
                         </div>
+                        <div class="gw_photo_preview" id="photo_preview"></div>
+                        <p class="gw_photo_hint">
+                            <i class="fa fa-info-circle" aria-hidden="true"></i>
+                            <span id="photo_count">0</span> / <span th:text="${board.boUploadCount}">2</span>장 첨부됨
+                        </p>
+                        <input type="file" id="camera_input" accept="image/*" capture="environment" style="display:none">
+                        <input type="file" id="album_input" accept="image/*" multiple style="display:none">
                     </div>
 
                     <div class="btn_confirm write_div">
@@ -80,11 +144,205 @@
                         <button type="submit" id="btn_submit" class="btn_submit btn">작성완료</button>
                     </div>
                 </form>
+                <div class="gw_upload_overlay" id="upload_overlay">
+                    <div class="gw_upload_box">
+                        <div class="gw_upload_icon"><i class="fa fa-cloud-upload"></i></div>
+                        <div class="gw_upload_title">업로드 중...</div>
+                        <div class="gw_upload_sub" id="upload_sub">파일을 전송하고 있습니다</div>
+                        <div class="gw_progress_track"><div class="gw_progress_fill" id="progress_fill"></div></div>
+                        <div class="gw_progress_text">
+                            <span id="upload_size"></span>
+                            <span class="gw_progress_pct" id="upload_pct">0%</span>
+                        </div>
+                    </div>
+                </div>
             </section>
         </div>
     </div>
 </div>
 <div th:replace="~{fragments/nav :: nav_end}"></div>
+<script th:inline="javascript" th:attr="nonce=${cspNonce}">
+/*<![CDATA[*/
+(function() {
+    var maxFiles = /*[[${board.boUploadCount}]]*/ 2;
+    var form = document.getElementById('fwrite');
+    var preview = document.getElementById('photo_preview');
+    var countEl = document.getElementById('photo_count');
+    var cameraInput = document.getElementById('camera_input');
+    var albumInput = document.getElementById('album_input');
+    var btnCamera = document.getElementById('btn_camera');
+    var btnAlbum = document.getElementById('btn_album');
+    if (!form || !preview) return;
+
+    var photos = [];
+
+    function fmtBytes(b) {
+        if (b === 0) return '0 B';
+        var k = 1024, s = ['B','KB','MB','GB'];
+        var i = Math.floor(Math.log(b) / Math.log(k));
+        return parseFloat((b / Math.pow(k, i)).toFixed(1)) + ' ' + s[i];
+    }
+
+    function updateCount() { if (countEl) countEl.textContent = photos.length; }
+
+    function addPhoto(file) {
+        if (photos.length >= maxFiles) { alert('최대 ' + maxFiles + '장까지 첨부할 수 있습니다.'); return; }
+        var dt = new DataTransfer();
+        dt.items.add(file);
+        var input = document.createElement('input');
+        input.type = 'file'; input.name = 'files'; input.style.display = 'none';
+        input.files = dt.files;
+        form.appendChild(input);
+
+        var thumb = document.createElement('div');
+        thumb.className = 'gw_thumb';
+
+        var img = document.createElement('img');
+        img.alt = file.name;
+        var dimSpan = null;
+        var reader = new FileReader();
+        reader.onload = function(e) { img.src = e.target.result; };
+        reader.readAsDataURL(file);
+        thumb.appendChild(img);
+
+        /* 메타데이터 영역 */
+        var infoWrap = document.createElement('div');
+        infoWrap.className = 'gw_thumb_info';
+        var nameEl = document.createElement('span');
+        nameEl.className = 'gw_thumb_name';
+        nameEl.textContent = file.name;
+        infoWrap.appendChild(nameEl);
+        var metaEl = document.createElement('div');
+        metaEl.className = 'gw_thumb_meta';
+        metaEl.innerHTML = '<span>' + fmtBytes(file.size) + '</span>';
+        dimSpan = document.createElement('span');
+        dimSpan.textContent = '';
+        metaEl.appendChild(dimSpan);
+        infoWrap.appendChild(metaEl);
+        thumb.appendChild(infoWrap);
+
+        /* 이미지 로드 후 해상도 표시 */
+        img.addEventListener('load', function() {
+            if (img.naturalWidth) dimSpan.textContent = img.naturalWidth + '\u00d7' + img.naturalHeight;
+        });
+
+        var removeBtn = document.createElement('button');
+        removeBtn.type = 'button'; removeBtn.className = 'gw_thumb_remove';
+        removeBtn.innerHTML = '&times;';
+        thumb.appendChild(removeBtn);
+
+        preview.appendChild(thumb);
+        var entry = {file: file, input: input, thumbEl: thumb};
+        photos.push(entry);
+        updateCount();
+
+        removeBtn.addEventListener('click', function() {
+            form.removeChild(input);
+            preview.removeChild(thumb);
+            photos = photos.filter(function(p) { return p !== entry; });
+            updateCount();
+        });
+    }
+
+    function checkMax() {
+        if (photos.length >= maxFiles) { alert('최대 ' + maxFiles + '장까지 첨부할 수 있습니다.'); return false; }
+        return true;
+    }
+
+    if (btnCamera) btnCamera.addEventListener('click', function() { if (checkMax()) { cameraInput.value=''; cameraInput.click(); } });
+    if (btnAlbum) btnAlbum.addEventListener('click', function() { if (checkMax()) { albumInput.value=''; albumInput.click(); } });
+    if (cameraInput) cameraInput.addEventListener('change', function() { if (this.files && this.files[0]) addPhoto(this.files[0]); });
+    if (albumInput) albumInput.addEventListener('change', function() {
+        if (!this.files) return;
+        for (var i = 0; i < this.files.length; i++) { if (photos.length >= maxFiles) break; addPhoto(this.files[i]); }
+    });
+
+    /* ── XHR 업로드 ── */
+    var overlay = document.getElementById('upload_overlay');
+    var progressFill = document.getElementById('progress_fill');
+    var uploadSub = document.getElementById('upload_sub');
+    var uploadPct = document.getElementById('upload_pct');
+    var uploadSize = document.getElementById('upload_size');
+    var isSubmitting = false;
+
+    function syncEditors() {
+        try {
+            if (window.CKEDITOR && CKEDITOR.instances['wr_content']) {
+                CKEDITOR.instances['wr_content'].updateElement();
+            }
+            if (window._seEditors && window._seEditors.getById) {
+                window._seEditors.getById['wr_content'].exec('UPDATE_CONTENTS_FIELD', []);
+            }
+            if (window._cheEditor) {
+                document.getElementById('wr_content').value = window._cheEditor.outputBodyHTML();
+            }
+        } catch(e) { console.log('Editor sync error:', e); }
+    }
+
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        if (isSubmitting) return;
+        isSubmitting = true;
+
+        syncEditors();
+
+        if (overlay) overlay.classList.add('active');
+
+        /* FormData 수동 구성 */
+        var fd = new FormData();
+        var els = form.elements;
+        for (var i = 0; i < els.length; i++) {
+            var el = els[i];
+            if (!el.name || el.name === '_csrf' || el.type === 'file' || el.type === 'submit' || el.disabled) continue;
+            if ((el.type === 'checkbox' || el.type === 'radio') && !el.checked) continue;
+            fd.append(el.name, el.value);
+        }
+        photos.forEach(function(p) { fd.append('files', p.file, p.file.name); });
+
+        var csrfToken = form.querySelector('input[name="_csrf"]').value;
+        console.log('XHR upload start, files:', photos.length, 'csrf:', csrfToken ? 'OK' : 'MISSING');
+
+        var xhr = new XMLHttpRequest();
+        xhr.open('POST', form.action, true);
+        xhr.setRequestHeader('X-CSRF-TOKEN', csrfToken);
+
+        xhr.upload.onprogress = function(ev) {
+            if (ev.lengthComputable) {
+                var pct = Math.round(ev.loaded / ev.total * 100);
+                if (progressFill) progressFill.style.width = pct + '%';
+                if (uploadPct) uploadPct.textContent = pct + '%';
+                if (uploadSize) uploadSize.textContent = fmtBytes(ev.loaded) + ' / ' + fmtBytes(ev.total);
+                if (uploadSub) uploadSub.textContent = pct < 100 ? '파일을 전송하고 있습니다' : '저장 처리 중...';
+            }
+        };
+
+        xhr.onload = function() {
+            console.log('XHR onload:', xhr.status, xhr.responseURL);
+            if (xhr.status >= 200 && xhr.status < 400) {
+                if (progressFill) progressFill.style.width = '100%';
+                if (uploadPct) uploadPct.textContent = '100%';
+                if (uploadSub) uploadSub.textContent = '완료! 이동 중...';
+                window.location.href = xhr.responseURL || form.action.replace('/write', '/list');
+            } else {
+                alert('업로드 실패 (HTTP ' + xhr.status + ')');
+                if (overlay) overlay.classList.remove('active');
+                isSubmitting = false;
+            }
+        };
+
+        xhr.onerror = function() {
+            console.log('XHR onerror');
+            alert('네트워크 오류가 발생했습니다.');
+            if (overlay) overlay.classList.remove('active');
+            isSubmitting = false;
+        };
+
+        xhr.send(fd);
+    });
+})();
+/*]]>*/
+</script>
+<script th:if="${board.boUseDhtmlEditor == 1}" th:src="@{/js/editor-image-resize.js(v=20260209)}"></script>
 <script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'ckeditor4'}" th:src="@{/plugin/editor/ckeditor4/ckeditor.js}"></script>
 <script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'ckeditor4'}" th:src="@{/plugin/editor/ckeditor4/config.js}"></script>
 <script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'smarteditor2'}" th:src="@{/plugin/editor/smarteditor2/js/service/HuskyEZCreator.js}"></script>
@@ -98,13 +356,9 @@
     /*]]>*/
     (function() {
         if (!useEditor || !editorType) return;
-        var form = document.getElementById('fwrite');
         var textarea = document.getElementById('wr_content');
         if (editorType === 'ckeditor4' && window.CKEDITOR) {
             CKEDITOR.replace('wr_content', { height: 300 });
-            form.addEventListener('submit', function() {
-                CKEDITOR.instances['wr_content'].updateElement();
-            });
         }
         if (editorType === 'smarteditor2' && window.nhn && window.nhn.husky) {
             var oEditors = [];
@@ -114,11 +368,7 @@
                 sSkinURI: basePath + 'plugin/editor/smarteditor2/SmartEditor2Skin.html',
                 fCreator: 'createSEditor2'
             });
-            form.addEventListener('submit', function() {
-                if (oEditors.getById) {
-                    oEditors.getById['wr_content'].exec('UPDATE_CONTENTS_FIELD', []);
-                }
-            });
+            window._seEditors = oEditors;
         }
         if (editorType === 'cheditor5' && window.cheditor) {
             var ed_wr_content = new cheditor('ed_wr_content');
@@ -127,9 +377,7 @@
             ed_wr_content.config.editorPath = basePath + 'plugin/editor/cheditor5';
             ed_wr_content.inputForm = 'wr_content';
             ed_wr_content.run();
-            form.addEventListener('submit', function() {
-                document.getElementById('wr_content').value = ed_wr_content.outputBodyHTML();
-            });
+            window._cheEditor = ed_wr_content;
         }
         if (textarea) {
             textarea.removeAttribute('required');

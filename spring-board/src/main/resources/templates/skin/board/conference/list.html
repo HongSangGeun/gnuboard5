@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/css/default.css(v=20260210)}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <title th:text="${board.boSubject} + ' - 목록'">게시판 목록</title>
+    <link rel="stylesheet" th:href="@{/skin/board/conference/style.css}">
+    <link rel="stylesheet" th:href="@{/css/board-list-modern.css}">
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div id="wrapper">
+    <div id="container_wr">
+        <div id="container">
+            <h1 id="container_title" th:text="${pageTitle} ?: (board != null ? board.boSubject : '게시판')">게시판</h1>
+
+            <div id="bo_list" style="width:100%;">
+                <div class="bo_list_header">
+                    <nav id="bo_cate" th:if="${board.boUseCategory == 1}">
+                        <h2 th:text="${board.boSubject} + ' 카테고리'">카테고리</h2>
+                        <ul id="bo_cate_ul">
+                            <li>
+                                <a th:href="@{'/bbs/' + ${boTable} + '/list'(page=1, size=${result.size})}"
+                                   th:classappend="${sca == null || sca == ''} ? 'on' : ''">전체</a>
+                            </li>
+                            <li th:each="cat : ${#strings.arraySplit(board.boCategoryList, '|')}">
+                                <a th:href="@{'/bbs/' + ${boTable} + '/list'(page=1, size=${result.size}, sca=${cat})}"
+                                   th:text="${cat}"
+                                   th:classappend="${sca == cat} ? 'on' : ''">분류</a>
+                            </li>
+                        </ul>
+                    </nav>
+
+                    <div id="bo_btn_top">
+                        <div id="bo_list_total">
+                            <span th:text="|Total ${result.totalCount}건|">Total 0건</span>
+                            <span th:text="${result.page} + ' 페이지'">1 페이지</span>
+                        </div>
+                        <ul class="btn_bo_user">
+                            <li>
+                                <button type="button" class="btn_bo_sch btn_b01 btn" title="게시판 검색">
+                                    <i class="fa fa-search" aria-hidden="true"></i><span class="sound_only">게시판 검색</span>
+                                </button>
+                            </li>
+                            <li th:if="${(loginUser != null && loginUser.level >= board.boWriteLevel) || (loginUser == null && board.boWriteLevel <= 1)}">
+                                <a th:href="@{'/bbs/' + ${boTable} + '/write'}" class="btn_b01 btn" title="글쓰기">
+                                    <i class="fa fa-pencil" aria-hidden="true"></i><span class="sound_only">글쓰기</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+
+                <form name="fboardlist" id="fboardlist" method="post">
+                    <input type="hidden" name="_csrf" th:value="${csrfToken}">
+                    <input type="hidden" name="bo_table" th:value="${boTable}">
+                    <input type="hidden" name="sfl" th:value="${sfl}">
+                    <input type="hidden" name="stx" th:value="${stx}">
+                    <input type="hidden" name="sca" th:value="${sca}">
+                    <input type="hidden" name="sst" th:value="${sst}">
+                    <input type="hidden" name="sod" th:value="${sod}">
+                    <input type="hidden" name="page" th:value="${result.page}">
+                    <input type="hidden" name="sw" value="">
+
+            <div class="tbl_head01 tbl_wrap">
+                <table>
+                    <caption th:text="${board.boSubject} + ' 목록'">목록</caption>
+                    <thead>
+                    <tr>
+                        <th scope="col">번호</th>
+                        <th scope="col">제목</th>
+                        <th scope="col">글쓴이</th>
+                                <th scope="col">
+                                    <a th:href="@{'/bbs/' + ${boTable} + '/list'(page=1, size=${result.size}, sca=${sca}, sfl=${sfl}, stx=${stx}, sop=${sop}, sdate=${sdate}, edate=${edate}, sst='wr_hit', sod=${sod == 'asc' ? 'desc' : 'asc'})}">조회</a>
+                                </th>
+                                <th scope="col">
+                                    <a th:href="@{'/bbs/' + ${boTable} + '/list'(page=1, size=${result.size}, sca=${sca}, sfl=${sfl}, stx=${stx}, sop=${sop}, sdate=${sdate}, edate=${edate}, sst='wr_datetime', sod=${sod == 'asc' ? 'desc' : 'asc'})}">날짜</a>
+                                </th>
+                                <th scope="col">
+                                    관리
+                                    <a th:if="${loginUser != null && loginUser.level >= 10}" th:href="@{'/mgmt/board/' + ${boTable} + '/edit'}" title="게시판 관리" style="margin-left:4px;">
+                                        <i class="fa fa-cog" aria-hidden="true"></i>
+                                    </a>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                    <tr th:each="searchItem, stat : ${searchResults}"
+                        th:with="post=${searchItem.post}"
+                        th:classappend="(${#strings.contains(',' + (board.boNotice ?: '') + ',', ',' + post.wrId + ',')} ? ' bo_notice' : '') + (${stat.index % 2 == 0} ? ' even' : '')">
+                        <td class="td_num2">
+                            <strong class="notice_icon" th:if="${#strings.contains(',' + (board.boNotice ?: '') + ',', ',' + post.wrId + ',')}">공지</strong>
+                            <span th:if="${!#strings.contains(',' + (board.boNotice ?: '') + ',', ',' + post.wrId + ',')}" th:text="${post.wrId}">1</span>
+                        </td>
+                        <td class="td_subject" th:style="'padding-left:' + (${post.wrReply} != null ? ${#strings.length(post.wrReply)} * 10 : 0) + 'px'">
+                            <a th:if="${board.boUseCategory == 1 && post.caName != null && post.caName != ''}"
+                               th:href="@{'/bbs/' + ${boTable} + '/list'(page=1, size=${result.size}, sca=${post.caName})}"
+                               th:text="${post.caName}"
+                               class="bo_cate_link">분류</a>
+                            <div class="bo_tit">
+                                <a th:href="@{'/bbs/' + ${boTable} + '/view/' + ${post.wrId}}">
+                                    <img th:if="${post.wrReply != null && post.wrReply != ''}" th:src="@{/skin/board/basic/img/icon_reply.gif}" alt="답변">
+                                    <img th:if="${post.wrOption != null && #strings.contains(post.wrOption, 'secret')}" th:src="@{/skin/board/basic/img/icon_secret.gif}" alt="비밀글">
+                                    <span th:text="${post.wrSubject}">제목</span>
+                                </a>
+                                <span th:if="${searchItem.hasPageInfo()}" class="ocr_page_info"
+                                      style="display:inline-block;margin-left:6px;padding:2px 8px;background:#e3f2fd;color:#1976d2;border-radius:12px;font-size:12px;font-weight:500;"
+                                      th:text="'📄 ' + ${searchItem.matchedPagesText}">📄 2, 5페이지</span>
+                                <span th:if="${post.newPost}" class="new_icon"><span class="sound_only">새글</span></span>
+                                <span th:if="${post.hotPost}" class="hot_icon">H<span class="sound_only">인기글</span></span>
+                                <i th:if="${board.boUseListFile == 1 && post.fileAttached}" class="fa fa-download" aria-hidden="true"></i><span th:if="${board.boUseListFile == 1 && post.fileAttached}" class="sound_only">첨부파일</span>
+                                <i th:if="${post.linkAttached}" class="fa fa-link" aria-hidden="true"></i><span th:if="${post.linkAttached}" class="sound_only">관련링크</span>
+                                <span th:if="${post.wrComment > 0}" class="cnt_cmt" th:text="${post.wrComment}">0</span>
+                            </div>
+                        </td>
+                        <td class="td_name sv_use" th:text="${post.wrName}">작성자</td>
+                        <td class="td_num" th:text="${post.wrHit}">0</td>
+                                <td class="td_datetime" th:text="${post.wrDatetime != null ? #strings.substring(post.wrDatetime,5,16) : ''}">작성일</td>
+                        <td class="td_action">
+                            <div class="action_buttons" th:if="${loginUser != null && (loginUser.id == post.mbId || loginUser.level >= 10)}">
+                                <a th:href="@{'/bbs/' + ${boTable} + '/edit/' + ${post.wrId}}" title="수정">
+                                    <i class="fa fa-edit" aria-hidden="true"></i>
+                                </a>
+                                <button type="button" class="btn_delete" title="삭제"
+                                        th:data-delete-url="@{'/bbs/' + ${boTable} + '/delete/' + ${post.wrId}}">
+                                    <i class="fa fa-trash" aria-hidden="true"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                            <tr th:if="${#lists.isEmpty(searchResults)}">
+                                <td colspan="6" class="empty_table">게시물이 없습니다.</td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </form>
+
+                <div class="pg_wrap" th:if="${result.totalPages > 0}" style="margin-top:24px;">
+                    <span class="pg">
+                        <a class="pg_page pg_start"
+                           th:href="@{'/bbs/' + ${boTable} + '/list'(page=1, size=${result.size}, sca=${sca}, sfl=${sfl}, stx=${stx}, sop=${sop}, sdate=${sdate}, edate=${edate}, sst=${sst}, sod=${sod})}">처음</a>
+                        <a class="pg_page pg_prev" th:if="${hasPrevBlock}"
+                           th:href="@{'/bbs/' + ${boTable} + '/list'(page=${prevBlockPage}, size=${result.size}, sca=${sca}, sfl=${sfl}, stx=${stx}, sop=${sop}, sdate=${sdate}, edate=${edate}, sst=${sst}, sod=${sod})}">이전</a>
+                        <th:block th:each="p : ${pageNumbers}">
+                            <span class="pg_current" th:if="${p == result.page}" th:text="${p}">1</span>
+                            <a class="pg_page" th:if="${p != result.page}"
+                               th:text="${p}"
+                               th:href="@{'/bbs/' + ${boTable} + '/list'(page=${p}, size=${result.size}, sca=${sca}, sfl=${sfl}, stx=${stx}, sop=${sop}, sdate=${sdate}, edate=${edate}, sst=${sst}, sod=${sod})}">1</a>
+                        </th:block>
+                        <a class="pg_page pg_next" th:if="${hasNextBlock}"
+                           th:href="@{'/bbs/' + ${boTable} + '/list'(page=${nextBlockPage}, size=${result.size}, sca=${sca}, sfl=${sfl}, stx=${stx}, sop=${sop}, sdate=${sdate}, edate=${edate}, sst=${sst}, sod=${sod})}">다음</a>
+                        <a class="pg_page pg_end"
+                           th:href="@{'/bbs/' + ${boTable} + '/list'(page=${result.totalPages}, size=${result.size}, sca=${sca}, sfl=${sfl}, stx=${stx}, sop=${sop}, sdate=${sdate}, edate=${edate}, sst=${sst}, sod=${sod})}">맨끝</a>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="bo_sch_wrap" style="display:none;">
+    <div class="bo_sch_bg"></div>
+    <fieldset class="bo_sch">
+        <h3>검색</h3>
+        <form method="get" th:action="@{'/bbs/' + ${boTable} + '/list'}">
+            <input type="hidden" name="page" value="1" />
+            <input type="hidden" name="size" th:value="${result.size}" />
+            <input type="hidden" name="sca" th:value="${sca}" />
+            <input type="hidden" name="sop" th:value="${sop}" />
+            <label for="sfl" class="sound_only">검색대상</label>
+            <select name="sfl" id="sfl">
+                <option value="wr_subject" th:selected="${sfl == 'wr_subject'}">제목</option>
+                <option value="wr_content" th:selected="${sfl == 'wr_content'}">내용</option>
+                <option value="wr_subject||wr_content" th:selected="${sfl == 'wr_subject||wr_content'}">제목+내용</option>
+                <option value="wr_subject||wr_content||bf_ocr_text" th:selected="${sfl == 'wr_subject||wr_content||bf_ocr_text'}">제목+내용+첨부파일</option>
+                <option value="bf_ocr_text" th:selected="${sfl == 'bf_ocr_text'}">첨부파일 (이미지/PDF)</option>
+                <option th:if="${loginUser != null && loginUser.level >= 10}" value="mb_id,1" th:selected="${sfl == 'mb_id,1'}">회원아이디</option>
+                <option th:if="${loginUser != null && loginUser.level >= 10}" value="mb_id,0" th:selected="${sfl == 'mb_id,0'}">회원아이디(코)</option>
+                <option value="wr_name,1" th:selected="${sfl == 'wr_name,1'}">글쓴이</option>
+                <option value="wr_name,0" th:selected="${sfl == 'wr_name,0'}">글쓴이(코)</option>
+            </select>
+            <label for="stx" class="sound_only">검색어<strong class="sound_only"> 필수</strong></label>
+            <div class="sch_bar">
+                <input type="text" name="stx" th:value="${stx}" required id="stx" class="sch_input" size="25" maxlength="20" placeholder="검색어를 입력해주세요">
+                <button type="submit" value="검색" class="sch_btn"><i class="fa fa-search" aria-hidden="true"></i><span class="sound_only">검색</span></button>
+            </div>
+            <button type="button" class="bo_sch_cls" title="닫기"><i class="fa fa-times" aria-hidden="true"></i><span class="sound_only">닫기</span></button>
+        </form>
+    </fieldset>
+</div>
+
+<div th:replace="~{fragments/nav :: nav_end}"></div>
+<script th:attr="nonce=${cspNonce}">
+    // 검색 팝업
+    (function() {
+        var btn = document.querySelector('.btn_bo_sch');
+        var wrap = document.querySelector('.bo_sch_wrap');
+        var closeBtn = document.querySelector('.bo_sch_cls');
+        var bg = document.querySelector('.bo_sch_bg');
+        if (!btn || !wrap) return;
+
+        function openSearch() {
+            wrap.style.display = 'flex';
+            setTimeout(function() {
+                var input = wrap.querySelector('input[type="text"]');
+                if (input) input.focus();
+            }, 100);
+        }
+
+        function closeSearch() {
+            wrap.style.display = 'none';
+        }
+
+        btn.addEventListener('click', function() {
+            openSearch();
+        });
+
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                closeSearch();
+            });
+        }
+
+        if (bg) {
+            bg.addEventListener('click', function() {
+                closeSearch();
+            });
+        }
+
+        // ESC 키로 닫기
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && wrap.style.display === 'flex') {
+                closeSearch();
+            }
+        });
+    })();
+
+    // --- 자동 갱신 ---
+    var _refreshTimer = null;
+    var REFRESH_INTERVAL = 10000; // 10초
+
+    function refreshList() {
+        fetch(location.href, { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+            .then(function(res) { return res.text(); })
+            .then(function(html) {
+                var parser = new DOMParser();
+                var doc = parser.parseFromString(html, 'text/html');
+
+                // 테이블 tbody 갱신
+                var newTbody = doc.querySelector('#fboardlist tbody');
+                var curTbody = document.querySelector('#fboardlist tbody');
+                if (newTbody && curTbody) curTbody.innerHTML = newTbody.innerHTML;
+
+                // 총건수 갱신
+                var newTotal = doc.querySelector('#bo_list_total');
+                var curTotal = document.querySelector('#bo_list_total');
+                if (newTotal && curTotal) curTotal.innerHTML = newTotal.innerHTML;
+
+                // 페이지네이션 갱신
+                var newPg = doc.querySelector('.pg_wrap');
+                var curPg = document.querySelector('.pg_wrap');
+                if (newPg && curPg) curPg.innerHTML = newPg.innerHTML;
+
+                // 삭제 버튼 다시 바인딩
+                bindDeleteButtons();
+            })
+            .catch(function() { /* 네트워크 오류 무시 */ });
+    }
+
+    function startAutoRefresh() {
+        stopAutoRefresh();
+        _refreshTimer = setInterval(refreshList, REFRESH_INTERVAL);
+    }
+
+    function stopAutoRefresh() {
+        if (_refreshTimer) { clearInterval(_refreshTimer); _refreshTimer = null; }
+    }
+
+    // 탭이 보일 때만 갱신
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) { stopAutoRefresh(); } else { startAutoRefresh(); }
+    });
+
+    startAutoRefresh();
+
+    // --- 삭제 (AJAX) ---
+    function bindDeleteButtons() {
+        document.querySelectorAll('.btn_delete[data-delete-url]').forEach(function(btn) {
+            btn.addEventListener('click', function() { deletePost(this); });
+        });
+    }
+
+    function deletePost(button) {
+        if (!confirm('정말 삭제하시겠습니까?')) return;
+
+        var deleteUrl = button.getAttribute('data-delete-url');
+        var body = 'password=';
+        if (window.APP_CSRF_TOKEN) body += '&_csrf=' + encodeURIComponent(window.APP_CSRF_TOKEN);
+
+        fetch(deleteUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded', 'X-Requested-With': 'XMLHttpRequest' },
+            body: body,
+            redirect: 'follow'
+        }).then(function() {
+            refreshList(); // 삭제 후 즉시 목록 갱신
+        }).catch(function() {
+            location.reload();
+        });
+    }
+
+    bindDeleteButtons();
+</script>
+</body>
+</html>

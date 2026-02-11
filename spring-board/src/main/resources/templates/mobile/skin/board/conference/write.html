@@ -11,7 +11,7 @@
     <link rel="stylesheet" th:href="@{/css/mobile-board-skin.css}">
     <link rel="stylesheet" th:href="@{/css/index.css}">
     <title th:text="${board.boSubject} + ' - 글쓰기'">글쓰기</title>
-    <link rel="stylesheet" th:href="@{/skin/board/basic/style.css}">
+    <link rel="stylesheet" th:href="@{/skin/board/conference/style.css}">
     <style>
     .gw_photo_section{margin:12px 0;padding:0}
     .gw_photo_btns{display:flex;gap:8px;margin-bottom:12px}
@@ -128,6 +128,16 @@
                             <div class="wr_content">
                                 <textarea id="wr_content" name="content" required class="frm_input"
                                     style="height:220px;"></textarea>
+                            </div>
+                            <div class="stt_bar" id="stt_bar" style="display:none" th:attr="data-stt-url=@{/bbs/stt}">
+                                <button type="button" class="stt_btn" id="stt_btn">
+                                    <i class="fa fa-microphone" aria-hidden="true"></i> 음성 입력
+                                </button>
+                                <label class="stt_meeting" id="stt_meeting_label">
+                                    <input type="checkbox" id="stt_meeting"> 회의록
+                                </label>
+                                <span class="stt_status" id="stt_status"></span>
+                                <div class="stt_interim" id="stt_interim"></div>
                             </div>
                         </div>
 
@@ -247,7 +257,6 @@
                 thumb.appendChild(fileIcon);
             }
 
-            /* 메타데이터 */
             var infoWrap = document.createElement('div');
             infoWrap.className = 'gw_thumb_info';
             var nameEl = document.createElement('span');
@@ -264,7 +273,6 @@
             infoWrap.appendChild(metaEl);
             thumb.appendChild(infoWrap);
 
-            /* 이미지 해상도 */
             if (isImage(file) && dimSpan) {
                 var tmpImg = thumb.querySelector('img');
                 if (tmpImg) tmpImg.addEventListener('load', function() {
@@ -333,7 +341,6 @@
 
             if (overlay) overlay.classList.add('active');
 
-            /* FormData 수동 구성 */
             var fd = new FormData();
             var els = form.elements;
             for (var i = 0; i < els.length; i++) {
@@ -345,7 +352,6 @@
             photos.forEach(function(p) { fd.append('files', p.file, p.file.name); });
 
             var csrfToken = form.querySelector('input[name="_csrf"]').value;
-            console.log('XHR upload start, files:', photos.length, 'csrf:', csrfToken ? 'OK' : 'MISSING');
 
             var xhr = new XMLHttpRequest();
             xhr.open('POST', form.action, true);
@@ -362,7 +368,6 @@
             };
 
             xhr.onload = function() {
-                console.log('XHR onload:', xhr.status, xhr.responseURL);
                 if (xhr.status >= 200 && xhr.status < 400) {
                     if (progressFill) progressFill.style.width = '100%';
                     if (uploadPct) uploadPct.textContent = '100%';
@@ -376,7 +381,6 @@
             };
 
             xhr.onerror = function() {
-                console.log('XHR onerror');
                 alert('네트워크 오류가 발생했습니다.');
                 if (overlay) overlay.classList.remove('active');
                 isSubmitting = false;
@@ -433,8 +437,202 @@
                 textarea.removeAttribute('required');
             }
         })();
+    </script>
+    <script th:attr="nonce=${cspNonce}">
+    /* ── STT 음성 입력 (Native + 서버 fallback + 회의록 모드) ── */
+    (function() {
+        var SpeechRecog = window.SpeechRecognition || window.webkitSpeechRecognition;
+        var sttBar = document.getElementById('stt_bar');
+        var sttBtn = document.getElementById('stt_btn');
+        var sttStatus = document.getElementById('stt_status');
+        var sttInterim = document.getElementById('stt_interim');
+        var sttMeetingLabel = document.getElementById('stt_meeting_label');
+        var sttMeeting = document.getElementById('stt_meeting');
+        if (!sttBar || !sttBtn) return;
 
-        /* 중복 제출 방지는 XHR 프로그레스에서 처리 */
+        var hasMic = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+        if (!SpeechRecog && !hasMic) return;
+
+        sttBar.style.display = 'flex';
+        if (hasMic && sttMeetingLabel) sttMeetingLabel.style.display = 'inline-flex';
+
+        function insertHtml(text) {
+            var ta = document.getElementById('wr_content');
+            if (window.CKEDITOR && CKEDITOR.instances['wr_content']) {
+                var html = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+                CKEDITOR.instances['wr_content'].insertHtml(html);
+            } else if (ta) {
+                var start = ta.selectionStart || ta.value.length;
+                ta.value = ta.value.substring(0, start) + text + ta.value.substring(ta.selectionEnd || start);
+                ta.selectionStart = ta.selectionEnd = start + text.length;
+                ta.focus();
+            }
+        }
+
+        function fmtTime(sec) {
+            var m = Math.floor(sec / 60), s = sec % 60;
+            return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+        }
+
+        /* ─── Native Web Speech API ─── */
+        var recognition = null;
+        if (SpeechRecog) {
+            recognition = new SpeechRecog();
+            recognition.lang = 'ko-KR';
+            recognition.continuous = true;
+            recognition.interimResults = true;
+            recognition.maxAlternatives = 1;
+            recognition.onstart = function() {
+                setActive(true, 'native');
+                sttStatus.textContent = '듣고 있습니다...';
+            };
+            recognition.onresult = function(e) {
+                var interim = '';
+                for (var i = e.resultIndex; i < e.results.length; i++) {
+                    if (e.results[i].isFinal) insertHtml(e.results[i][0].transcript);
+                    else interim += e.results[i][0].transcript;
+                }
+                sttInterim.textContent = interim;
+            };
+            recognition.onerror = function(e) {
+                if (e.error === 'no-speech') sttStatus.textContent = '음성이 감지되지 않았습니다';
+                else if (e.error === 'not-allowed') sttStatus.textContent = '마이크 권한이 필요합니다';
+                else sttStatus.textContent = '오류: ' + e.error;
+            };
+            recognition.onend = function() {
+                setActive(false);
+                sttStatus.textContent = '';
+                sttInterim.textContent = '';
+            };
+        }
+
+        /* ─── Server-side STT (AudioContext) ─── */
+        var sttUrl = sttBar.getAttribute('data-stt-url') || '/bbs/stt';
+        var audioCtx, mediaStream, scriptNode, pcmChunks, isMeetingRec, tickTimer, recSec;
+        var MAX_REC_SEC = 300; /* 5분 */
+
+        function f32toI16(f) {
+            var o = new Int16Array(f.length);
+            for (var i = 0; i < f.length; i++) {
+                var s = Math.max(-1, Math.min(1, f[i]));
+                o[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+            }
+            return o;
+        }
+        function downsample(buf, fromRate, toRate) {
+            if (fromRate === toRate) return buf;
+            var ratio = fromRate / toRate;
+            var len = Math.round(buf.length / ratio);
+            var out = new Float32Array(len);
+            for (var i = 0; i < len; i++) out[i] = buf[Math.round(i * ratio)];
+            return out;
+        }
+
+        async function startServerRec(meeting) {
+            isMeetingRec = meeting;
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({
+                    audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true }
+                });
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                var src = audioCtx.createMediaStreamSource(mediaStream);
+                scriptNode = audioCtx.createScriptProcessor(4096, 1, 1);
+                pcmChunks = [];
+                scriptNode.onaudioprocess = function(e) {
+                    pcmChunks.push(new Float32Array(e.inputBuffer.getChannelData(0)));
+                };
+                src.connect(scriptNode);
+                scriptNode.connect(audioCtx.destination);
+                setActive(true, 'server');
+                recSec = 0;
+                sttStatus.textContent = (meeting ? '회의록 ' : '') + '녹음 중 00:00 / ' + fmtTime(MAX_REC_SEC);
+                sttInterim.textContent = '말씀해 주세요';
+                tickTimer = setInterval(function() {
+                    recSec++;
+                    sttStatus.textContent = (isMeetingRec ? '회의록 ' : '') + '녹음 중 ' + fmtTime(recSec) + ' / ' + fmtTime(MAX_REC_SEC);
+                    if (recSec >= MAX_REC_SEC && currentMode === 'server') stopServerRec();
+                }, 1000);
+            } catch(e) {
+                sttStatus.textContent = '마이크 권한이 필요합니다';
+            }
+        }
+
+        async function stopServerRec() {
+            clearInterval(tickTimer);
+            setActive(false);
+            if (scriptNode) scriptNode.disconnect();
+            if (mediaStream) mediaStream.getTracks().forEach(function(t) { t.stop(); });
+            if (!pcmChunks || pcmChunks.length === 0) {
+                sttStatus.textContent = ''; sttInterim.textContent = ''; return;
+            }
+            var durSec = recSec || 0;
+            sttStatus.textContent = isMeetingRec ? '화자 분석 중... (' + fmtTime(durSec) + ' 분량)' : '인식 중...';
+            sttInterim.textContent = durSec > 60 ? '긴 녹음은 처리에 시간이 걸립니다...' : '';
+
+            var total = pcmChunks.reduce(function(s, c) { return s + c.length; }, 0);
+            var merged = new Float32Array(total);
+            var off = 0;
+            for (var i = 0; i < pcmChunks.length; i++) { merged.set(pcmChunks[i], off); off += pcmChunks[i].length; }
+
+            var sr = audioCtx ? audioCtx.sampleRate : 48000;
+            var down = downsample(merged, sr, 16000);
+            var int16 = f32toI16(down);
+
+            if (audioCtx) { try { audioCtx.close(); } catch(ex) {} }
+
+            var csrf = document.querySelector('input[name="_csrf"]');
+            var url = sttUrl + '?encoding=LINEAR16&sampleRate=16000';
+            if (isMeetingRec) url += '&diarization=true';
+            try {
+                var resp = await fetch(url, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/octet-stream', 'X-CSRF-TOKEN': csrf ? csrf.value : '' },
+                    body: int16.buffer
+                });
+                var result = await resp.json();
+                if (result.text) {
+                    insertHtml(result.text);
+                    sttStatus.textContent = '인식 완료';
+                } else {
+                    sttStatus.textContent = result.error || '인식된 텍스트가 없습니다';
+                }
+            } catch(ex) {
+                sttStatus.textContent = '서버 연결 오류';
+            }
+            sttInterim.textContent = '';
+            setTimeout(function() { sttStatus.textContent = ''; }, 3000);
+        }
+
+        /* ─── 상태 관리 ─── */
+        var isActive = false, currentMode = null;
+
+        function setActive(active, mode) {
+            isActive = active;
+            currentMode = active ? mode : null;
+            if (active) {
+                sttBtn.classList.add('recording');
+                sttBtn.innerHTML = '<i class="fa fa-stop" aria-hidden="true"></i> 중지';
+            } else {
+                sttBtn.classList.remove('recording');
+                sttBtn.innerHTML = '<i class="fa fa-microphone" aria-hidden="true"></i> 음성 입력';
+            }
+        }
+
+        sttBtn.addEventListener('click', function() {
+            if (isActive) {
+                if (currentMode === 'native') recognition.stop();
+                else stopServerRec();
+                return;
+            }
+            var meeting = sttMeeting && sttMeeting.checked;
+            if (!meeting && recognition) {
+                sttInterim.textContent = '';
+                try { recognition.start(); } catch(e) {}
+            } else if (hasMic) {
+                startServerRec(meeting);
+            }
+        });
+    })();
     </script>
 </body>
 

@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/css/default.css(v=20260210)}">
+    <link rel="stylesheet" th:href="@{/css/mobile-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/mobile.css}">
+    <link rel="stylesheet" th:href="@{/css/mobile-board-skin.css}">
+    <title th:text="${post.wrSubject} + ' - 보기'">게시글 보기</title>
+</head>
+
+<body>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <div id="wrapper">
+        <div id="container_wr">
+            <div id="container" class="m_container">
+                <!-- Header with Back button and Title -->
+                <div class="m_header_title" style="display: flex; align-items: center; margin-bottom: 16px;">
+                    <h1 id="container_title" style="margin: 0 auto; font-size: 1.2rem; font-weight: 700;">게시글 상세</h1>
+                </div>
+
+
+                <article id="bo_v" class="m_view_card">
+                    <header>
+                        <span class="m_view_cate" th:if="${post.caName != null && post.caName != ''}"
+                            th:text="${post.caName}">분류</span>
+                        <h2 class="m_view_subject">
+                            <span th:text="${post.wrSubject}">제목</span>
+                        </h2>
+                        <div class="m_view_writer" th:text="${post.wrName}">작성자</div>
+                    </header>
+
+                    <div class="m_view_info_row">
+                        <span class="m_view_date" th:text="${post.wrDatetime}">2024-00-00 00:00</span>
+
+                        <div class="m_view_stat_wrap">
+                            <span class="m_view_stat_badge">
+                                조회 <span th:text="${post.wrHit}">0</span>
+                            </span>
+
+                            <!-- More Options Button -->
+                            <div style="position: relative;" class="view_more_opt_wrap">
+                                <button type="button" class="m_view_more_btn btn_more_opt is_view_btn">
+                                    <i class="fa fa-chevron-right" aria-hidden="true"></i>
+                                </button>
+                                <!-- Dropdown Menu -->
+                                <ul class="more_opt is_view_btn"
+                                    style="display: none; position: absolute; top: 40px; right: 0; background: #fff; border: 1px solid #eee; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); width: 120px; z-index: 100;">
+                                    <li><a th:href="@{'/bbs/' + ${boTable} + '/write'}"
+                                            style="display: block; padding: 10px; border-bottom: 1px solid #f5f5f5; color: #333;">글쓰기</a>
+                                    </li>
+                                    <li
+                                        th:if="${(loginUser != null && loginUser.id == post.mbId) || (loginUser != null && loginUser.level >= 10)}">
+                                        <a th:href="@{'/bbs/' + ${boTable} + '/edit/' + ${post.wrId}}"
+                                            style="display: block; padding: 10px; border-bottom: 1px solid #f5f5f5; color: #333;">수정</a>
+                                    </li>
+                                    <li
+                                        th:if="${(loginUser != null && loginUser.id == post.mbId) || (loginUser != null && loginUser.level >= 10)}">
+                                        <form th:action="@{'/bbs/' + ${boTable} + '/delete/' + ${post.wrId}}"
+                                            method="post" data-confirm="삭제하시겠습니까?">
+                                            <input type="hidden" name="_csrf" th:value="${csrfToken}">
+                                            <button type="submit"
+                                                style="display: block; width: 100%; text-align: left; padding: 10px; background: none; border: none; color: #ff5b5b; cursor: pointer;">삭제</button>
+                                        </form>
+                                    </li>
+                                    <li><a th:href="@{'/bbs/' + ${boTable} + '/list'}"
+                                            style="display: block; padding: 10px; color: #333;">목록으로</a></li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <section id="bo_v_atc">
+                        <div class="m_content_scroll">
+                            <div id="bo_v_con" class="m_view_content" th:utext="${post.wrContent}">내용</div>
+                        </div>
+
+                        <!-- Files -->
+                        <section id="bo_v_file" th:if="${!#lists.isEmpty(viewFiles)}"
+                            style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee;">
+                            <ul style="list-style: none; padding: 0;">
+                                <li th:each="vf : ${viewFiles}" style="margin-bottom: 8px;">
+                                    <i class="fa fa-paperclip" aria-hidden="true"
+                                        style="color: #999; margin-right: 6px;"></i>
+                                    <a th:href="@{'/bbs/' + ${boTable} + '/download/' + ${post.wrId} + '/' + ${vf.file.bfNo}}"
+                                        class="view_file_download" style="color: #555; font-size: 14px;">
+                                        <strong th:text="${vf.file.bfSource}">파일</strong>
+                                        (<span th:text="${vf.file.bfFilesize}"></span>)
+                                    </a>
+                                    <a th:if="${vf.viewType != null and vf.viewType != 'hwp-locked'}"
+                                       th:href="@{'/bbs/' + ${boTable} + '/file/' + ${post.wrId} + '/' + ${vf.file.bfNo}}"
+                                       class="view_file_open" target="_blank" rel="noopener"
+                                       style="margin-left:6px;color:#2563eb;font-size:13px;">바로보기</a>
+                                    <span th:if="${vf.viewType == 'hwp-locked'}" class="view_file_locked" title="비밀번호가 설정된 문서입니다">&#x1F512; 암호문서</span>
+                                    <div th:if="${vf.viewType == 'image'}" style="margin-top:8px;">
+                                        <img th:src="@{'/bbs/' + ${boTable} + '/file/' + ${post.wrId} + '/' + ${vf.file.bfNo}}" alt="" loading="lazy" style="max-width:100%;">
+                                    </div>
+                                    <div th:if="${vf.viewType == 'pdf' || vf.viewType == 'hwp'}" style="margin-top:8px;">
+                                        <iframe th:src="@{'/bbs/' + ${boTable} + '/file/' + ${post.wrId} + '/' + ${vf.file.bfNo}}" title="첨부파일 미리보기" loading="lazy" style="width:100%;height:400px;border:1px solid #ddd;border-radius:4px;"></iframe>
+                                    </div>
+                                    <div th:if="${vf.viewType == 'office'}" style="margin-top:8px;">
+                                        <iframe th:src="@{'/bbs/' + ${boTable} + '/file/' + ${post.wrId} + '/' + ${vf.file.bfNo}}" title="문서 미리보기" loading="lazy" style="width:100%;height:400px;border:1px solid #ddd;border-radius:4px;"></iframe>
+                                    </div>
+                                </li>
+                            </ul>
+                        </section>
+                    </section>
+
+                    <!-- Comments Section (Simplified for Mobile) -->
+                    <div style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
+                        <div style="font-weight: 700; margin-bottom: 16px;">댓글 <span th:text="${post.wrComment}"
+                                style="color: var(--primary-color);">0</span></div>
+
+                        <div id="bo_vc">
+                            <article th:each="comment : ${comments}" th:id="${'c_' + comment.wrId}"
+                                style="margin-bottom: 16px; padding-bottom: 16px; border-bottom: 1px solid #f5f5f5;">
+                                <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                                    <div>
+                                        <span th:text="${comment.wrName}"
+                                            style="font-weight: 600; font-size: 13px;">작성자</span>
+                                        <span th:text="${comment.wrDatetime}"
+                                            style="color: #aaa; font-size: 12px; margin-left: 6px;">00-00 00:00</span>
+                                    </div>
+                                    <div
+                                        th:if="${(loginUser != null && loginUser.id == comment.mbId) || (loginUser != null && loginUser.level >= 10)}">
+                                        <form
+                                            th:action="@{'/bbs/' + ${boTable} + '/comment/' + ${post.wrId} + '/delete/' + ${comment.wrId}}"
+                                            method="post" style="display:inline;"
+                                            data-confirm="댓글을 삭제하시겠습니까?">
+                                            <input type="hidden" name="_csrf" th:value="${csrfToken}">
+                                            <button type="submit"
+                                                style="background: none; border: none; color: #aaa; font-size: 12px; cursor: pointer;">삭제</button>
+                                        </form>
+                                    </div>
+                                </div>
+                                <div th:utext="${comment.wrContent}"
+                                    style="font-size: 14px; color: #333; line-height: 1.5;">댓글 내용</div>
+                            </article>
+                            <p th:if="${#lists.isEmpty(comments)}"
+                                style="color: #999; text-align: center; padding: 20px 0;">등록된 댓글이 없습니다.</p>
+                        </div>
+
+                        <!-- Comment Write -->
+                        <aside id="bo_vc_w"
+                            th:if="${(loginUser != null && loginUser.level >= board.boCommentLevel) || (loginUser == null && board.boCommentLevel <= 1)}"
+                            style="margin-top: 20px;">
+                            <form th:action="@{'/bbs/' + ${boTable} + '/comment/' + ${post.wrId}}" method="post"
+                                style="position: relative;">
+                                <input type="hidden" name="_csrf" th:value="${csrfToken}">
+                                <textarea name="content" required placeholder="댓글을 입력하세요"
+                                    style="width: 100%; border: 1px solid #ddd; border-radius: 8px; padding: 12px; font-size: 14px; box-sizing: border-box; min-height: 80px; resize: none;"></textarea>
+                                <button type="submit"
+                                    style="position: absolute; bottom: 12px; right: 12px; background: var(--primary-color); color: #fff; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; cursor: pointer;">등록</button>
+                            </form>
+                        </aside>
+                    </div>
+
+                </article>
+            </div>
+        </div>
+    </div>
+    <div th:replace="~{fragments/nav :: nav_end}"></div>
+
+    <script th:attr="nonce=${cspNonce}">
+        document.addEventListener('DOMContentLoaded', function () {
+            var btn = document.querySelector('.btn_more_opt.is_view_btn');
+            var menu = document.querySelector('.more_opt.is_view_btn');
+            if (btn && menu) {
+                btn.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+                });
+                document.addEventListener('click', function (e) {
+                    if (!e.target.closest('.view_more_opt_wrap')) {
+                        menu.style.display = 'none';
+                    }
+                });
+            }
+
+            /* iOS Safari 본문 가로 스크롤 처리 */
+            var con = document.getElementById('bo_v_con');
+            if (con) {
+                var pw = con.parentElement.offsetWidth || con.parentElement.clientWidth;
+                if (pw > 0) {
+                    con.style.maxWidth = pw + 'px';
+                    con.style.overflowX = 'auto';
+                    con.style.webkitOverflowScrolling = 'touch';
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ko">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/css/default.css(v=20260210)}">
+    <link rel="stylesheet" th:href="@{/css/mobile-layout.css}">
+    <link rel="stylesheet" th:href="@{/css/mobile.css}">
+    <link rel="stylesheet" th:href="@{/css/mobile-board-skin.css}">
+    <title th:text="${board.boSubject} + ' - 목록'">게시판 목록</title>
+</head>
+
+<body>
+    <div th:replace="~{fragments/nav :: nav}"></div>
+    <div id="wrapper">
+        <div id="container_wr">
+            <div id="container" class="m_container">
+                <!-- Header with Title -->
+                <div class="m_header_title"
+                    style="display: flex; align-items: center; justify-content: center; margin-bottom: 16px;">
+                    <h1 id="container_title" th:text="${pageTitle} ?: (board != null ? board.boSubject : '게시판')"
+                        style="margin: 0; font-size: 1.2rem; font-weight: 700;">게시판</h1>
+                </div>
+
+                <div id="bo_list">
+                    <!-- Category (Green dot active style) -->
+                    <nav id="bo_cate" th:if="${board.boUseCategory == 1}" class="m_cate_wrap"
+                        style="text-align: center; margin-bottom: 20px;">
+                        <span style="font-weight: 700; font-size: 1.1rem;">
+                            <span style="color: #8fd162; margin-right: 4px;">●</span>
+                            <span th:text="${sca != null && sca != '' ? sca : board.boSubject}">전체 게시판</span>
+                        </span>
+                    </nav>
+
+                    <!-- List (Individual Card Style) -->
+                    <div class="m_card_list">
+                        <ul class="m_post_list" style="border: none;">
+                            <li th:each="post : ${result.items}" style="border: none; padding: 0;">
+                                <a th:href="@{'/bbs/' + ${boTable} + '/view/' + ${post.wrId}}" class="m_list_item_card">
+                                    <div class="m_list_subject">
+                                        <span
+                                            th:if="${board.boUseCategory == 1 && post.caName != null && post.caName != ''}"
+                                            th:text="'[' + ${post.caName} + ']'"
+                                            style="font-weight: normal; color: #555;">[분류]</span>
+                                        <span th:text="${post.wrSubject}">제목</span>
+                                        <span th:if="${post.wrComment > 0}"
+                                            style="color: #ff5b5b; font-size: 0.9rem; margin-left: 4px;"
+                                            th:text="${post.wrComment}">0</span>
+                                        <i th:if="${post.wrOption != null && #strings.contains(post.wrOption, 'secret')}"
+                                            class="fa fa-lock" aria-hidden="true"
+                                            style="color:#aaa; font-size: 0.9rem; margin-left: 4px;"></i>
+                                        <span th:if="${post.newPost}" class="m_new_icon"></span>
+                                    </div>
+                                    <div class="m_list_meta">
+                                        <span class="m_list_date"
+                                            th:text="${post.wrDatetime != null ? #strings.substring(post.wrDatetime,5,16) : ''}">2024-00-00
+                                            00:00</span>
+                                        <span class="m_list_writer" th:text="${post.wrName}">작성자</span>
+                                    </div>
+                                </a>
+                            </li>
+                            <li th:if="${#lists.isEmpty(result.items)}" class="m_empty_card"
+                                style="text-align: center; padding: 40px 0; color: #999;">
+                                게시물이 없습니다.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pg_wrap" th:if="${result.totalPages > 0}"
+                        style="display: flex; justify-content: center; margin-top: 20px; margin-bottom: 80px;">
+                        <span class="pg">
+                            <a class="pg_page pg_start"
+                                th:href="@{'/bbs/' + ${boTable} + '/list'(page=1, size=${result.size}, sca=${sca}, sfl=${sfl}, stx=${stx})}">처음</a>
+                            <a class="pg_page pg_prev" th:if="${hasPrevBlock}"
+                                th:href="@{'/bbs/' + ${boTable} + '/list'(page=${prevBlockPage}, size=${result.size}, sca=${sca}, sfl=${sfl}, stx=${stx})}">이전</a>
+                            <th:block th:each="p : ${pageNumbers}">
+                                <span class="pg_current" th:if="${p == result.page}" th:text="${p}">1</span>
+                                <a class="pg_page" th:if="${p != result.page}" th:text="${p}"
+                                    th:href="@{'/bbs/' + ${boTable} + '/list'(page=${p}, size=${result.size}, sca=${sca}, sfl=${sfl}, stx=${stx})}">1</a>
+                            </th:block>
+                            <a class="pg_page pg_next" th:if="${hasNextBlock}"
+                                th:href="@{'/bbs/' + ${boTable} + '/list'(page=${nextBlockPage}, size=${result.size}, sca=${sca}, sfl=${sfl}, stx=${stx})}">다음</a>
+                            <a class="pg_page pg_end"
+                                th:href="@{'/bbs/' + ${boTable} + '/list'(page=${result.totalPages}, size=${result.size}, sca=${sca}, sfl=${sfl}, stx=${stx})}">맨끝</a>
+                        </span>
+                    </div>
+
+                    <!-- Floating Write Button -->
+                    <a th:if="${(loginUser != null && loginUser.level >= board.boWriteLevel) || (loginUser == null && board.boWriteLevel <= 1)}"
+                        th:href="@{'/bbs/' + ${boTable} + '/write'}" class="m_fab_write">
+                        <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                        <span>작성하기</span>
+                    </a>
+
+                </div>
+            </div>
+        </div>
+    </div>
+    <div th:replace="~{fragments/nav :: nav_end}"></div>
+</body>
+
+</html>

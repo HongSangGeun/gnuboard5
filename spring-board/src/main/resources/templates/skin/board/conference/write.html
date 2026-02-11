@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" th:href="@{/js/font-awesome/css/font-awesome.min.css}">
+    <link rel="stylesheet" th:href="@{/css/default.css(v=20260210)}">
+    <link rel="stylesheet" th:href="@{/css/index.css}">
+    <title th:text="${board.boSubject} + ' - 글쓰기'">글쓰기</title>
+    <link rel="stylesheet" th:href="@{/skin/board/conference/style.css}">
+    <link rel="stylesheet" th:href="@{/css/board-write-modern.css}">
+</head>
+<body>
+<div th:replace="~{fragments/nav :: nav}"></div>
+<div id="wrapper">
+    <div id="container_wr">
+        <div id="container">
+            <h1 id="container_title" th:text="${pageTitle} ?: (board != null ? board.boSubject : '게시판')">게시판</h1>
+
+            <section id="bo_w">
+                <h2 class="sound_only">글쓰기</h2>
+                <div th:if="${error}"
+                     role="alert"
+                     style="margin:0 0 14px;padding:10px 12px;border:1px solid #f5c2c7;background:#f8d7da;color:#842029;border-radius:8px;"
+                     th:text="${error}">업로드에 실패했습니다.</div>
+                <form name="fwrite" id="fwrite" th:action="@{'/bbs/' + ${boTable} + '/write'}" method="post" enctype="multipart/form-data" autocomplete="off">
+                    <input type="hidden" name="_csrf" th:value="${csrfToken}">
+                    <div class="bo_w_select write_div" th:if="${board.boUseCategory == 1}">
+                        <label for="ca_name" class="sound_only">분류<strong>필수</strong></label>
+                        <div class="category-buttons">
+                            <button type="button"
+                                    th:each="cat : ${#strings.arraySplit(board.boCategoryList, '|')}"
+                                    th:text="${cat}"
+                                    th:attr="data-value=${cat}"
+                                    th:classappend="${writeForm.caName == cat} ? ' active' : ''">분류</button>
+                        </div>
+                        <input type="hidden" name="caName" id="ca_name" th:value="${writeForm.caName}">
+                    </div>
+
+                    <div class="bo_w_info write_div">
+                        <label for="wr_name" class="sound_only">이름<strong>필수</strong></label>
+                        <input type="text" name="name" id="wr_name" required class="frm_input half_input required" placeholder="이름" th:if="${loginUser == null}">
+
+                        <label for="wr_password" class="sound_only">비밀번호<strong>필수</strong></label>
+                        <input type="password" name="password" id="wr_password" class="frm_input half_input" placeholder="비밀번호" th:if="${loginUser == null}">
+
+                    </div>
+
+                    <div class="bo_w_tit write_div">
+                        <label for="wr_subject" class="sound_only">제목<strong>필수</strong></label>
+                        <div id="autosave_wrapper" class="write_div">
+                            <input type="text" name="subject" id="wr_subject" required class="frm_input full_input required" maxlength="255" placeholder="제목">
+                        </div>
+                    </div>
+
+                    <div class="write_div">
+                        <label for="wr_content" class="sound_only">내용<strong>필수</strong></label>
+                        <div class="wr_content">
+                            <textarea id="wr_content" name="content" required class="frm_input"></textarea>
+                        </div>
+                        <div class="stt_bar" id="stt_bar" style="display:none" th:attr="data-stt-url=@{/bbs/stt}">
+                            <button type="button" class="stt_btn" id="stt_btn">
+                                <i class="fa fa-microphone" aria-hidden="true"></i> 음성 입력
+                            </button>
+                            <label class="stt_meeting" id="stt_meeting_label">
+                                <input type="checkbox" id="stt_meeting"> 회의록
+                            </label>
+                            <span class="stt_status" id="stt_status"></span>
+                            <div class="stt_interim" id="stt_interim"></div>
+                        </div>
+                    </div>
+
+                    <div class="bo_w_flie write_div" th:if="${board.boUploadCount > 0}">
+                        <div class="file_wr write_div" th:each="idx : ${#numbers.sequence(1, board.boUploadCount)}">
+                            <label th:for="${'bf_file_' + idx}" class="lb_icon">
+                                <i class="fa fa-folder-open" aria-hidden="true"></i>
+                                <span class="sound_only" th:text="${'파일 첨부 #' + idx}">파일 첨부 #1</span>
+                            </label>
+                            <input type="file"
+                                   name="files"
+                                   th:id="${'bf_file_' + idx}"
+                                   class="frm_file">
+                        </div>
+                    </div>
+
+                    <div class="btn_confirm write_div">
+                        <a th:href="@{'/bbs/' + ${boTable} + '/list'}" class="btn_cancel btn">취소</a>
+                        <button type="submit" id="btn_submit" class="btn_submit btn">작성완료</button>
+                    </div>
+                </form>
+            </section>
+        </div>
+    </div>
+</div>
+<div th:replace="~{fragments/nav :: nav_end}"></div>
+<script th:attr="nonce=${cspNonce}">
+    (function() {
+        var buttons = document.querySelectorAll(".category-buttons button");
+        var input = document.getElementById("ca_name");
+        if (!buttons.length || !input) return;
+        if (!input.value) {
+            buttons[0].classList.add("active");
+            input.value = buttons[0].getAttribute("data-value");
+        }
+        buttons.forEach(function(btn) {
+            btn.addEventListener("click", function() {
+                buttons.forEach(function(b) { b.classList.remove("active"); });
+                btn.classList.add("active");
+                input.value = btn.getAttribute("data-value");
+            });
+        });
+    })();
+</script>
+<script th:if="${board.boUseDhtmlEditor == 1}" th:src="@{/js/editor-image-resize.js(v=20260209)}"></script>
+<script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'ckeditor4'}" th:src="@{/plugin/editor/ckeditor4/ckeditor.js}"></script>
+<script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'ckeditor4'}" th:src="@{/plugin/editor/ckeditor4/config.js}"></script>
+<script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'smarteditor2'}" th:src="@{/plugin/editor/smarteditor2/js/service/HuskyEZCreator.js}"></script>
+<script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'smarteditor2'}" th:src="@{/plugin/editor/smarteditor2/config.js}"></script>
+<script th:if="${board.boUseDhtmlEditor == 1 and board.boSelectEditor == 'cheditor5'}" th:src="@{/plugin/editor/cheditor5/cheditor.js}"></script>
+<script th:inline="javascript" th:attr="nonce=${cspNonce}">
+    /*<![CDATA[*/
+    var useEditor = /*[[${board.boUseDhtmlEditor}]]*/ 0;
+    var editorType = /*[[${board.boSelectEditor}]]*/ '';
+    var basePath = (window.APP_CONTEXT || '/').replace(/\/?$/, '/');
+    /*]]>*/
+    (function() {
+        if (!useEditor || !editorType) return;
+        var form = document.getElementById('fwrite');
+        var textarea = document.getElementById('wr_content');
+        if (editorType === 'ckeditor4' && window.CKEDITOR) {
+            CKEDITOR.replace('wr_content', { height: 300 });
+            form.addEventListener('submit', function() {
+                CKEDITOR.instances['wr_content'].updateElement();
+            });
+        }
+        if (editorType === 'smarteditor2' && window.nhn && window.nhn.husky) {
+            var oEditors = [];
+            nhn.husky.EZCreator.createInIFrame({
+                oAppRef: oEditors,
+                elPlaceHolder: 'wr_content',
+                sSkinURI: basePath + 'plugin/editor/smarteditor2/SmartEditor2Skin.html',
+                fCreator: 'createSEditor2'
+            });
+            form.addEventListener('submit', function() {
+                if (oEditors.getById) {
+                    oEditors.getById['wr_content'].exec('UPDATE_CONTENTS_FIELD', []);
+                }
+            });
+        }
+        if (editorType === 'cheditor5' && window.cheditor) {
+            var ed_wr_content = new cheditor('ed_wr_content');
+            ed_wr_content.config.editorWidth = '100%';
+            ed_wr_content.config.editorHeight = '300px';
+            ed_wr_content.config.editorPath = basePath + 'plugin/editor/cheditor5';
+            ed_wr_content.inputForm = 'wr_content';
+            ed_wr_content.run();
+            form.addEventListener('submit', function() {
+                document.getElementById('wr_content').value = ed_wr_content.outputBodyHTML();
+            });
+        }
+        if (textarea) {
+            textarea.removeAttribute('required');
+        }
+    })();
+
+    // 폼 중복 제출 방지
+    (function() {
+        var form = document.getElementById('fwrite');
+        var submitBtn = document.getElementById('btn_submit');
+        var isSubmitting = false;
+
+        if (form && submitBtn) {
+            form.addEventListener('submit', function(e) {
+                if (isSubmitting) {
+                    e.preventDefault();
+                    return false;
+                }
+                var subject = document.getElementById('wr_subject');
+                var content = document.getElementById('wr_content');
+                if (!subject || !subject.value.trim()) {
+                    alert('제목을 입력해주세요.');
+                    e.preventDefault();
+                    return false;
+                }
+                if (!content || !content.value.trim()) {
+                    alert('내용을 입력해주세요.');
+                    e.preventDefault();
+                    return false;
+                }
+                isSubmitting = true;
+                submitBtn.disabled = true;
+                submitBtn.style.opacity = '0.6';
+                submitBtn.style.cursor = 'not-allowed';
+                submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> 저장 중...';
+            });
+        }
+    })();
+</script>
+<script th:attr="nonce=${cspNonce}">
+/* ── STT 음성 입력 (Native + 서버 fallback + 회의록 모드) ── */
+(function() {
+    var SpeechRecog = window.SpeechRecognition || window.webkitSpeechRecognition;
+    var sttBar = document.getElementById('stt_bar');
+    var sttBtn = document.getElementById('stt_btn');
+    var sttStatus = document.getElementById('stt_status');
+    var sttInterim = document.getElementById('stt_interim');
+    var sttMeetingLabel = document.getElementById('stt_meeting_label');
+    var sttMeeting = document.getElementById('stt_meeting');
+    if (!sttBar || !sttBtn) return;
+
+    var hasMic = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+    if (!SpeechRecog && !hasMic) return;
+
+    sttBar.style.display = 'flex';
+    if (hasMic && sttMeetingLabel) sttMeetingLabel.style.display = 'inline-flex';
+
+    function insertHtml(text) {
+        var ta = document.getElementById('wr_content');
+        if (window.CKEDITOR && CKEDITOR.instances['wr_content']) {
+            var html = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\n/g,'<br>');
+            CKEDITOR.instances['wr_content'].insertHtml(html);
+        } else if (ta) {
+            var start = ta.selectionStart || ta.value.length;
+            ta.value = ta.value.substring(0, start) + text + ta.value.substring(ta.selectionEnd || start);
+            ta.selectionStart = ta.selectionEnd = start + text.length;
+            ta.focus();
+        }
+    }
+
+    function fmtTime(sec) {
+        var m = Math.floor(sec / 60), s = sec % 60;
+        return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+    }
+
+    /* ─── Native Web Speech API ─── */
+    var recognition = null;
+    if (SpeechRecog) {
+        recognition = new SpeechRecog();
+        recognition.lang = 'ko-KR';
+        recognition.continuous = true;
+        recognition.interimResults = true;
+        recognition.maxAlternatives = 1;
+        recognition.onstart = function() {
+            setActive(true, 'native');
+            sttStatus.textContent = '듣고 있습니다...';
+        };
+        recognition.onresult = function(e) {
+            var interim = '';
+            for (var i = e.resultIndex; i < e.results.length; i++) {
+                if (e.results[i].isFinal) insertHtml(e.results[i][0].transcript);
+                else interim += e.results[i][0].transcript;
+            }
+            sttInterim.textContent = interim;
+        };
+        recognition.onerror = function(e) {
+            if (e.error === 'no-speech') sttStatus.textContent = '음성이 감지되지 않았습니다';
+            else if (e.error === 'not-allowed') sttStatus.textContent = '마이크 권한이 필요합니다';
+            else sttStatus.textContent = '오류: ' + e.error;
+        };
+        recognition.onend = function() {
+            setActive(false);
+            sttStatus.textContent = '';
+            sttInterim.textContent = '';
+        };
+    }
+
+    /* ─── Server-side STT (AudioContext) ─── */
+    var sttUrl = sttBar.getAttribute('data-stt-url') || '/bbs/stt';
+    var audioCtx, mediaStream, scriptNode, pcmChunks, isMeetingRec, tickTimer, recSec;
+    var MAX_REC_SEC = 300; /* 5분 */
+
+    function f32toI16(f) {
+        var o = new Int16Array(f.length);
+        for (var i = 0; i < f.length; i++) {
+            var s = Math.max(-1, Math.min(1, f[i]));
+            o[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+        }
+        return o;
+    }
+    function downsample(buf, fromRate, toRate) {
+        if (fromRate === toRate) return buf;
+        var ratio = fromRate / toRate;
+        var len = Math.round(buf.length / ratio);
+        var out = new Float32Array(len);
+        for (var i = 0; i < len; i++) out[i] = buf[Math.round(i * ratio)];
+        return out;
+    }
+
+    async function startServerRec(meeting) {
+        isMeetingRec = meeting;
+        try {
+            mediaStream = await navigator.mediaDevices.getUserMedia({
+                audio: { channelCount: 1, echoCancellation: true, noiseSuppression: true }
+            });
+            audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            var src = audioCtx.createMediaStreamSource(mediaStream);
+            scriptNode = audioCtx.createScriptProcessor(4096, 1, 1);
+            pcmChunks = [];
+            scriptNode.onaudioprocess = function(e) {
+                pcmChunks.push(new Float32Array(e.inputBuffer.getChannelData(0)));
+            };
+            src.connect(scriptNode);
+            scriptNode.connect(audioCtx.destination);
+            setActive(true, 'server');
+            recSec = 0;
+            sttStatus.textContent = (meeting ? '회의록 ' : '') + '녹음 중 00:00 / ' + fmtTime(MAX_REC_SEC);
+            sttInterim.textContent = '말씀해 주세요';
+            tickTimer = setInterval(function() {
+                recSec++;
+                sttStatus.textContent = (isMeetingRec ? '회의록 ' : '') + '녹음 중 ' + fmtTime(recSec) + ' / ' + fmtTime(MAX_REC_SEC);
+                if (recSec >= MAX_REC_SEC && currentMode === 'server') stopServerRec();
+            }, 1000);
+        } catch(e) {
+            sttStatus.textContent = '마이크 권한이 필요합니다';
+        }
+    }
+
+    async function stopServerRec() {
+        clearInterval(tickTimer);
+        setActive(false);
+        if (scriptNode) scriptNode.disconnect();
+        if (mediaStream) mediaStream.getTracks().forEach(function(t) { t.stop(); });
+        if (!pcmChunks || pcmChunks.length === 0) {
+            sttStatus.textContent = ''; sttInterim.textContent = ''; return;
+        }
+        var durSec = recSec || 0;
+        sttStatus.textContent = isMeetingRec ? '화자 분석 중... (' + fmtTime(durSec) + ' 분량)' : '인식 중...';
+        sttInterim.textContent = durSec > 60 ? '긴 녹음은 처리에 시간이 걸립니다...' : '';
+
+        var total = pcmChunks.reduce(function(s, c) { return s + c.length; }, 0);
+        var merged = new Float32Array(total);
+        var off = 0;
+        for (var i = 0; i < pcmChunks.length; i++) { merged.set(pcmChunks[i], off); off += pcmChunks[i].length; }
+
+        var sr = audioCtx ? audioCtx.sampleRate : 48000;
+        var down = downsample(merged, sr, 16000);
+        var int16 = f32toI16(down);
+
+        if (audioCtx) { try { audioCtx.close(); } catch(ex) {} }
+
+        var csrf = document.querySelector('input[name="_csrf"]');
+        var url = sttUrl + '?encoding=LINEAR16&sampleRate=16000';
+        if (isMeetingRec) url += '&diarization=true';
+        try {
+            var resp = await fetch(url, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/octet-stream', 'X-CSRF-TOKEN': csrf ? csrf.value : '' },
+                body: int16.buffer
+            });
+            var result = await resp.json();
+            if (result.text) {
+                insertHtml(result.text);
+                sttStatus.textContent = '인식 완료';
+            } else {
+                sttStatus.textContent = result.error || '인식된 텍스트가 없습니다';
+            }
+        } catch(ex) {
+            sttStatus.textContent = '서버 연결 오류';
+        }
+        sttInterim.textContent = '';
+        setTimeout(function() { sttStatus.textContent = ''; }, 3000);
+    }
+
+    /* ─── 상태 관리 ─── */
+    var isActive = false, currentMode = null;
+
+    function setActive(active, mode) {
+        isActive = active;
+        currentMode = active ? mode : null;
+        if (active) {
+            sttBtn.classList.add('recording');
+            sttBtn.innerHTML = '<i class="fa fa-stop" aria-hidden="true"></i> 중지';
+        } else {
+            sttBtn.classList.remove('recording');
+            sttBtn.innerHTML = '<i class="fa fa-microphone" aria-hidden="true"></i> 음성 입력';
+        }
+    }
+
+    sttBtn.addEventListener('click', function() {
+        if (isActive) {
+            if (currentMode === 'native') recognition.stop();
+            else stopServerRec();
+            return;
+        }
+        var meeting = sttMeeting && sttMeeting.checked;
+        if (!meeting && recognition) {
+            sttInterim.textContent = '';
+            try { recognition.start(); } catch(e) {}
+        } else if (hasMic) {
+            startServerRec(meeting);
+        }
+    });
+})();
+</script>
+</body>
+</html>
